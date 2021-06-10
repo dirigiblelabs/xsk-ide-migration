@@ -13,8 +13,8 @@ exports.getPerspective = function () {
     var perspective = {
         "name": "XS Migration",
         "link": "../ide-migration/migration-perspective.html",
-        "order": "800",
-        "image": "dolly-flatbed"
+        "order": "820",
+        "image": "exchange"
     };
     return perspective;
 }
