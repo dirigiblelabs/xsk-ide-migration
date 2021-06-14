@@ -35,10 +35,26 @@
 
 	<!-- Project-specific stuff -->
 	<script src="js/migration-launch.js"></script>
+	<link type="text/css" rel="stylesheet" href="css/migration.css" />
 
 </head>
 
 <body ng-app="migration-launch" ng-controller="MigrationLaunchViewController" class="view migration-launch-body">
+	<div class="migration-title"><span>SAP XS - Migration Lauch Configuration</span></div>
+	<div class="flex-container">
+		<div class="migration-nav">
+			<div class="nav-progress">
+				<div class="nav-progress-line">
+				</div>
+				<div class="nav-item" ng-repeat="step in steps" ng-class="isStepActive(step.id)">
+					<div class="nav-item-indicator"></div>
+					<div class="nav-item-label">{{step.name}}</div>
+				</div>
+			</div>
+		</div>
+		<div class="migration-main">
+		</div>
+	</div>
 </body>
 
 </html>

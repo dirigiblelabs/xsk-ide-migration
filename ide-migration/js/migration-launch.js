@@ -26,6 +26,26 @@ migrationLaunchView.factory('$messageHub', [function () {
 }]);
 
 migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
+    $scope.steps = [
+        { id: 1, name: "Delivery Unit" },
+        { id: 2, name: "NEO DB Tunnel Credentials" },
+        { id: 3, name: "SAP HANA Credentials" }
+    ];
+    $scope.currentStep = $scope.steps[0];
+
+    $scope.isStepActive = function (stepId) {
+        if (stepId == $scope.currentStep.id)
+            return "active";
+        else if (stepId < $scope.currentStep.id)
+            return "done"
+        else
+            return "inactive";
+    }
+
+    $scope.goToStep = function (stepId) {
+        console.log(stepId);
+    }
+
     $messageHub.on('migration.launch', function (msg) {
     }.bind(this));
 }]);
