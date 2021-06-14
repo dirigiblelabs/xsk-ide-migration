@@ -31,6 +31,13 @@ migrationPerspective.factory('$messageHub', [function () {
 
 migrationPerspective.controller('MigrationViewController', ['Layouts', function (Layouts) {
     this.layoutModel = {
-        views: ['migration-launch']
+        views: ['migration-launch'],
+        viewSettings: {
+            'migration-launch': { isClosable: false }
+        },
+        layoutSettings: {
+            hasHeaders: false,
+            showCloseIcon: false
+        }
     };
 }]);
