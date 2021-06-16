@@ -27,23 +27,80 @@ migrationLaunchView.factory('$messageHub', [function () {
 
 migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
     $scope.steps = [
-        { id: 1, name: "Delivery Unit" },
-        { id: 2, name: "NEO DB Tunnel Credentials" },
-        { id: 3, name: "SAP HANA Credentials" }
+        { id: 1, name: "NEO DB Credentials", topicId: "migration.neo-credentials" },
+        { id: 2, name: "SAP HANA Credentials", topicId: "migration.hana-credentials" },
+        { id: 3, name: "Delivery Unit", topicId: "migration.delivery-unit" },
+        { id: 4, name: "Migration", topicId: "migration.start-migration" },
     ];
+    $scope.bottomNavHidden = false;
+    $scope.previousDisabled = false;
+    $scope.nextDisabled = true;
+    $scope.previousVisible = false;
+    $scope.nextVisible = true;
+    $scope.finishVisible = false;
+    $scope.finishDisabled = true;
     $scope.currentStep = $scope.steps[0];
+
+    $scope.setFinishVisible = function (visible) {
+        $scope.finishVisible = visible;
+    };
+
+    $scope.setFinishEnabled = function (enabled) {
+        $scope.finishDisabled = !enabled;
+    };
+
+    $scope.setNextVisible = function (visible) {
+        $scope.nextVisible = visible;
+    };
+
+    $scope.setNextEnabled = function (enabled) {
+        $scope.nextDisabled = !enabled;
+    };
+
+    $scope.setPreviousVisible = function (visible) {
+        $scope.previousVisible = visible;
+    };
+
+    $scope.setPreviousEnabled = function (enabled) {
+        $scope.previousDisabled = !enabled;
+    };
+
+    $scope.nextClicked = function () {
+        $messageHub.message($scope.currentStep.topicId, { isVisible: false });
+        for (let i = 0; i < $scope.steps.length; i++) {
+            if ($scope.steps[i].id > $scope.currentStep.id) {
+                $scope.currentStep = $scope.steps[i];
+                break;
+            }
+        };
+        $messageHub.message($scope.currentStep.topicId, { isVisible: true });
+    };
+
+    $scope.previousClicked = function () {
+        $messageHub.message($scope.currentStep.topicId, { isVisible: false });
+        for (let i = $scope.steps.length - 1; i >= 0; i--) {
+            if ($scope.steps[i].id < $scope.currentStep.id) {
+                $scope.currentStep = $scope.steps[i];
+                break;
+            }
+        };
+        $messageHub.message($scope.currentStep.topicId, { isVisible: true });
+    };
+
+    $scope.finishClicked = function () {
+        $messageHub.message($scope.currentStep.topicId, { isVisible: false });
+        $scope.currentStep = $scope.steps[$scope.steps.length - 1];
+        $messageHub.message($scope.currentStep.topicId, { isVisible: true });
+        $scope.bottomNavHidden = true;
+    };
 
     $scope.isStepActive = function (stepId) {
         if (stepId == $scope.currentStep.id)
             return "active";
         else if (stepId < $scope.currentStep.id)
-            return "done"
+            return "done";
         else
             return "inactive";
-    }
-
-    $scope.goToStep = function (stepId) {
-        console.log(stepId);
     }
 
     $messageHub.on('migration.launch', function (msg) {

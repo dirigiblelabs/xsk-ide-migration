@@ -1,0 +1,17 @@
+<!--
+  ~ Copyright (c) 2010-2021 SAP and others.
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the Eclipse Public License v2.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.eclipse.org/legal/epl-v20.html
+  ~ Contributors:
+  ~ SAP - initial API and implementation
+  -->
+<div ng-controller="DeliveryUnitViewController as duvc" ng-show="isVisible">
+	<h1 class="sectionTitle">Delivery Unit</h1>
+	<p class="description">Provide the target delivery unit</p>
+	<select class="form-control" name="duSelect" id="duSelect">
+      <option ng-click="duUnselected()">---Please select---</option>
+      <option ng-repeat="option in deliveryUnitList" value="{{option}}" ng-click="duSelected(option)">{{option}}</option>
+    </select>
+</div>

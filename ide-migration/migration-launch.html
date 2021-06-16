@@ -35,6 +35,10 @@
 
 	<!-- Project-specific stuff -->
 	<script src="js/migration-launch.js"></script>
+	<script src="js/delivery-unit.js"></script>
+	<script src="js/neo-credentials.js"></script>
+	<script src="js/hana-credentials.js"></script>
+	<script src="js/start-migration.js"></script>
 	<link type="text/css" rel="stylesheet" href="css/migration.css" />
 
 </head>
@@ -53,6 +57,18 @@
 			</div>
 		</div>
 		<div class="migration-main">
+			<div class="steps-container">
+				<div ng-include="'partials/delivery-unit.html'"></div>
+				<div ng-include="'partials/neo-credentials.html'"></div>
+				<div ng-include="'partials/hana-credentials.html'"></div>
+				<div ng-include="'partials/start-migration.html'"></div>
+
+				<div class="bottom-nav" ng-hide="bottomNavHidden">
+					<button type="button" class="btn btn-default pull-left" ng-click="previousClicked()" ng-disabled="previousDisabled" ng-show="previousVisible">Previous</button>
+					<button type="button" class="btn btn-primary pull-right" ng-click="nextClicked()" ng-disabled="nextDisabled" ng-show="nextVisible">Next</button>
+					<button type="button" class="btn btn-primary pull-right" ng-click="finishClicked()" ng-disabled="finishDisabled" ng-show="finishVisible">Finish</button>
+				</div>
+			</div>
 		</div>
 	</div>
 </body>

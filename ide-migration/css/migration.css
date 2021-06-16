@@ -9,6 +9,7 @@ html, body {
     display: flex;
     flex-direction: row;
     height: 100%;
+    overflow: hidden;
 }
 .row {
     height: 100%;
@@ -81,6 +82,7 @@ html, body {
     width: 100%;
     background: white;
     padding: 15px;
+    overflow: auto;
 }
 .migration-title {
     display: table;
@@ -94,4 +96,31 @@ html, body {
 .migration-title span {
     display: table-cell;
     vertical-align: middle;
+}
+.sectionTitle {
+    font-size: 24px;
+}
+.description {
+    margin: 20px 0 20px 0;
+}
+.form-control {
+    height: 42px;
+    font-size: 16px;
+}
+.steps-container {
+    max-width: 640px;
+    margin-right: auto;
+    margin-left: auto;
+}
+.bottom-nav {
+    width: 100%;
+    margin: 24px 0 24px 0;
+    background-color: #7e7e7e;
+}
+.bottom-nav .btn {
+    padding: 8px 12px;
+}
+label {
+    margin-top: 14px;
+    margin-bottom: 10px;
 }
