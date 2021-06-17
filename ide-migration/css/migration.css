@@ -100,9 +100,6 @@ html, body {
 .sectionTitle {
     font-size: 24px;
 }
-.description {
-    margin: 20px 0 20px 0;
-}
 .form-control {
     height: 42px;
     font-size: 16px;
@@ -114,13 +111,27 @@ html, body {
 }
 .bottom-nav {
     width: 100%;
-    margin: 24px 0 24px 0;
     background-color: #7e7e7e;
 }
-.bottom-nav .btn {
+.btn-big {
     padding: 8px 12px;
 }
 label {
     margin-top: 14px;
     margin-bottom: 10px;
+}
+.margin-top-bottom-sm {
+    margin: 16px 0 16px 0;
+}
+.margin-top-bottom-nl {
+    margin: 20px 0 20px 0;
+}
+.margin-top-bottom-lg {
+    margin: 24px 0 24px 0;
+}
+.margin-top-bottom-xl {
+    margin: 32px 0 32px 0;
+}
+.margin-top-bottom-xxl {
+    margin: 48px 0 48px 0;
 }

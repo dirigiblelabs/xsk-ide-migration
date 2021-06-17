@@ -9,7 +9,7 @@
   -->
 <div ng-controller="DeliveryUnitViewController as duvc" ng-show="isVisible">
 	<h1 class="sectionTitle">Delivery Unit</h1>
-	<p class="description">Provide the target delivery unit</p>
+	<p class="margin-top-bottom-nl">Provide the target delivery unit</p>
 	<select class="form-control" name="duSelect" id="duSelect">
       <option ng-click="duUnselected()">---Please select---</option>
       <option ng-repeat="option in deliveryUnitList" value="{{option}}" ng-click="duSelected(option)">{{option}}</option>

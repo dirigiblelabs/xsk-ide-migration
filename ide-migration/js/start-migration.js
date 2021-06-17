@@ -11,11 +11,37 @@
  */
 migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
     $scope.isVisible = false;
+    $scope.migrationFinished = false;
+    $scope.progressBarPercentage = 10;
+    let titleList = [
+        "Configuration processing, starting the migration...",
+        "Migration complete"
+    ]
+    $scope.progressTitle = titleList[0];
+
+    $scope.migrationDone = function () {
+        $scope.migrationFinished = true;
+    };
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     $messageHub.on('migration.start-migration', function (msg) {
         if ("isVisible" in msg.data) {
             $scope.$apply(function () {
                 $scope.isVisible = msg.data.isVisible;
+            });
+            sleep(1000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 25; }); });
+            sleep(2000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 40; }); });
+            sleep(3000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 75; }); });
+            sleep(4000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 90; }); });
+            sleep(6000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 100; }); });
+            sleep(7000).then(() => {
+                $scope.$apply(function () {
+                    $scope.migrationFinished = true;
+                    $scope.progressTitle = titleList[1];
+                });
             });
         }
     }.bind(this));
