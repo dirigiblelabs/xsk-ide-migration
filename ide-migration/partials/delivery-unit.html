@@ -9,9 +9,20 @@
   -->
 <div ng-controller="DeliveryUnitViewController as duvc" ng-show="isVisible">
 	<h1 class="sectionTitle">Delivery Unit</h1>
-	<p class="margin-top-bottom-nl">Provide the target delivery unit</p>
-	<select class="form-control" name="duSelect" id="duSelect">
-      <option ng-click="duUnselected()">---Please select---</option>
-      <option ng-repeat="option in deliveryUnitList" value="{{option}}" ng-click="duSelected(option)">{{option}}</option>
-    </select>
+	<p class="margin-top-bottom-nl">{{descriptionText}}</p>
+	<div class="progress margin-top-bottom-lg" ng-hide="duLoaded">
+		<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+			aria-valuemax="100" style="width: 100%">
+		</div>
+	</div>
+	<div class="dropdown-container" ng-show="duLoaded">
+		<button class="btn btn-default btn-big dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ng-click="dropdownClick()">{{duDropdownText}}<span class="caret"></span></button>
+		<ul class="dropdown-menu dropdown-menu-searchable">
+			<li class="dropdown-input">
+				<input class="form-control" type="text" placeholder="Search..." ng-keyup="filterFunction()" ng-model="dropdownSearch"></li>
+			<li role="separator" class="divider"></li>
+			<li class="dropdown-item" ng-repeat="option in deliveryUnitList" ng-click="duSelected(option)">
+				{{option}}</li>
+		</ul>
+	</div>
 </div>

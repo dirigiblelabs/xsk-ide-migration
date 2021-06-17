@@ -24,11 +24,13 @@ migrationLaunchView.controller('HanaCredentialsViewController', ['$scope', '$mes
         if ("isVisible" in msg.data) {
             $scope.$apply(function () {
                 $scope.isVisible = msg.data.isVisible;
-                $scope.userInput();
-                $scope.$parent.setPreviousVisible(true);
-                $scope.$parent.setPreviousEnabled(true);
-                $scope.$parent.setNextVisible(true);
-                $scope.$parent.setFinishVisible(false);
+                if (msg.data.isVisible) {
+                    $scope.userInput();
+                    $scope.$parent.setPreviousVisible(true);
+                    $scope.$parent.setPreviousEnabled(true);
+                    $scope.$parent.setNextVisible(true);
+                    $scope.$parent.setFinishVisible(false);
+                }
             });
         }
     }.bind(this));

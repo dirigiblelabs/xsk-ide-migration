@@ -32,17 +32,19 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$mess
             $scope.$apply(function () {
                 $scope.isVisible = msg.data.isVisible;
             });
-            sleep(1000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 25; }); });
-            sleep(2000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 40; }); });
-            sleep(3000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 75; }); });
-            sleep(4000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 90; }); });
-            sleep(6000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 100; }); });
-            sleep(7000).then(() => {
-                $scope.$apply(function () {
-                    $scope.migrationFinished = true;
-                    $scope.progressTitle = titleList[1];
+            if (msg.data.isVisible) {
+                sleep(1000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 25; }); });
+                sleep(2000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 40; }); });
+                sleep(3000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 75; }); });
+                sleep(4000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 90; }); });
+                sleep(6000).then(() => { $scope.$apply(function () { $scope.progressBarPercentage = 100; }); });
+                sleep(7000).then(() => {
+                    $scope.$apply(function () {
+                        $scope.migrationFinished = true;
+                        $scope.progressTitle = titleList[1];
+                    });
                 });
-            });
+            }
         }
     }.bind(this));
 }]);

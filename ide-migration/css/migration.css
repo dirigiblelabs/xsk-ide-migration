@@ -101,7 +101,8 @@ html, body {
     font-size: 24px;
 }
 .form-control {
-    height: 42px;
+    height: auto;
+    padding: 10px 12px 10px 12px;
     font-size: 16px;
 }
 .steps-container {

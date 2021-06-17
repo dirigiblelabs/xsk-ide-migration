@@ -65,6 +65,10 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         $scope.previousDisabled = !enabled;
     };
 
+    $scope.setBottomNavEnabled = function (enabled) {
+        $scope.bottomNavHidden = !enabled;
+    };
+
     $scope.nextClicked = function () {
         $messageHub.message($scope.currentStep.topicId, { isVisible: false });
         for (let i = 0; i < $scope.steps.length; i++) {
