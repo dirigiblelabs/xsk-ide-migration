@@ -122,17 +122,37 @@ label {
     margin-bottom: 10px;
 }
 .margin-top-bottom-sm {
-    margin: 16px 0 16px 0;
+    margin-top: 16px;
+    margin-bottom: 16px;
 }
 .margin-top-bottom-nl {
-    margin: 20px 0 20px 0;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 .margin-top-bottom-lg {
-    margin: 24px 0 24px 0;
+    margin-top: 24px;
+    margin-bottom: 24px;
 }
 .margin-top-bottom-xl {
-    margin: 32px 0 32px 0;
+    margin-top: 32px;
+    margin-bottom: 32px;
 }
 .margin-top-bottom-xxl {
-    margin: 48px 0 48px 0;
+    margin-top: 48px;
+    margin-bottom: 48px;
+}
+.margin-top-sm {
+    margin-top: 16px;
+}
+.margin-top-nl {
+    margin-top: 20px;
+}
+.margin-top-lg {
+    margin-top: 24px;
+}
+.margin-top-xl {
+    margin-top: 32px;
+}
+.margin-top-xxl {
+    margin-top: 48px;
 }

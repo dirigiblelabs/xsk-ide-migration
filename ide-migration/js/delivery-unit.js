@@ -11,28 +11,27 @@
  */
 migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
     $scope.isVisible = false;
-    $scope.showDropdownList = false;
+    $scope.duDropdownDisabled = true;
     $scope.duDropdownText = "---Please select---";
+    $scope.workspacesDropdownText = "---Please select---";
+    $scope.workspaces = ["W1", "W2", "W3", "W4", "W5", "W6"];
+    $scope.workspacesList = $scope.workspaces;
     $scope.deliveryUnits = ["DU1", "DU2", "DU3", "DU4", "DU5", "DU6", "DU7", "FO1", "LO2"];
     $scope.deliveryUnitList = $scope.deliveryUnits;
-    $scope.duLoaded = false;
+    $scope.dataLoaded = false;
     let selectedDeliveyUnit = undefined;
     let descriptionList = [
         "Please wait while we get all delivery units...",
-        "Provide the target delivery unit"
+        "Provide the target workspace and delivery unit"
     ];
     $scope.descriptionText = descriptionList[0];
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    $scope.dropdownClick = function () {
-        $scope.showDropdownList = !$scope.showDropdownList;
     };
 
-    $scope.filterFunction = function () {
-        if ($scope.dropdownSearch) {
+    $scope.filterDU = function () {
+        if ($scope.duSearch) {
             let filtered = [];
             for (let i = 0; i < $scope.deliveryUnits.length; i++) {
                 if ($scope.deliveryUnits[i].toLowerCase().includes($scope.dropdownSearch.toLowerCase())) {
@@ -43,7 +42,27 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$messag
         } else {
             $scope.deliveryUnitList = $scope.deliveryUnits;
         }
-    }
+    };
+
+    $scope.filterWorkspaces = function () {
+        if ($scope.workspacesSearch) {
+            let filtered = [];
+            for (let i = 0; i < $scope.workspaces.length; i++) {
+                if ($scope.workspaces[i].toLowerCase().includes($scope.workspacesSearch.toLowerCase())) {
+                    filtered.push($scope.workspaces[i]);
+                }
+            }
+            $scope.workspacesList = filtered;
+        } else {
+            $scope.workspacesList = $scope.workspaces;
+        }
+    };
+
+    $scope.workspaceSelected = function (workspace) {
+        selectedWorkspace = workspace;
+        $scope.workspacesDropdownText = workspace;
+        $scope.duDropdownDisabled = false;
+    };
 
     $scope.duSelected = function (deliveryUnit) {
         selectedDeliveyUnit = deliveryUnit;
@@ -54,7 +73,10 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$messag
     $messageHub.on('migration.delivery-unit', function (msg) {
         if ("isVisible" in msg.data) {
             $scope.$apply(function () {
-                $scope.duLoaded = false;
+                $scope.dataLoaded = false;
+                $scope.duDropdownDisabled = true;
+                $scope.duDropdownText = "---Please select---";
+                $scope.workspacesDropdownText = "---Please select---";
                 $scope.descriptionText = descriptionList[0];
                 $scope.isVisible = msg.data.isVisible;
                 if (msg.data.isVisible) {
@@ -73,7 +95,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$messag
             if (msg.data.isVisible) {
                 sleep(4000).then(() => {
                     $scope.$apply(function () {
-                        $scope.duLoaded = true;
+                        $scope.dataLoaded = true;
                         $scope.descriptionText = descriptionList[1];
                         $scope.$parent.setBottomNavEnabled(true);
                     });
