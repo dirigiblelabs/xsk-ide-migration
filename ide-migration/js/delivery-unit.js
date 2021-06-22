@@ -34,7 +34,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$messag
         if ($scope.duSearch) {
             let filtered = [];
             for (let i = 0; i < $scope.deliveryUnits.length; i++) {
-                if ($scope.deliveryUnits[i].toLowerCase().includes($scope.dropdownSearch.toLowerCase())) {
+                if ($scope.deliveryUnits[i].toLowerCase().includes($scope.duSearch.toLowerCase())) {
                     filtered.push($scope.deliveryUnits[i]);
                 }
             }
