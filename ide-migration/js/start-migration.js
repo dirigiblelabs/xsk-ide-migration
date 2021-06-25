@@ -31,7 +31,7 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
             "du": duData.du.name,
         }
         $http.post(
-            "/services/v4/migration/r2",
+            "/public/v4/migration-operations/execute-migration",
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
