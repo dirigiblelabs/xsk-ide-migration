@@ -33,5 +33,17 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
                 }
             });
         }
+        if ("getData" in msg.data) {
+            if (msg.data.getData === "all") {
+                $messageHub.message(msg.data.controller, {
+                    neoData: {
+                        "hostName": $scope.hostName,
+                        "subaccount": $scope.subaccount,
+                        "username": $scope.username,
+                        "password": $scope.password
+                    }
+                });
+            }
+        }
     }.bind(this));
 }]);

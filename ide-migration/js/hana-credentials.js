@@ -33,5 +33,16 @@ migrationLaunchView.controller('HanaCredentialsViewController', ['$scope', '$mes
                 }
             });
         }
+        if ("getData" in msg.data) {
+            if (msg.data.getData === "all") {
+                $messageHub.message(msg.data.controller, {
+                    hanaData: {
+                        "databaseSchema": $scope.schemaName,
+                        "username": $scope.username,
+                        "password": $scope.password
+                    }
+                });
+            }
+        }
     }.bind(this));
 }]);
