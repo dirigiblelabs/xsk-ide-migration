@@ -11,6 +11,7 @@
  */
 migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
     $scope.isVisible = true;
+    $scope.passwordVisible = false;
 
     $scope.userInput = function () {
         if ($scope.hostName && $scope.subaccount && $scope.username && $scope.password) {
@@ -18,6 +19,10 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
         } else {
             $scope.$parent.setNextEnabled(false);
         };
+    };
+
+    $scope.showPassword = function () {
+        $scope.passwordVisible = !$scope.passwordVisible;
     };
 
     $messageHub.on('migration.neo-credentials', function (msg) {
