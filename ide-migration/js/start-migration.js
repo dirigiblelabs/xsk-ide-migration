@@ -20,6 +20,8 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
     $scope.progressTitle = titleList[0];
     let neoData = undefined;
     let hanaData = undefined;
+    let defaultErrorTitle = "Error migrating project";
+    let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
 
     function startMigration(duData) {
         body = {
@@ -35,13 +37,42 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
-            if (response.status == 201) {
-                $scope.migrationFinished = true;
-                $scope.progressTitle = titleList[1];
-                console.log(response.data);
+            $scope.migrationFinished = true;
+            $scope.progressTitle = titleList[1];
+        }, function (response) {
+            if (response.data) {
+                if ("error" in response.data) {
+                    if ("message" in response.data.error) {
+                        $messageHub.announceAlertError(
+                            defaultErrorTitle,
+                            response.data.error.message
+                        );
+                    } else {
+                        $messageHub.announceAlertError(
+                            defaultErrorTitle,
+                            defaultErrorDesc
+                        );
+                    }
+                    console.error(`HTTP $response.status`, response.data.error);
+                } else {
+                    $messageHub.announceAlertError(
+                        defaultErrorTitle,
+                        defaultErrorDesc
+                    );
+                }
+            } else {
+                $messageHub.announceAlertError(
+                    defaultErrorTitle,
+                    defaultErrorDesc
+                );
             }
+            errorOccurred();
         });
     };
+
+    function errorOccurred() {
+        $scope.$parent.previousClicked();
+    }
 
     $scope.migrationDone = function () {
         $scope.migrationFinished = true;

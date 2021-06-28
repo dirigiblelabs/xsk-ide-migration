@@ -29,6 +29,8 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     let connectionId = undefined;
     let neoData = undefined;
     let hanaData = undefined;
+    let defaultErrorTitle = "Error loading delivery units";
+    let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
 
     function getDUData() {
         body = {
@@ -40,19 +42,49 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
-            if (response.status == 200) {
-                connectionId = response.data.connectionId;
-                $scope.workspaces = response.data.workspaces;
-                $scope.workspacesList = $scope.workspaces;
-                $scope.deliveryUnits = response.data.du;
-                $scope.deliveryUnitList = $scope.deliveryUnits;
-                $scope.$parent.setBottomNavEnabled(true);
-                $scope.descriptionText = descriptionList[1];
-                $scope.dataLoaded = true;
-                console.log(response.data);
+            connectionId = response.data.connectionId;
+            $scope.workspaces = response.data.workspaces;
+            $scope.workspacesList = $scope.workspaces;
+            $scope.deliveryUnits = response.data.du;
+            $scope.deliveryUnitList = $scope.deliveryUnits;
+            $scope.$parent.setBottomNavEnabled(true);
+            $scope.descriptionText = descriptionList[1];
+            $scope.dataLoaded = true;
+        }, function (response) {
+            if (response.data) {
+                if ("error" in response.data) {
+                    if ("message" in response.data.error) {
+                        $messageHub.announceAlertError(
+                            defaultErrorTitle,
+                            response.data.error.message
+                        );
+                    } else {
+                        $messageHub.announceAlertError(
+                            defaultErrorTitle,
+                            defaultErrorDesc
+                        );
+                    }
+                    console.error(`HTTP $response.status`, response.data.error);
+                } else {
+                    $messageHub.announceAlertError(
+                        defaultErrorTitle,
+                        defaultErrorDesc
+                    );
+                }
+            } else {
+                $messageHub.announceAlertError(
+                    defaultErrorTitle,
+                    defaultErrorDesc
+                );
             }
+            errorOccurred();
         });
     };
+
+    function errorOccurred() {
+        $scope.$parent.previousClicked();
+        $scope.$parent.setBottomNavEnabled(true);
+    }
 
     $scope.filterDU = function () {
         if ($scope.duSearch) {
