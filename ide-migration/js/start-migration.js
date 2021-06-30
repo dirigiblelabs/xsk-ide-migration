@@ -10,20 +10,23 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http', '$messageHub', function ($scope, $http, $messageHub) {
-    $scope.isVisible = false;
+    $scope.isVisible = true;
     $scope.migrationFinished = false;
     $scope.progressBarPercentage = 100;
     let titleList = [
-        "Configuration processing, starting the migration...",
+        "Migration in progress",
         "Migration complete"
     ]
     $scope.progressTitle = titleList[0];
+    $scope.statusMessage = "Configuration processing...";
     let neoData = undefined;
     let hanaData = undefined;
     let defaultErrorTitle = "Error migrating project";
     let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
+    let selectedWorkspace = '';
 
     function startMigration(duData) {
+        selectedWorkspace = duData.workspace;
         body = {
             neo: neoData,
             hana: hanaData,
@@ -37,8 +40,9 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
-            $scope.migrationFinished = true;
             $scope.progressTitle = titleList[1];
+            $scope.statusMessage = `Project '${response.data.projectName}' was successfully created.`;
+            $scope.migrationFinished = true;
         }, function (response) {
             if (response.data) {
                 if ("error" in response.data) {
@@ -74,8 +78,19 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
         $scope.$parent.previousClicked();
     }
 
-    $scope.migrationDone = function () {
-        $scope.migrationFinished = true;
+    $scope.goToWorkspace = function () {
+        $messageHub.message(
+            "workspace.set",
+            {
+                workspace: selectedWorkspace
+            }
+        );
+        $messageHub.message(
+            "ide-core.openPerspective",
+            {
+                link: "../ide/index.html"
+            }
+        );
     };
 
     $messageHub.on('migration.start-migration', function (msg) {
