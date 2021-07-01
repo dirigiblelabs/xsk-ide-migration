@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http', '$messageHub', function ($scope, $http, $messageHub) {
-    $scope.isVisible = true;
+    $scope.isVisible = false;
     $scope.migrationFinished = false;
     $scope.progressBarPercentage = 100;
     let titleList = [
