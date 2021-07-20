@@ -86,6 +86,7 @@ class HanaRepository{
         var hanaRepositoryInstance = this;
 
         let done = 0;
+        let result = [];
         for(let i = 0; i < packages.length; i++) {
             const pkg = packages[i];
             hanaRepositoryInstance._listObjects(pkg, function(error, objects){
@@ -94,10 +95,10 @@ class HanaRepository{
                 // }
                 
                 done++;
+                result = result.concat(objects)
                 if (done === packages.length) {
-                    var flatObjects = [].concat.apply([], objects);
                     
-                    return callback(null, packages, flatObjects);
+                    return callback(null, packages, result);
                 }
             });
 
@@ -157,10 +158,9 @@ class HanaRepository{
         //logUtil.trace('Loading language and content for: ' + repositoryObject.fullName);
         
         hanaRepositoryInstance._getOriginalLanguage(repositoryObject.PackageName.packageName, originalLanguage => {
-            hanaRepositoryInstance._getFileContent(repositoryObject, content => {
+            hanaRepositoryInstance._getFileContent(repositoryObject, (err, content) => {
                 repositoryObject.originalLanguage = originalLanguage;
                 repositoryObject.content = content;
-
                 return callback(null, repositoryObject);
             });
         });
