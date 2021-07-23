@@ -1,10 +1,10 @@
-var RepositoryRequest = require('migration/repository-request');
-var RepositoryResponse = require('migration/repository-response');
-var RepositoryObject = require('migration/repository-object');
-var RepositoryPackage = require('migration/repository-package');
+var RepositoryRequest = require('migration/repository/repository-request');
+var RepositoryResponse = require('migration/repository/repository-response');
+var RepositoryObject = require('migration/repository/repository-object');
+var RepositoryPackage = require('migration/repository/repository-package');
 
-var packageFilter = require('migration/package-filter');
-var ObjectTypeFilter = require('migration/object-type-filter');
+var packageFilter = require('migration/repository/package-filter');
+var ObjectTypeFilter = require('migration/repository/object-type-filter');
 const utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 const Utils = require('migration/utils');
 const bytesUtils = require("io/v4/bytes");

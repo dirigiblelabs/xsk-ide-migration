@@ -1,5 +1,5 @@
-var RepositoryHeader = require('migration/repository-header');
-var ResponseAttachmentParser = require('migration/response-attachment-parser');
+var RepositoryHeader = require('migration/repository/repository-header');
+var ResponseAttachmentParser = require('migration/repository/response-attachment-parser');
 
 let utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 var bytesUtils = require("io/v4/bytes");
