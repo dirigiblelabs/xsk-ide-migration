@@ -1,4 +1,4 @@
-let HanaRepository = require('server/migration/repository/hana-repository');
+let HanaRepository = require('xsk-ide-migration/server/migration/repository/hana-repository');
 let workspaceManager = require("platform/v4/workspace");
 var database = require("db/v4/database");
 
@@ -9,22 +9,22 @@ class MigrationController {
     repo = null;
 
     setupConnection(db, neoCredentials, cuser, hanaPass) {
-        database.createDataSource(db, "com.sap.db.jdbc.Driver", neoCredentials['url'], cuser, hanaPass, null);
+            database.createDataSource(db, "com.sap.db.jdbc.Driver", neoCredentials['url'], cuser, hanaPass, null);
 
-        this.connection = database.getConnection('dynamic', db);
-        this.repo = new HanaRepository(this.connection);
-
+            this.connection = database.getConnection('dynamic', db);
+            this.repo = new HanaRepository(this.connection);
     }
 
     getAllDeliveryUnits(completion) {
-
+        
         if (!this.repo) {
+            
             return completion("Repository not initialized", null);       
         }
+        
         try {
             this.repo.getAllDeliveryUnits(function(error, result){
                 // console.log("Delivery units fetched: " + JSON.stringify(result));
-
                 completion(null, result);
             });
         } catch (error) {

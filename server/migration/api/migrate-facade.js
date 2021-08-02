@@ -1,50 +1,73 @@
-let HanaRepository = require('server/migration/repository/hana-repository');
+let HanaRepository = require('xsk-ide-migration/server/migration/repository/hana-repository');
 let workspaceManager = require("platform/v4/workspace");
 
-const MigrationController = require('server/migration/controllers/migrate');
-const TunnelController = require('server/migration/controllers/tunnel-controller');
+const MigrationController = require('xsk-ide-migration/server/migration/controllers/migrate');
+const TunnelController = require('xsk-ide-migration/server/migration/controllers/tunnel-controller');
 
 class MigrationFacade {
 
     constructor() {
+        console.log("Migration facade initialized");
         this.migrationController = new MigrationController();
         this.tunnelController = new TunnelController();
+        
     }
 
     setupConnection(ctx, req, res) {
+        this.migrationController = new MigrationController();
         const body = req.getJSON();
-
-        this.migrationController.setupConnection(body.db, body.neoCredentials, body.cuser, body.hanaPass);
-
-        res.print({success: true});
+        try {
+            this.migrationController.setupConnection(body.db, body.neoCredentials, body.cuser, body.hanaPass);
+        } catch (error) {
+            return res.print(JSON.stringify({success: false, error}));
+        }
+       
+        res.print(JSON.stringify({success: true}));
     }
 
     getAllDeliveryUnits(ctx, req, res) {
-
-        this.migrationController.getAllDeliveryUnits((err, dus) => {
-            if (err) {
+        this.migrationController = new MigrationController();
+        const body = req.getJSON();
+        try {
+            this.migrationController.setupConnection(body.db, body.neoCredentials, body.cuser, body.hanaPass);
+            this.migrationController.getAllDeliveryUnits((err, dus) => {
+                
+            if (err) {              
                 return res.print({success: false, err})
             }
-            return res.print({success: true, dus});
+            res.print(JSON.stringify({success: true, dus}));
         })
+        } catch(err) {
+            res.print(JSON.stringify({success: false, err}));
+        }
+        
     }
 
     copyAllFilesForDu(ctx, req, res) {
-        const du = req.getJSON().du;
-
-        this.migrationController.copyAllFilesForDu(du, err => {
-            return res.print({success: err === null});
-        })
+        this.migrationController = new MigrationController();
+        const body = req.getJSON();
+        const du = body.du;
+        try {
+            this.migrationController.setupConnection(body.db, body.neoCredentials, body.cuser, body.hanaPass);
+            this.migrationController.copyAllFilesForDu(du, err => {
+                return res.print(JSON.stringify({success: err === null}));
+            })
+        } catch (err) {
+            res.print(JSON.stringify({success: false, err}))
+        }
+        
     }
 
     openTunnel(ctx, req, res) {
-
-        const credentials = req.getJSON().credentials;
-
-        this.tunnelController.openTunnel(credentials, (err, result) => {
-            res.print(neoCredentials);
-        })
-
+        this.tunnelController = new TunnelController();
+        try {
+            const credentials = req.getJSON().credentials;
+            this.tunnelController.openTunnel(credentials, (err, result) => {
+                res.print(JSON.stringify(result));
+            })
+        }catch (error) {
+            res.print({error});
+        }
         
     }
 

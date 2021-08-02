@@ -1,20 +1,20 @@
 var rs = require("http/v4/rs");
 
-const MigrationController = require('migration/controllers/migration-controller');
-const TunnelController = require('migration/controllers/tunnel-controller');
+const MigrationFacade = require("xsk-ide-migration/server/migration/api/migrate-facade")
 
 class MigrationRouter {
 
     start() {
+      let facade = new MigrationFacade()
       rs.service()
       .resource("open-tunnel")
-        .post(TunnelController.openTunnel)
+        .post(facade.openTunnel)
       .resource("setup")
-        .post(MigrationController.setupConnection)
+        .post(facade.setupConnection)
       .resource("delivery-units")
-        .post(MigrationController.getAllDeliveryUnits)
+        .post(facade.getAllDeliveryUnits)
       .resource("copy-files")
-        .post(MigrationController.copyAllFilesForDu)
+        .post(facade.copyAllFilesForDu)
       .execute();
     }
 }
