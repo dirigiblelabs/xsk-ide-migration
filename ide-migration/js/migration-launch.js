@@ -55,6 +55,15 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     $scope.finishDisabled = true;
     $scope.currentStep = $scope.steps[0];
 
+    $scope.isDarkMode = function () {
+        const value = `; ${document.cookie}`;
+        const parts = value.split("; dirigible-theme=");
+        if (parts.length === 2 && parts.pop().split(';').shift() === "default") {
+            return true;
+        }
+        else return false;
+    }
+
     $scope.setFinishVisible = function (visible) {
         $scope.finishVisible = visible;
     };
