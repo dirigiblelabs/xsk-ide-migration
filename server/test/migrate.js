@@ -1,5 +1,5 @@
-let MigrationController = require('server/migration/controllers/migrate');
-let TunnelController = require('server/migration/controllers/tunnel-controller')
+let MigrationController = require('xsk-ide-migration/server/migration/controllers/migrate');
+let TunnelController = require('xsk-ide-migration/server/migration/controllers/tunnel-controller')
 
 let migrationController = new MigrationController();
 let tunnelController = new TunnelController();
@@ -16,7 +16,7 @@ function openTunnelTest() {
         db: ""
     }
 
-    tunnelController.openTunnel(credentials, result => {
+    tunnelController.openTunnel(credentials, (err, result) => {
         console.log(result)
         if (result.host) {
             neoCredentials = result;

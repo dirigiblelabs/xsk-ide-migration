@@ -1,4 +1,4 @@
-var RepositoryHeader = require('migration/repository-header');    
+var RepositoryHeader = require('xsk-ide-migration/server/migration/repository/repository-header');    
     
 
 class RepositoryRequest {

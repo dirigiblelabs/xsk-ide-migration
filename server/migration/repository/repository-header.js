@@ -1,4 +1,4 @@
-const Utils = require('migration/utils');
+const Utils = require('xsk-ide-migration/server/migration/utils');
 
 class RepositoryHeader {
 
