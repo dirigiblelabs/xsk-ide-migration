@@ -13,7 +13,7 @@ class TunnelController {
 
         const script = `bash ${canonicalPrefix + neoPath} -a "${account}" -h "${host}" -u "${user}" -p "${password}" -i "${db}"`;
 
-        const response = exec.exec(script, {"NEO_CLIENT_PATH": canonicalPrefix + "xsk-ide-migration/server/neo/tools/neo.sh"});
+        const response = exec.exec(script, {"NEO_CLIENT_PATH": "/usr/local/tomcat/migration-tools/neo/neo-sdk/tools/neo.sh"});
         console.log(response)
         const neoCredentials = JSON.parse(response.substring(response.indexOf("{")));
 

@@ -1,10 +1,8 @@
 #!/bin/bash
 
 EXECUTION_TYPE=open
-
-#ROOT_DIRNAME="$( cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd )"
-#TEMP_JAVA_HOME="${ROOT_DIRNAME}/sapjvm_8_jre"
-#NEO_CLIENT_PATH="${ROOT_DIRNAME}/tools/neo/tools/neo.sh"
+JAVA_HOME=$JAVA8_HOME 
+PATH=$JAVA8_HOME/bin:$PATH
 
 while getopts ":a:h:u:p:i:t:e" option; do
   case "${option}" in
