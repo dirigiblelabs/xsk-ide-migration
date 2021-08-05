@@ -1,8 +1,8 @@
-let MigrationController = require('xsk-ide-migration/server/migration/controllers/migrate');
-let TunnelController = require('xsk-ide-migration/server/migration/controllers/tunnel-controller')
+const MigrationController = require('xsk-ide-migration/server/migration/controllers/migrate');
+const TunnelController = require('xsk-ide-migration/server/migration/controllers/tunnel-controller')
 
-let migrationController = new MigrationController();
-let tunnelController = new TunnelController();
+const migrationController = new MigrationController();
+const tunnelController = new TunnelController();
 
 let neoCredentials = null;
 

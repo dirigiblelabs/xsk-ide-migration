@@ -1,22 +1,21 @@
-let exec = require("core/v4/exec");
-let canonicalPrefix = "/usr/local/tomcat/target/dirigible/repository/root/users/dirigible/workspace/"
-let neoPath = "xsk-ide-migration/server/migration/neo.sh";
+const exec = require("core/v4/exec");
+const canonicalPrefix = "/usr/local/tomcat/target/dirigible/repository/root/users/dirigible/workspace/"
+const neoPath = "xsk-ide-migration/server/migration/neo.sh";
 
 class TunnelController {
 
     openTunnel(credentials, completion) {
-        let account = credentials.account;
-        let host = credentials.host;
-        let user = credentials.user;
-        let password = credentials.password;
-        let db = credentials.db;
+        const account = credentials.account;
+        const host = credentials.host;
+        const user = credentials.user;
+        const password = credentials.password;
+        const db = credentials.db;
 
         const script = `bash ${canonicalPrefix + neoPath} -a "${account}" -h "${host}" -u "${user}" -p "${password}" -i "${db}"`;
-        // console.log(script);
 
-        let response = exec.exec(script, {"NEO_CLIENT_PATH": canonicalPrefix + "xsk-ide-migration/server/neo/tools/neo.sh"});
+        const response = exec.exec(script, {"NEO_CLIENT_PATH": canonicalPrefix + "xsk-ide-migration/server/neo/tools/neo.sh"});
         console.log(response)
-        let neoCredentials = JSON.parse(response.substring(response.indexOf("{")));
+        const neoCredentials = JSON.parse(response.substring(response.indexOf("{")));
 
         completion(null, neoCredentials);
     }

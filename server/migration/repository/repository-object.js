@@ -98,7 +98,7 @@ class RepositoryObject {
         this._writeContent = false;
     }
     
-    
+ 
     writeContent(){
         return this._writeContent;
     }

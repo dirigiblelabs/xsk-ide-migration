@@ -24,7 +24,6 @@ class MigrationController {
         
         try {
             this.repo.getAllDeliveryUnits(function(error, result){
-                // console.log("Delivery units fetched: " + JSON.stringify(result));
                 completion(null, result);
             });
         } catch (error) {
@@ -36,7 +35,7 @@ class MigrationController {
         if (!this.repo) {
             return completion("Repository not initialized", null);
         }
-        //const du = {"ach":"","caption":"","lastUpdate":"2021-06-18 11:47:41.1100000","name":"MIGR_TOOLS","ppmsID":"","responsible":"","sp_PPMS_ID":"","vendor":"migration.sap.com","version":"","version_patch":"","version_sp":""};
+
         let context = {};
         try {
             this.repo.getAllFilesForDu(context, du, (err, files, packages) => {

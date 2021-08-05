@@ -1,4 +1,4 @@
-var rs = require("http/v4/rs");
+const rs = require("http/v4/rs");
 
 const MigrationFacade = require("xsk-ide-migration/server/migration/api/migrate-facade")
 

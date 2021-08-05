@@ -1,18 +1,18 @@
-var log = console;
+let log = console;
 
-var GENERIC_FILTER_PACKAGES = [
+let GENERIC_FILTER_PACKAGES = [
                     ".externalToolBuilders",
                     ".settings"];
 
-var QUOTE_PATTERN = /\"([^\"]*)\"/;
+let QUOTE_PATTERN = /\"([^\"]*)\"/;
 
 function PackageFilter() {
 
     this.splitName = function(name) {
-        var n = name;
-        var paths = [];
+        let n = name;
+        let paths = [];
         while(n.length > 0 && (m = n.match(QUOTE_PATTERN)) != null) {
-            var pre = n.substring(0, m.index);
+            let pre = n.substring(0, m.index);
             if (pre[pre.length-1] === '.') {
                 pre = pre.substring(0, pre.length-1);
             }
@@ -32,13 +32,13 @@ function PackageFilter() {
     }
 
     this.filterGenericPackages = function(packageList) {
-        var that = this;
-        var filteredPackages = [];
+        let that = this;
+        let filteredPackages = [];
         packageList.forEach(function (pkg) {
-            var name = pkg.packageName;
-            var paths = that.splitName(name);
-            var filtered = false;
-            for (var i=0; i < GENERIC_FILTER_PACKAGES.length; i++) {
+            let name = pkg.packageName;
+            let paths = that.splitName(name);
+            let filtered = false;
+            for (let i=0; i < GENERIC_FILTER_PACKAGES.length; i++) {
                 if (paths[paths.length-1] === GENERIC_FILTER_PACKAGES[i]) {
                     log.trace("Filtered package " + name);
                     filtered = true;
@@ -54,14 +54,13 @@ function PackageFilter() {
 
     this.filterPackages = function(context, opackageList) {
 
-        var packageList = this.filterGenericPackages(opackageList);
-        var newPackageList = [];
+        let packageList = this.filterGenericPackages(opackageList);
+        let newPackageList = [];
         if ("exclude-packages" in context) {
-            var exclude = context["exclude-packages"];
+            let exclude = context["exclude-packages"];
             packageList.forEach(function (candPackage) {
-                var filtered = false;
+                let filtered = false;
                 exclude.forEach(function (excludePackage) {
-                    // log.error("exclude is " + excludePackage.name)
                     if (excludePackage.subpackages) {
                         if (!(candPackage.packageName.startsWith(excludePackage.package))) {                            
                         } else {

@@ -9,12 +9,11 @@ class RepositoryPackage{
     }
     
     get packageFile() {
-        var path = this.packageName.replace(/\./g, '/');
+        let path = this.packageName.replace(/\./g, '/');
 
         return '/' + path;
     }
-    
-    
+     
 }
 
 module.exports = RepositoryPackage;

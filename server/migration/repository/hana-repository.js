@@ -1,10 +1,8 @@
-var RepositoryRequest = require('xsk-ide-migration/server/migration/repository/repository-request');
-var RepositoryResponse = require('xsk-ide-migration/server/migration/repository/repository-response');
-var RepositoryObject = require('xsk-ide-migration/server/migration/repository/repository-object');
-var RepositoryPackage = require('xsk-ide-migration/server/migration/repository/repository-package');
+const RepositoryResponse = require('xsk-ide-migration/server/migration/repository/repository-response');
+const RepositoryObject = require('xsk-ide-migration/server/migration/repository/repository-object');
+const RepositoryPackage = require('xsk-ide-migration/server/migration/repository/repository-package');
 
-var packageFilter = require('xsk-ide-migration/server/migration/repository/package-filter');
-var ObjectTypeFilter = require('xsk-ide-migration/server/migration/repository/object-type-filter');
+const packageFilter = require('xsk-ide-migration/server/migration/repository/package-filter');
 const utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 const Utils = require('xsk-ide-migration/server/migration/utils');
 const bytesUtils = require("io/v4/bytes");
@@ -17,14 +15,14 @@ class HanaRepository{
 
     getAllDeliveryUnits(callback) {
 
-        var requestMethod = {
+        let requestMethod = {
             "action": "get",
             "what": "allDeliveryUnits"
         };
 
-        var repositoryRequest = requestMethod;
+        let repositoryRequest = requestMethod;
 
-        var processResponse = function(error, response){
+        let processResponse = function(error, response){
             if(error){
                 return callback(error);
             }
@@ -35,14 +33,14 @@ class HanaRepository{
     }
 
     _getAllPackagesForDu(deliveryUnit, callback){
-        var hanaRepositoryInstance = this;
+        let hanaRepositoryInstance = this;
 
         hanaRepositoryInstance._listPackages(deliveryUnit, function(error, packages){
             if(error){
                 return callback(error);
             }
             
-            var flatPackages = [].concat.apply([], packages);
+            let flatPackages = [].concat.apply([], packages);
             hanaRepositoryInstance._convertPackagesToRepositoryPackages(flatPackages, callback);
         });
 
@@ -50,16 +48,15 @@ class HanaRepository{
 
     _listPackages(du, callback){
 
-        var requestMethod = {
+        let requestMethod = {
             action: 'list',
             what: 'packages',
             delivery_unit: du.name
         };
 
-        // var repositoryRequest = new RepositoryRequest(1, requestMethod);
-        var repositoryRequest = requestMethod;
+        let repositoryRequest = requestMethod;
 
-        var processResponse = function(error, response) {
+        let processResponse = function(error, response) {
             if(error){
                 return callback(error);
             }
@@ -71,11 +68,11 @@ class HanaRepository{
 
     _convertPackagesToRepositoryPackages(packages, callback){
         //This needs to be done because the repo-api names the package-name as "package" while halm refers to it as "packageName"
-        var repositoryPackages = [];
+        let repositoryPackages = [];
 
         for(let i = 0; i < packages.length; i++) {
             let pkg = packages[i];
-            var repositoryPackage = new RepositoryPackage(pkg);
+            let repositoryPackage = new RepositoryPackage(pkg);
             repositoryPackages.push(repositoryPackage);
         }
         callback(null, repositoryPackages);
@@ -83,16 +80,13 @@ class HanaRepository{
     }
 
     _getAllObjectsForPackages(packages, callback){
-        var hanaRepositoryInstance = this;
+        let hanaRepositoryInstance = this;
 
         let done = 0;
         let result = [];
         for(let i = 0; i < packages.length; i++) {
             const pkg = packages[i];
             hanaRepositoryInstance._listObjects(pkg, function(error, objects){
-                // if(error){
-                //     return processingFinished(error);
-                // }
                 
                 done++;
                 result = result.concat(objects)
@@ -107,19 +101,16 @@ class HanaRepository{
     }
 
     _listObjects(pkg, callback){
-        var requestMethod = {
+        let requestMethod = {
             action: 'list',
             what: 'objects',
             'package': pkg.packageName
         };
 
-        // console.trace('Starting List objects for package: ' + pkg.packageName);
+        let repositoryRequest = requestMethod;
+        let hanaRepositoryInstance = this;
 
-        var repositoryRequest = requestMethod;
-        var hanaRepositoryInstance = this;
-
-        var processResponse = function(error, response) {
-            //console.trace('List objects finished for package: ' + pkg.packageName + ' #objects: ' + response.content.objects.length);
+        let processResponse = function(error, response) {
             if(error){
                 return callback(error);
             }
@@ -133,12 +124,12 @@ class HanaRepository{
 
     _convertObjectsToRepositoryObjects(objects, callback){
 
-        var hanaRepositoryInstance = this;
+        let hanaRepositoryInstance = this;
 
         let repositoryObjects = [];
         for(let i = 0; i < objects.length; i++) {
             const object = objects[i];
-            var repositoryObject = new RepositoryObject(object.name, object.package, object.suffix);
+            let repositoryObject = new RepositoryObject(object.name, object.package, object.suffix);
             
             hanaRepositoryInstance._addLanguageAndContent(repositoryObject, (err, result) => {
                 
@@ -153,9 +144,7 @@ class HanaRepository{
     }
 
     _addLanguageAndContent(repositoryObject, callback){
-        var hanaRepositoryInstance = this;
-
-        //logUtil.trace('Loading language and content for: ' + repositoryObject.fullName);
+        let hanaRepositoryInstance = this;
         
         hanaRepositoryInstance._getOriginalLanguage(repositoryObject.PackageName.packageName, originalLanguage => {
             hanaRepositoryInstance._getFileContent(repositoryObject, (err, content) => {
@@ -169,15 +158,15 @@ class HanaRepository{
 
     _getOriginalLanguage(packageName, callback){
 
-        var requestMethod = {
+        let requestMethod = {
             action: 'read',
             what: 'package',
             'package': packageName
         };
 
-        var repositoryRequest = requestMethod;
+        let repositoryRequest = requestMethod;
 
-        var processResponse = function(error, response) {
+        let processResponse = function(error, response) {
             if(error){
                 return callback(error);
             }
@@ -190,7 +179,7 @@ class HanaRepository{
 
 
     _getFileContent(repositoryObject, callback){
-        var requestMethod = {
+        let requestMethod = {
             action: "read",
             what: "object",
             object: {
@@ -200,13 +189,13 @@ class HanaRepository{
             }
         };
 
-        var repositoryRequest = requestMethod;
+        let repositoryRequest = requestMethod;
 
-        var processResponse = function(error, response) {
+        let processResponse = function(error, response) {
             if(error){
                 return callback(error);
             }
-            var fileContent;
+            let fileContent;
 
             if(response.attachments[0].length == 0 && response.attachments[1].length > 0){
                 fileContent = response.attachments[1];
@@ -229,17 +218,16 @@ class HanaRepository{
         });
 
         let dedupedList = Array.from(deduped.values());
-        // let filteredList = ObjectTypeFilter.filterObjects(globalContext.includedObjectTypes, globalContext.excludedObjectTypes, dedupedList);
         outerCallback(null, dedupedList, packages)
     }
 
     getAllFilesForDu(globalContext, deliveryUnit, callback){
 
-        var hanaRepositoryInstance = this;
+        let hanaRepositoryInstance = this;
 
         this._getAllPackagesForDu(deliveryUnit, (err, packages) => {
    
-            var filteredPackages = packageFilter.filterPackages(globalContext, packages) || [];
+            let filteredPackages = packageFilter.filterPackages(globalContext, packages) || [];
      
             hanaRepositoryInstance._getAllObjectsForPackages(filteredPackages, (err, packages, fileList) => {
 
@@ -251,7 +239,7 @@ class HanaRepository{
 
     _executeRequest(repositoryRequest, outerCallback){
     
-        var statement = this.hdbClient.prepareCall("CALL SYS.REPOSITORY_REST(?, ?)");
+        let statement = this.hdbClient.prepareCall("CALL SYS.REPOSITORY_REST(?, ?)");
         let bytes = this._encode(JSON.stringify(repositoryRequest), []);
         statement.setBytes(1, bytesUtils.toJavaBytes(bytes));
         statement.execute();

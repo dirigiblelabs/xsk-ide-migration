@@ -3,9 +3,9 @@ const Utils = require('xsk-ide-migration/server/migration/utils');
 class ResponseAttachmentParser {
 
     static parse(responseAttachmentBuffer, numberOfAttachments) {
-        var attachments = [];
-        var lengthStart = 0;
-        var lengthEnd = 4;
+        let attachments = [];
+        let lengthStart = 0;
+        let lengthEnd = 4;
 
         for(let i = 1; i <= numberOfAttachments; i++) {
             let lengthBuffer = responseAttachmentBuffer.slice(lengthStart, lengthEnd);

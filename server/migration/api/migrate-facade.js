@@ -1,6 +1,3 @@
-let HanaRepository = require('xsk-ide-migration/server/migration/repository/hana-repository');
-let workspaceManager = require("platform/v4/workspace");
-
 const MigrationController = require('xsk-ide-migration/server/migration/controllers/migrate');
 const TunnelController = require('xsk-ide-migration/server/migration/controllers/tunnel-controller');
 
