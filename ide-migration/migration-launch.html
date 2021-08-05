@@ -8,8 +8,7 @@
   ~ Contributors:
   ~ SAP - initial API and implementation
   -->
-<html lang="en" ng-app="migration-launch" ng-controller="MigrationLaunchViewController"
-	xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
 	<meta charset="utf-8" />
@@ -40,14 +39,12 @@
 	<script src="js/neo-credentials.js"></script>
 	<script src="js/hana-credentials.js"></script>
 	<script src="js/start-migration.js"></script>
-	<link type="text/css" rel="stylesheet"
-		ng-href="{{isDarkMode() ? 'css/migration-dark.css':'css/migration-light.css'}}" />
-	<link type="text/css" rel="stylesheet"
-		ng-href="{{isDarkMode() ? 'css/dropdown-dark.css':'css/dropdown-light.css'}}" />
+	<link type="text/css" rel="stylesheet" href="../../../../services/v4/js/theme/resources.js/migration.css" />
+	<link type="text/css" rel="stylesheet" href="../../../../services/v4/js/theme/resources.js/dropdown.css" />
 
 </head>
 
-<body class="view migration-launch-body">
+<body ng-app="migration-launch" ng-controller="MigrationLaunchViewController" class="view migration-launch-body">
 	<div class="migration-title"><span>SAP XS - Migration Lauch Configuration</span></div>
 	<div class="flex-container">
 		<div class="migration-nav">
