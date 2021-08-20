@@ -11,12 +11,12 @@ let callback = __context.get("__async_callback");
 function openTunnelTest() {
     console.log("opening tunnel...")
     let credentials = {
-        account: "",
-        host: "",
-        user: "",
-        password: "",
-        db: ""
-    }
+            account: __context.get("__account"),
+            host: __context.get("__host"),
+            user: __context.get("__user"),
+            password: __context.get("__password"),
+            db: __context.get("__db")
+        }
 
     tunnelController.openTunnel(credentials, (err, result) => {
         console.log(result)
@@ -31,9 +31,9 @@ function openTunnelTest() {
 }
 
 function setupConnectionTest() {
-    let db = ""
-    let cuser = "";
-    let hanaPass = "";
+    let db = __context.get("__db")
+    let cuser = __context.get("__cuser");
+    let hanaPass = __context.get("__hana_pass");
     migrationController.setupConnection(db, neoCredentials, cuser, hanaPass) 
     getAllDUsTest()
 }
@@ -46,8 +46,6 @@ function getAllDUsTest() {
             migrationController.copyAllFilesForDu(du, (err) => {
                 if (err) {
                     throw err;
-                    console.log("Error copying")
-                    console.error(err);
                 } else {
                     callback.callAssertTrue(true);
                     console.log("MIGRATION DONE!")
