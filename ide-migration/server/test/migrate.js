@@ -1,5 +1,5 @@
-const MigrationController = require('xsk-ide-migration/ide-migration/server/migration/controllers/migrate');
-const TunnelController = require('xsk-ide-migration/ide-migration/server/migration/controllers/tunnel-controller')
+const MigrationController = require('ide-migration/server/migration/controllers/migrate');
+const TunnelController = require('ide-migration/server/migration/controllers/tunnel-controller')
 
 const migrationController = new MigrationController();
 const tunnelController = new TunnelController();
