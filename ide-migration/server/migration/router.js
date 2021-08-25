@@ -1,6 +1,6 @@
 const rs = require("http/v4/rs");
 
-const MigrationFacade = require("xsk-ide-migration/server/migration/api/migrate-facade")
+const MigrationFacade = require("xsk-ide-migration/ide-migration/server/migration/api/migrate-facade")
 
 class MigrationRouter {
 

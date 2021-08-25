@@ -1,7 +1,7 @@
 const exec = require("core/v4/exec");
 const canonicalPrefix = "/usr/local/tomcat/target/dirigible/repository/root/users/dirigible/workspace/"
 
-const neoPath = __context.get("__neo_path") || canonicalPrefix + "xsk-ide-migration/server/migration/neo.sh";
+const neoPath = __context.get("__neo_path") || canonicalPrefix + "xsk-ide-migration/ide-migration/server/migration/neo.sh";
 const neoClientPath = __context.get("__neo_client_path") || "/usr/local/tomcat/migration-tools/neo/neo-sdk/tools/neo.sh"
 
 class TunnelController {

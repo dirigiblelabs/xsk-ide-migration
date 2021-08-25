@@ -1,10 +1,10 @@
-const RepositoryResponse = require('xsk-ide-migration/server/migration/repository/repository-response');
-const RepositoryObject = require('xsk-ide-migration/server/migration/repository/repository-object');
-const RepositoryPackage = require('xsk-ide-migration/server/migration/repository/repository-package');
+const RepositoryResponse = require('xsk-ide-migration/ide-migration/server/migration/repository/repository-response');
+const RepositoryObject = require('xsk-ide-migration/ide-migration/server/migration/repository/repository-object');
+const RepositoryPackage = require('xsk-ide-migrationide-migration//server/migration/repository/repository-package');
 
-const packageFilter = require('xsk-ide-migration/server/migration/repository/package-filter');
+const packageFilter = require('xsk-ide-migration/ide-migration/server/migration/repository/package-filter');
 const utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
-const Utils = require('xsk-ide-migration/server/migration/utils');
+const Utils = require('xsk-ide-migration/ide-migration/server/migration/utils');
 const bytesUtils = require("io/v4/bytes");
 
 class HanaRepository{

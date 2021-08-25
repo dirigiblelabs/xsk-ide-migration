@@ -1,5 +1,5 @@
-let RepositoryHeader = require('xsk-ide-migration/server/migration/repository/repository-header');
-let ResponseAttachmentParser = require('xsk-ide-migration/server/migration/repository/response-attachment-parser');
+let RepositoryHeader = require('xsk-ide-migration/ide-migration/server/migration/repository/repository-header');
+let ResponseAttachmentParser = require('xsk-ide-migration/ide-migration/server/migration/repository/response-attachment-parser');
 
 let utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 

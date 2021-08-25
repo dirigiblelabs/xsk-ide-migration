@@ -1,4 +1,4 @@
-let HanaRepository = require('xsk-ide-migration/server/migration/repository/hana-repository');
+let HanaRepository = require('xsk-ide-migration/ide-migration/server/migration/repository/hana-repository');
 let workspaceManager = require("platform/v4/workspace");
 var database = require("db/v4/database");
 
