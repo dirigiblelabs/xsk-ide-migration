@@ -1,8 +1,9 @@
 const exec = require("core/v4/exec");
+const config = require("core/v4/configurations");
 const canonicalPrefix = "/usr/local/tomcat/target/dirigible/repository/root/users/dirigible/workspace/"
 
 const neoPath = __context.get("__neo_path");
-const neoClientPath = __context.get("__neo_client_path") || config.get("user.dir") + "/target/dirigible/repository/root/registry/public/resources-neo-sdk/neo-sdk/tools/neo.sh";
+const neoClientPath = __context.get("__neo_client_path") || config.get("user.dir") + "/target/dirigible/resources-neo-sdk/neo-sdk/tools/neo.sh";
 
 class TunnelController {
 
