@@ -17,9 +17,12 @@ class TunnelController {
 
         const response = exec.exec(script, {"NEO_CLIENT_PATH": neoClientPath});
         console.log(response)
-        const neoCredentials = JSON.parse(response.substring(response.indexOf("{")));
+        const neoOutput = JSON.parse(response.substring(response.indexOf("{")));
 
-        completion(null, neoCredentials);
+        if (neoOutput.errorMsg) {
+          throw "[NEO CLIENT ERROR]" + neoOutput.errorMsg
+        }
+        completion(null, neoOutput);
     }
 }
 
