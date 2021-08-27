@@ -9,7 +9,7 @@ class MigrationRouter {
       rs.service()
       .resource("open-tunnel")
         .post(facade.openTunnel)
-      .resource("setup")
+      .resource("setup-migration")
         .post(facade.setupConnection)
       .resource("delivery-units")
         .post(facade.getAllDeliveryUnits)
