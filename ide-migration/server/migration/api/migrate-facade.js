@@ -1,6 +1,7 @@
 const MigrationController = require('ide-migration/server/migration/controllers/migrate');
 const TunnelController = require('ide-migration/server/migration/controllers/tunnel-controller');
-let workspaceManager = require("platform/v4/workspace");
+const tasksService = require('bpm/v4/tasks');
+const processService = require('bpm/v4/process');
 
 class MigrationFacade {
 
@@ -8,108 +9,53 @@ class MigrationFacade {
         console.log("Migration facade initialized");
         this.migrationController = new MigrationController();
         this.tunnelController = new TunnelController();
-        
     }
 
-    setupConnection(ctx, req, res) {
-        this.migrationController = new MigrationController();
-        const body = req.getJSON();
-        try {
-            this.migrationController.setupConnection(body.db, body.neoCredentials, body.cuser, body.hanaPass);
-        } catch (error) {
-            return res.print(JSON.stringify({success: false, error}));
-        }
-       
-        res.print(JSON.stringify({success: true}));
+    startProcess(ctx, req, res) {
+        var process = require('bpm/v4/process');
+        const userDataJson = req.getJSON(); // "{\"neo\":{\"hostName\":\"eu2.hana.ondemand.com\",\"subaccount\":\"e6c9b8dff\",\"username\":\"v.mutafov@sap.com\",\"password\":\"test123\"},\"hana\":{\"databaseSchema\":\"slbinno\",\"username\":\"C5326377\",\"password\":\"test123321\"},\"connectionId\":\"63e31364-7d7e-4740-9f56-e05579268e58\",\"vendor\":\"migration.sap.com\",\"workspace\":\"workspace\",\"du\":\"MIGR_TOOLS\"}"
+
+        const processInstanceId = process.start('migrationProcess', {"userData": JSON.stringify(userDataJson)});
+
+        const response = {
+          processInstanceId: processInstanceId
+        };
+
+        res.print(JSON.stringify(response));
     }
 
-    getAllDeliveryUnits(ctx, req, res) {
-        this.migrationController = new MigrationController();
-        const body = req.getJSON();
-        try {
-            this.migrationController.setupConnection(body.db, body.neoCredentials, body.cuser, body.hanaPass);
-            this.migrationController.getAllDeliveryUnits((err, dus) => {
-                
-                if (err) {              
-                    return res.print({success: false, err})
-                }
-                res.print(JSON.stringify({success: true, dus}));
-             })
-        } catch(err) {
-            res.print(JSON.stringify({success: false, err}));
+    selectDeliveryUnitAndWorkspaceForProcess(ctx, req, res) {
+      const userDataJson = req.getJSON();
+      const tasksJson = org.eclipse.dirigible.api.v3.bpm.BpmFacade.getTasks();
+      const tasks = JSON.parse(tasksJson);
+      for (const task of tasks) {
+        if (task.processInstanceId === userDataJson.processInstanceId.toString()) {
+          tasksService.completeTask(task.id, {"userData": JSON.stringify(userDataJson)});
+          break;
         }
-        
+      }
     }
 
-    copyAllFilesForDu(ctx, req, res) {
-        this.migrationController = new MigrationController();
-        const body = req.getJSON();
-        const du = {name: body.du, vendor: body.vendor};
-        try {
-            this.migrationController.setupConnection(body.hana.databaseSchema, body.neoTunnelOutput, body.hana.username, body.hana.password);
-            this.migrationController.copyAllFilesForDu(body.workspace, du, err => {
-                return res.print(JSON.stringify({success: err === null}));
-            })
-        } catch (err) {
-            res.print(JSON.stringify({success: false, err}))
-        }
-        
-    }
+    getProcessState(ctx, req, res) {
+      const userDataJson = req.getJSON();
+      const processInstanceIdString = userDataJson.processInstanceId.toString();
+      const migrationState = processService.getVariable(processInstanceIdString, "migrationState");
+      const response = {
+        migrationState: migrationState
+      };
 
-    openTunnel(ctx, req, res) {
-        this.tunnelController = new TunnelController();
-        try {
-            const credentials = req.getJSON().credentials;
-            this.tunnelController.openTunnel(credentials, (err, result) => {
-                res.print(JSON.stringify(result));
-            })
-        }catch (error) {
-            res.print({error});
-        }
-        
-    }
+      if (migrationState === "WORKSPACES_LISTED") {
+        const workspacesJson = processService.getVariable(processInstanceIdString, "workspaces");
+        const deliveryUnitsJson = processService.getVariable(processInstanceIdString, "deliveryUnits");
+        const connectionId = processService.getVariable(processInstanceIdString, "connectionId");
+        response.workspaces = JSON.parse(workspacesJson);
+        response.deliveryUnits = JSON.parse(deliveryUnitsJson);
+        response.connectionId = connectionId;
+      }
 
-    openTunnelAndFechDus(ctx, req, res) {
-        
-        this.tunnelController = new TunnelController();
-        this.migrationController = new MigrationController();
-        try {
-            let body = req.getJSON();
-            const credentialsNeo = {
-                account: body.neo.subaccount,
-                user: body.neo.username,
-                password: body.neo.password,
-                db: body.hana.databaseSchema,
-                host: body.neo.hostName
-            }
-            this.tunnelController.openTunnel(credentialsNeo, (err, tunnelResult) => {
-
-                try {
-                    this.migrationController.setupConnection(credentialsNeo.db, tunnelResult, body.hana.username, body.hana.password);
-                    this.migrationController.getAllDeliveryUnits((err, dus) => {
-                        if (err) {       
-                            console.log(err);       
-                            return res.print({success: false, err})
-                        }
-                        const result = {
-                            neoTunnelOutput: tunnelResult,
-                            workspaces: workspaceManager.getWorkspacesNames(),
-                            du: dus
-                        }
-                        res.print(JSON.stringify(result));
-                    });
-                } catch (error) {
-                    return res.print(JSON.stringify({success: false, error}));
-                }
-            })
-        }catch (error) {
-            res.print({error});
-        }
-        
+      res.print(JSON.stringify(response));
     }
 
 }
 
 module.exports = MigrationFacade;
-
-

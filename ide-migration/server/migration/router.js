@@ -4,17 +4,17 @@ const MigrationFacade = require("ide-migration/server/migration/api/migrate-faca
 
 class MigrationRouter {
 
-    start() {
-      let facade = new MigrationFacade()
-      rs.service()
-      .resource("setup-migration")
-        .post(facade.openTunnelAndFechDus)
-      .resource("delivery-units")
-        .post(facade.getAllDeliveryUnits)
-      .resource("execute-migration")
-        .post(facade.copyAllFilesForDu)
+  start() {
+    let facade = new MigrationFacade()
+    rs.service()
+      .resource("start-process")
+        .post(facade.startProcess)
+      .resource("continue-process")
+        .post(facade.selectDeliveryUnitAndWorkspaceForProcess)
+      .resource("get-process")
+        .post(facade.getProcessState)
       .execute();
-    }
+  }
 }
 
 module.exports = MigrationRouter;

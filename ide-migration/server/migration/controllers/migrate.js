@@ -8,10 +8,10 @@ class MigrationController {
     connection = null;
     repo = null;
 
-    setupConnection(db, neoCredentials, cuser, hanaPass) {
-            database.createDataSource(db, "com.sap.db.jdbc.Driver", neoCredentials['jdbcUrl'], cuser, hanaPass, null);
+    setupConnection(databaseName, databaseUser, databaseUserPassword) {
+            database.createDataSource(databaseName, "com.sap.db.jdbc.Driver", "jdbc:sap://localhost:30015/", databaseUser, databaseUserPassword, null);
 
-            this.connection = database.getConnection('dynamic', db);
+            this.connection = database.getConnection('dynamic', databaseName);
             this.repo = new HanaRepository(this.connection);
     }
 
@@ -31,7 +31,7 @@ class MigrationController {
         } 
     }
 
-    copyAllFilesForDu(workspaceName, du, completion) {
+    copyAllFilesForDu(du, workspaceName, completion) {
         if (!this.repo) {
             return completion("Repository not initialized", null);
         }
