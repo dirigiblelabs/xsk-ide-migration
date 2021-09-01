@@ -7,9 +7,9 @@ const utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 const Utils = require('ide-migration/server/migration/utils');
 const bytesUtils = require("io/v4/bytes");
 
-class HanaRepository{
-    
-    constructor(hdbClient){
+class HanaRepository {
+
+    constructor(hdbClient) {
         this.hdbClient = hdbClient;
     }
 
@@ -23,13 +23,13 @@ class HanaRepository{
         return response.content.deliveryUnits
     }
 
-    _getAllPackagesForDu(deliveryUnit){
+    _getAllPackagesForDu(deliveryUnit) {
         const packages = this._listPackages(deliveryUnit)
         let flatPackages = [].concat.apply([], packages);
         return this._convertPackagesToRepositoryPackages(flatPackages);
     }
 
-    _listPackages(du){
+    _listPackages(du) {
         let requestMethod = {
             action: 'list',
             what: 'packages',
@@ -40,11 +40,11 @@ class HanaRepository{
         return response.content.packages;
     }
 
-    _convertPackagesToRepositoryPackages(packages){
+    _convertPackagesToRepositoryPackages(packages) {
         //This needs to be done because the repo-api names the package-name as "package" while halm refers to it as "packageName"
         let repositoryPackages = [];
 
-        for(let i = 0; i < packages.length; i++) {
+        for (let i = 0; i < packages.length; i++) {
             let pkg = packages[i];
             let repositoryPackage = new RepositoryPackage(pkg);
             repositoryPackages.push(repositoryPackage);
@@ -52,18 +52,18 @@ class HanaRepository{
         return repositoryPackages;
     }
 
-    _getAllObjectsForPackages(packages){
+    _getAllObjectsForPackages(packages) {
         let done = 0;
         let result = [];
-        for(let i = 0; i < packages.length; i++) {
+        for (let i = 0; i < packages.length; i++) {
             const pkg = packages[i];
             const objects = this._listObjects(pkg)
-                
+
             done++;
             result = result.concat(objects)
-            if (done === packages.length) {    
+            if (done === packages.length) {
                 return {
-                    packages: packages, 
+                    packages: packages,
                     fileList: result
                 };
             }
@@ -71,7 +71,7 @@ class HanaRepository{
 
     }
 
-    _listObjects(pkg){
+    _listObjects(pkg) {
         let requestMethod = {
             action: 'list',
             what: 'objects',
@@ -82,23 +82,23 @@ class HanaRepository{
         return this._convertObjectsToRepositoryObjects(response.content.objects);
     }
 
-    _convertObjectsToRepositoryObjects(objects){
+    _convertObjectsToRepositoryObjects(objects) {
         let hanaRepositoryInstance = this;
         let repositoryObjects = [];
-        for(let i = 0; i < objects.length; i++) {
+        for (let i = 0; i < objects.length; i++) {
             const object = objects[i];
             let repositoryObject = new RepositoryObject(object.name, object.package, object.suffix);
-            
-            const result = hanaRepositoryInstance._addLanguageAndContent(repositoryObject)    
+
+            const result = hanaRepositoryInstance._addLanguageAndContent(repositoryObject)
             repositoryObjects.push(result);
-                
+
             if (repositoryObjects.length === objects.length) {
                 return repositoryObjects;
             }
         }
     }
 
-    _addLanguageAndContent(repositoryObject){
+    _addLanguageAndContent(repositoryObject) {
         const originalLanguage = this._getOriginalLanguage(repositoryObject.PackageName.packageName)
         const content = this._getFileContent(repositoryObject);
         repositoryObject.originalLanguage = originalLanguage;
@@ -106,7 +106,7 @@ class HanaRepository{
         return repositoryObject;
     }
 
-    _getOriginalLanguage(packageName){
+    _getOriginalLanguage(packageName) {
         let requestMethod = {
             action: 'read',
             what: 'package',
@@ -118,7 +118,7 @@ class HanaRepository{
     }
 
 
-    _getFileContent(repositoryObject){
+    _getFileContent(repositoryObject) {
         let requestMethod = {
             action: "read",
             what: "object",
@@ -132,7 +132,7 @@ class HanaRepository{
         const response = this._executeRequest(requestMethod);
         let fileContent;
 
-        if(response.attachments[0].length == 0 && response.attachments[1].length > 0){
+        if (response.attachments[0].length == 0 && response.attachments[1].length > 0) {
             fileContent = response.attachments[1];
         } else {
             fileContent = response.attachments[0];
@@ -149,22 +149,22 @@ class HanaRepository{
         });
 
         let dedupedList = Array.from(deduped.values());
-        
+
         return {
             files: dedupedList,
             packages: packages
         };
     }
 
-    getAllFilesForDu(globalContext, deliveryUnit){
+    getAllFilesForDu(globalContext, deliveryUnit) {
         const packages = this._getAllPackagesForDu(deliveryUnit)
         let filteredPackages = packageFilter.filterPackages(globalContext, packages) || [];
         const packagesAndFilesListObject = this._getAllObjectsForPackages(filteredPackages)
         return this._packagesCollected(packagesAndFilesListObject.packages, packagesAndFilesListObject.fileList);
     }
 
-    _executeRequest(repositoryRequest){
-    
+    _executeRequest(repositoryRequest) {
+
         let statement = this.hdbClient.prepareCall("CALL SYS.REPOSITORY_REST(?, ?)");
         let bytes = this._encode(JSON.stringify(repositoryRequest), []);
         statement.setBytes(1, bytesUtils.toJavaBytes(bytes));
@@ -174,7 +174,7 @@ class HanaRepository{
         let response = new RepositoryResponse(result);
         statement.close();
 
-        if(response.content['error-code'] && response.content['error-code'] != 0){
+        if (response.content['error-code'] && response.content['error-code'] != 0) {
             throw new Error('' + response.content['error-code'] + ' ' + response.content['error-msg'] + ' ' + response.content['error-arg']);
         }
         return response;
@@ -210,14 +210,14 @@ class HanaRepository{
         }
         return finalRequestArray;
 
-  }
+    }
 
-  _decode(respAsByteArr) {
-      
+    _decode(respAsByteArr) {
+
         let json = "";
         let bArrAttachmentCount = [];
         Utils.arrayCopy(respAsByteArr, 6, bArrAttachmentCount, 0, 4);
-        
+
         let bArrJSONLength = [];
         Utils.arrayCopy(respAsByteArr, 10, bArrJSONLength, 0, 4);
         jsonLength = Utils.byteArrayToInt(bArrJSONLength);
