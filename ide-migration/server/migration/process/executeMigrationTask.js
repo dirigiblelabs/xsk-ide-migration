@@ -23,13 +23,5 @@ const userDatabaseData = userData.hana;
 const migrationController = new MigrationController();
 migrationController.setupConnection(userDatabaseData.databaseSchema, userDatabaseData.username, userDatabaseData.password);
 
-migrationController.copyAllFilesForDu(userData.du, userData.workspace, err => {
-  process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');
-})
-
-while (true) {
-  const status = process.getVariable(execution.getId(), 'migrationState');
-  if (status === "MIGRATION_EXECUTED") {
-    break;
-  }
-}
+migrationController.copyAllFilesForDu(userData.du, userData.workspace);
+process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');

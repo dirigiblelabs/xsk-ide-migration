@@ -8,6 +8,6 @@ const userData = JSON.parse(userDataJson);
 
 const TunnelController = require('ide-migration/server/migration/controllers/tunnel-controller');
 const tunnelController = new TunnelController();
-const openedTunnelData = tunnelController.closeTunnel(userData.sessionId);
+tunnelController.closeTunnel(userData.sessionId);
 
 process.setVariable(execution.getId(), 'migrationState', 'TUNNEL_CLOSED');

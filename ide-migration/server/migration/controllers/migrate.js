@@ -15,42 +15,26 @@ class MigrationController {
             this.repo = new HanaRepository(this.connection);
     }
 
-    getAllDeliveryUnits(completion) {
-        
+    getAllDeliveryUnits() {
         if (!this.repo) {
-            
-            return completion("Repository not initialized", null);       
+            throw new Error("Repository not initialized");
         }
         
-        try {
-            this.repo.getAllDeliveryUnits(function(error, result){
-                completion(null, result);
-            });
-        } catch (error) {
-            completion(error)
-        } 
+            return this.repo.getAllDeliveryUnits();
     }
 
-    copyAllFilesForDu(du, workspaceName, completion) {
+    copyAllFilesForDu(du, workspaceName) {
         if (!this.repo) {
-            return completion("Repository not initialized", null);
+            throw new Error("Repository not initialized");
         }
 
         let context = {};
-        try {
-            this.repo.getAllFilesForDu(context, du, (err, files, packages) => {
-                console.log("Files list: " + JSON.stringify(files));
-                this.dumpSourceFiles(workspaceName, files, du, function(err){
-                    completion(err);
-                })
-            })
-        } catch (error) {
-            console.error(error)
-            completion(error);
-        } 
+            const filesAndPackagesObject = this.repo.getAllFilesForDu(context, du)
+            console.log("Files list: " + JSON.stringify(filesAndPackagesObject.files));
+            this.dumpSourceFiles(workspaceName, filesAndPackagesObject.files, du)
     }
 
-    dumpSourceFiles(workspaceName, lists, du, callback) {
+    dumpSourceFiles(workspaceName, lists, du) {
         let workspace;
         if (!workspaceName) {
             workspace = workspaceManager.getWorkspace(du.name)
@@ -72,7 +56,6 @@ class MigrationController {
             let projectFile = project.createFile(file.RunLocation);
             projectFile.setContent(file._content);
         }
-        callback(null);
     }
 
 }

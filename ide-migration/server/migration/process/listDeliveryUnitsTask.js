@@ -21,21 +21,9 @@ const userDatabaseData = userData.hana;
 
 const migrationController = new MigrationController();
 migrationController.setupConnection(userDatabaseData.databaseSchema, userDatabaseData.username, userDatabaseData.password);
-migrationController.getAllDeliveryUnits((err, dus) => {
-  if (err) {
-    return res.print({success: false, err})
-  }
-  process.setVariable(execution.getId(), 'deliveryUnits', JSON.stringify(dus));
-  process.setVariable(execution.getId(), 'migrationState', 'DELIVERY_UNITS_LISTED');
-});
-
-while (true) {
-  const status = process.getVariable(execution.getId(), 'migrationState');
-  if (status === "DELIVERY_UNITS_LISTED") {
-    break;
-  }
-}
-
+const deliveryUnits = migrationController.getAllDeliveryUnits()
+process.setVariable(execution.getId(), 'deliveryUnits', JSON.stringify(deliveryUnits));
+process.setVariable(execution.getId(), 'migrationState', 'DELIVERY_UNITS_LISTED');
 
 process.setVariable(execution.getId(), 'migrationState', 'WORKSPACES_LISTING');
 const workspaceManager = require("platform/v4/workspace");
