@@ -40,14 +40,14 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
         }
 
         $http.post(
-            "/services/v4/js/ide-migration/server/app.js/start-process",
+            "/services/v4/js/ide-migration/server/migrate-facade.js/start-process",
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
             processId = body.processInstanceId = response.data.processInstanceId;
             const timer = setInterval(function(){
               $http.post(
-                          "/services/v4/js/ide-migration/server/app.js/get-process",
+                          "/services/v4/js/ide-migration/server/migrate-facade.js/get-process",
                           JSON.stringify(body),
                           { headers: { 'Content-Type': 'application/json' } }
                       ).then(function (response) {
