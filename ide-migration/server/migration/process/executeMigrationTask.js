@@ -9,7 +9,7 @@
  * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-const MigrationController = require('ide-migration/server/migration/controllers/migrate');
+const MigrationService = require('ide-migration/server/migration/controllers/migration-service');
 
 const process = require('bpm/v4/process');
 const execution = process.getExecutionContext();
@@ -20,8 +20,8 @@ const userDataJson = process.getVariable(execution.getId(), 'userData');
 const userData = JSON.parse(userDataJson);
 const userDatabaseData = userData.hana;
 
-const migrationController = new MigrationController();
-migrationController.setupConnection(userDatabaseData.databaseSchema, userDatabaseData.username, userDatabaseData.password);
+const migrationService = new MigrationService();
+migrationService.setupConnection(userDatabaseData.databaseSchema, userDatabaseData.username, userDatabaseData.password);
 
-migrationController.copyAllFilesForDu(userData.du, userData.workspace);
+migrationService.copyAllFilesForDu(userData.du, userData.workspace);
 process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');

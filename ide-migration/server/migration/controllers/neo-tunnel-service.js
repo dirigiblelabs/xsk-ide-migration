@@ -3,7 +3,7 @@ const config = require("core/v4/configurations");
 
 const neoClientPath = config.get("user.dir") + "/target/dirigible/resources-neo-sdk/tools/neo.sh";
 
-class TunnelController {
+class NeoTunnelService {
 
     openTunnel(credentials, completion) {
         const account = credentials.account;
@@ -41,4 +41,4 @@ class TunnelController {
     }
 }
 
-module.exports = TunnelController;
+module.exports = NeoTunnelService;

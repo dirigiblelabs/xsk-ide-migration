@@ -3,7 +3,7 @@ let workspaceManager = require("platform/v4/workspace");
 var database = require("db/v4/database");
 
 
-class MigrationController {
+class MigrationService {
 
     connection = null;
     repo = null;
@@ -60,6 +60,6 @@ class MigrationController {
 
 }
 
-module.exports = MigrationController;
+module.exports = MigrationService;
 
 

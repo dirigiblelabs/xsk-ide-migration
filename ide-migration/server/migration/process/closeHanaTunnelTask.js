@@ -6,8 +6,8 @@ process.setVariable(execution.getId(), 'migrationState', 'TUNNEL_CLOSING');
 const userDataJson = process.getVariable(execution.getId(), 'userData');
 const userData = JSON.parse(userDataJson);
 
-const TunnelController = require('ide-migration/server/migration/controllers/tunnel-controller');
-const tunnelController = new TunnelController();
-tunnelController.closeTunnel(userData.sessionId);
+const NeoTunnelService = require('ide-migration/server/migration/controllers/neo-tunnel-service');
+const neoTunnelService = new NeoTunnelService();
+neoTunnelService.closeTunnel(userData.sessionId);
 
 process.setVariable(execution.getId(), 'migrationState', 'TUNNEL_CLOSED');
