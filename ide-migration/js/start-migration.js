@@ -39,7 +39,7 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
             processInstanceId: duData.processId
         };
           $http.post(
-            "/services/v4/js/ide-migration/server/migration-rest-api.js/continue-process",
+            "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/continue-process",
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {

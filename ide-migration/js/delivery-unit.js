@@ -40,14 +40,14 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
         }
 
         $http.post(
-            "/services/v4/js/ide-migration/server/migration-rest-api.js/start-process",
+            "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process",
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
             processId = body.processInstanceId = response.data.processInstanceId;
             const timer = setInterval(function(){
               $http.post(
-                          "/services/v4/js/ide-migration/server/migration-rest-api.js/get-process",
+                          "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/get-process",
                           JSON.stringify(body),
                           { headers: { 'Content-Type': 'application/json' } }
                       ).then(function (response) {
