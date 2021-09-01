@@ -25,7 +25,7 @@ const tunnelData = {
   db: userData.hana.databaseSchema
 };
 
-const NeoTunnelService = require('ide-migration/server/migration/controllers/neo-tunnel-service');
+const NeoTunnelService = require('ide-migration/server/migration/api/neo-tunnel-service');
 const neoTunnelService = new NeoTunnelService();
 const openedTunnelData = neoTunnelService.openTunnel(tunnelData);
 

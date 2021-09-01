@@ -9,7 +9,7 @@
  * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-const MigrationService = require('ide-migration/server/migration/controllers/migration-service');
+const MigrationService = require('ide-migration/server/migration/api/migration-service');
 const process = require('bpm/v4/process');
 const execution = process.getExecutionContext();
 

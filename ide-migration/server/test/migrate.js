@@ -1,5 +1,5 @@
-const MigrationService = require('ide-migration/server/migration/controllers/migration-service');
-const NeoTunnelService = require('ide-migration/server/migration/controllers/neo-tunnel-service')
+const MigrationService = require('ide-migration/server/migration/api/migration-service');
+const NeoTunnelService = require('ide-migration/server/migration/api/neo-tunnel-service')
 
 const migrationService = new MigrationService();
 const neoTunnelService = new NeoTunnelService();
