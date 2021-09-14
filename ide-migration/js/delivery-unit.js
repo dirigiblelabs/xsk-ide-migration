@@ -10,6 +10,8 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http', '$messageHub', function ($scope, $http, $messageHub) {
+    $scope.myValue = false;
+    $scope.showSeparator = false;
     $scope.isVisible = false;
     $scope.duDropdownDisabled = true;
     $scope.duDropdownText = "---Please select---";
@@ -117,17 +119,25 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
 
     $scope.filterWorkspaces = function () {
         if ($scope.workspacesSearch) {
+            $scope.myValue = true;
+            $scope.showSeparator = true;
             let filtered = [];
             for (let i = 0; i < $scope.workspaces.length; i++) {
                 if ($scope.workspaces[i].toLowerCase().includes($scope.workspacesSearch.toLowerCase())) {
                     filtered.push($scope.workspaces[i]);
+                }else{
+                    $scope.showSeparator = false;
                 }
             }
             $scope.workspacesList = filtered;
-            $scope.btnBottonText = $scope.workspacesSearch;
+            
+            
         } else {
+            $scope.showSeparator = false;
+            $scope.myValue = false;
             $scope.workspacesList = $scope.workspaces;
         }
+        $scope.btnBottonText = $scope.workspacesSearch;
     };
 
     $scope.workspaceSelected = function (workspace) {

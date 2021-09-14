@@ -21,15 +21,14 @@
 			aria-haspopup="true" aria-expanded="false">{{workspacesDropdownText}}<span class="caret"></span></button>
 		<ul class="dropdown-menu dropdown-menu-searchable">
 			<li class="dropdown-input">
-				<input class="form-control" type="text" placeholder="Search..." ng-keyup="filterWorkspaces()"
+				<input class="form-control" type="text" placeholder="Find or create a workspace" ng-keyup="filterWorkspaces()"
 					ng-model="workspacesSearch">
 			</li>
 			<li role="separator" class="divider"></li>
 			<li class="dropdown-item" ng-repeat="option in workspacesList" ng-click="workspaceSelected(option)">
 				{{option}}</li>
-			<li>
-			<button type="create_worspace_btn" class="btn btn-marginLeft" ng-click= "workspaceSelected(btnBottonText)"> Create workspace: {{btnBottonText}}</button></li>		
-			</ul>
+		<li role="separator" class="divider ng-hide" ng-show="showSeparator" ></li>
+	 <button class="dropdown-btn" ng-click="workspaceSelected(btnBottonText)" ng-show="myValue"> <i class="fa fa-plus-circle" aria-hidden="true"></i> Create workspace: "{{btnBottonText}}"</button></ul>
 	</div>
 	<div class="dropdown-container margin-top-sm" ng-show="dataLoaded">
 		<label>Delivery Unit</label>
