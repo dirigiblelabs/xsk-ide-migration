@@ -124,6 +124,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
                 }
             }
             $scope.workspacesList = filtered;
+            $scope.btnBottonText = $scope.workspacesSearch;
         } else {
             $scope.workspacesList = $scope.workspaces;
         }

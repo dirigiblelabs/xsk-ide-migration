@@ -27,6 +27,8 @@
 			<li role="separator" class="divider"></li>
 			<li class="dropdown-item" ng-repeat="option in workspacesList" ng-click="workspaceSelected(option)">
 				{{option}}</li>
+			<li role="separator" class="divider"></li>
+			<button type="create_worspace_btn" class="btn btn-primary btn-big" ng-click= "workspaceSelected(btnBottonText)">{{btnBottonText}}</button>
 		</ul>
 	</div>
 	<div class="dropdown-container margin-top-sm" ng-show="dataLoaded">
