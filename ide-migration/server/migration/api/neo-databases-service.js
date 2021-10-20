@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2021 SAP SE or an SAP affiliate company and XSK contributors
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Apache License, v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 const exec = require("core/v4/exec");
 const config = require("core/v4/configurations");
 
@@ -12,7 +23,7 @@ class NeoDatabasesService {
     const password = credentials.password;
     const db = credentials.db;
 
-    const script = `${neoClientPath} list-schemas -a "${account}" -h "${host}" -u "${user}" -p "${password}" --output json`
+    const script = `${neoClientPath} list-dbs -a "${account}" -h "${host}" -u "${user}" -p "${password}" --output json`
     
     const rawCommandResult = exec.exec(script, {
       "JAVA_HOME": config.get("JAVA8_HOME"),
@@ -22,7 +33,7 @@ class NeoDatabasesService {
     const commandResult = JSON.parse(rawCommandResult);
 
     if (commandResult.errorMsg) {
-      throw "[NEO CLIENT ERROR]" + neoOutput.errorMsg
+      throw "[NEO CLIENT ERROR]" + commandResult.errorMsg
     }
 
     const rawDatabasesOutput = commandResult.commandOutput;
@@ -32,10 +43,10 @@ class NeoDatabasesService {
   }
 
   _parseDatabasesOutput(databasesOutput) {
-    const schemaIdText = "Schema ID";
-    const schemaIndex = databasesOutput.indexOf(schemaIdText);
+    const databaseIdText = "Database ID";
+    const databaseIndex = databasesOutput.indexOf(databaseIdText);
     
-    let databasesRawList = databasesOutput.substring(schemaIndex + schemaIdText.length);
+    let databasesRawList = databasesOutput.substring(databaseIndex + databaseIdText.length);
     databasesRawList = databasesRawList.replace(/[\r\n]+/g,"");
     databasesRawList = databasesRawList.replace(/[\s]+/g, ",");
     
