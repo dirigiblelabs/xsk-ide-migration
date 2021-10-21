@@ -90,8 +90,7 @@ class MigrationService {
             projectFile.setContent(file._content);
 
             if (fileRunLocation.endsWith('hdbcalculationview')
-                || fileRunLocation.endsWith('calculationview')
-                || fileRunLocation.endsWith('hdbtable')) {
+                || fileRunLocation.endsWith('calculationview')) {
                 deployables.find(x => x.projectName === projectName).artifacts.push(file.RunLocation);
             }
         }
@@ -109,10 +108,6 @@ class MigrationService {
     createHdiConfigFile(project) {
         const hdiConfig = {
             file_suffixes: {
-                hdbtable: {
-                    plugin_name: "com.sap.hana.di.table",
-                    plugin_version: "12.1.0"
-                },
                 hdbcalculationview: {
                     plugin_name: "com.sap.hana.di.calculationview",
                     plugin_version: "12.1.0"
