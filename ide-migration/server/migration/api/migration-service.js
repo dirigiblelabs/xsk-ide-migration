@@ -13,7 +13,8 @@ const HanaRepository = require('ide-migration/server/migration/repository/hana-r
 const workspaceManager = require("platform/v4/workspace");
 const bytes = require("io/v4/bytes");
 const database = require("db/v4/database");
-
+const config = require("core/v4/configurations");
+const HANA_USERNAME = "HANA_USERNAME";
 
 class MigrationService {
 
@@ -131,12 +132,13 @@ class MigrationService {
 
     createHdiFile(project, hdiConfigPath, deployables) {
         const projectName = project.getName();
+        const defaultHanaUser = this.getDefaultHanaUser();
 
         const hdi = {
             configuration: `/${projectName}/${hdiConfigPath}`,
-            users: ["DBADMIN"],
-            group: "XSK_HDI_SIMPLE_GROUP",
-            container: "XSK_HDI_SIMPLE",
+            users: [defaultHanaUser],
+            group: projectName,
+            container: projectName,
             deploy: deployables,
             undeploy: []
         };
@@ -148,6 +150,10 @@ class MigrationService {
         hdiFile.setContent(hdiJsonBytes);
 
         return hdiPath;
+    }
+
+    getDefaultHanaUser() {
+        return config.get(HANA_USERNAME, "DBADMIN");
     }
 
 }
