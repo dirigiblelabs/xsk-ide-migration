@@ -1,13 +1,20 @@
 const exec = require("core/v4/exec");
 const config = require("core/v4/configurations");
 
-class MigrationToolExecutor {
-    constructor() {
-        config.set("DIRIGIBLE_EXEC_DISABLE_COMMAND_LOGGING", "false");
-    }
+const DIRIGIBLE_EXEC_COMMAND_LOGGING_ENABLED = "DIRIGIBLE_EXEC_COMMAND_LOGGING_ENABLED";
 
+class MigrationToolExecutor {
     execute(script, data) {
-        return exec.exec(script, data);
+        const defaultLoggingConfig = config.get(DIRIGIBLE_EXEC_COMMAND_LOGGING_ENABLED);
+        config.set(DIRIGIBLE_EXEC_COMMAND_LOGGING_ENABLED, "false");
+
+        const execResult = exec.exec(script, data);
+
+        if (defaultLoggingConfig) {
+            config.set(DIRIGIBLE_EXEC_COMMAND_LOGGING_ENABLED, defaultLoggingConfig);
+        }
+
+        return execResult;
     }
 }
 
