@@ -43,7 +43,6 @@ class MigrationService {
 
         let context = {};
         const filesAndPackagesObject = this.repo.getAllFilesForDu(context, du)
-        console.log("Files list: " + JSON.stringify(filesAndPackagesObject.files));
         this.dumpSourceFiles(workspaceName, filesAndPackagesObject.files, du)
     }
 
