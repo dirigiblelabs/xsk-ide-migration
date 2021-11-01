@@ -21,8 +21,8 @@ class MigrationService {
     connection = null;
     repo = null;
 
-    setupConnection(databaseName, databaseUser, databaseUserPassword) {
-        database.createDataSource(databaseName, "com.sap.db.jdbc.Driver", "jdbc:sap://localhost:30015/", databaseUser, databaseUserPassword, null);
+    setupConnection(databaseName, databaseUser, databaseUserPassword, connectionUrl) {
+        database.createDataSource(databaseName, "com.sap.db.jdbc.Driver", connectionUrl, databaseUser, databaseUserPassword, null);
 
         this.connection = database.getConnection('dynamic', databaseName);
         this.repo = new HanaRepository(this.connection);
