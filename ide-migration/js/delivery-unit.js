@@ -24,8 +24,6 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     $scope.dataLoaded = false;
     $scope.selectAllText = 'Select all';
     $scope.duSelectedUItext = [];
-    let selectedDeliveyUnit = [];
-    let selectedWorkspace = undefined;
     let descriptionList = [
         "Please wait while we get all delivery unit(s)...",
         "Select the target workspace and delivery unit(s)"
@@ -158,39 +156,39 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     };
 
     $scope.workspaceSelected = function (workspace) {
-        selectedWorkspace = workspace;
+        $scope.$parent.selectedWorkspace = workspace;
         $scope.workspacesDropdownText = workspace;
         $scope.duDropdownDisabled = false;
     };
 
     $scope.isDUSelected = (du) => {
-        return selectedDeliveyUnit.includes(du) ? "selected" : '';
+        return $scope.$parent.selectedDeliveyUnit.includes(du) ? "selected" : '';
 
     };
 
     $scope.allDUSelectable = () => {
-        return selectedDeliveyUnit.length < $scope.deliveryUnitList.length ? "selected" : "";
+        return $scope.$parent.selectedDeliveyUnit.length < $scope.deliveryUnitList.length ? "selected" : "";
     }
 
     $scope.toggleSelectAllDU = () => {
-        let compare_value = (selectedDeliveyUnit.length != $scope.deliveryUnitList.length);
+        let compare_value = ($scope.$parent.selectedDeliveyUnit.length != $scope.deliveryUnitList.length);
         for (let i = 0; i < $scope.deliveryUnitList.length; i++)
             if (Boolean($scope.isDUSelected($scope.deliveryUnitList[i])) !== compare_value)
                 $scope.duSelected($scope.deliveryUnitList[i]);
     };
 
     $scope.duSelected = function (deliveryUnit) {
-        if (selectedDeliveyUnit.includes(deliveryUnit)) {
-            selectedDeliveyUnit = selectedDeliveyUnit.filter((elem) => elem != deliveryUnit);
+        if ($scope.$parent.selectedDeliveyUnit.includes(deliveryUnit)) {
+            $scope.$parent.selectedDeliveyUnit = $scope.$parent.selectedDeliveyUnit.filter((elem) => elem != deliveryUnit);
             $scope.duSelectedUItext = $scope.duSelectedUItext.filter((elem) => elem != deliveryUnit.name);
         } else {
-            selectedDeliveyUnit.push(deliveryUnit);
+            $scope.$parent.selectedDeliveyUnit.push(deliveryUnit);
             $scope.duSelectedUItext.push(deliveryUnit.name);
         }
 
         $scope.duDropdownText = $scope.duSelectedUItext.length ? $scope.duSelectedUItext.join(", ") : $scope.duDropdownInitText;
 
-        $scope.selectAllText = selectedDeliveyUnit.length == $scope.deliveryUnitList.length ? "Unselect all" : "Select all";
+        $scope.selectAllText = $scope.$parent.selectedDeliveyUnit.length == $scope.deliveryUnitList.length ? "Unselect all" : "Select all";
         $scope.$parent.setFinishEnabled(true);
 
     };
@@ -205,7 +203,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
                 $scope.descriptionText = descriptionList[0];
                 $scope.isVisible = msg.data.isVisible;
                 if (msg.data.isVisible) {
-                    if (selectedDeliveyUnit.length) {
+                    if ($scope.$parent.selectedDeliveyUnit) {
                         $scope.$parent.setFinishEnabled(true);
                     } else {
                         $scope.$parent.setFinishEnabled(false);
@@ -236,8 +234,8 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
                     duData: {
                         "processId": processId,
                         "connectionId": connectionId,
-                        "workspace": selectedWorkspace,
-                        "du": selectedDeliveyUnit,
+                        "workspace": $scope.$parent.selectedWorkspace,
+                        "du": $scope.$parent.selectedDeliveyUnit,
                     }
                 });
             }

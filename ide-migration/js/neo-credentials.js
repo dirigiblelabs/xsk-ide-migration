@@ -30,7 +30,7 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
     $scope.hostName = '';
     
     $scope.userInput = function () {
-        if ($scope.hostName && $scope.subaccount && $scope.username && $scope.password) {
+        if ($scope.$parent.neoHostName && $scope.$parent.neoSubaccount && $scope.$parent.neoUsername && $scope.$parent.neoPassword) {
             $scope.$parent.setNextEnabled(true);
         } else {
             $scope.$parent.setNextEnabled(false);
@@ -47,8 +47,8 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
 
     $scope.regionSelected = function (regionObject) {                            
             
-            $scope.hostName = regionObject.region;
-            $scope.regionDropdownText = regionObject.name;
+        $scope.$parent.neoHostName = regionObject.region;
+        $scope.regionDropdownText = regionObject.name;
             
             $scope.$parent.setFinishEnabled(true);
         };
@@ -95,10 +95,10 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
             if (msg.data.getData === "all") {
                 $messageHub.message(msg.data.controller, {
                     neoData: {
-                        hostName: $scope.hostName,
-                        subaccount: $scope.subaccount,
-                        username: $scope.username,
-                        password: $scope.password,
+                        hostName: $scope.$parent.neoHostName,
+                        subaccount: $scope.$parent.neoSubaccount,
+                        username: $scope.$parent.neoUsername,
+                        password: $scope.$parent.neoPassword + $scope.$parent.neoAuthCode,
                     }
                 });
             }

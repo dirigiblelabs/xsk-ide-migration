@@ -55,6 +55,19 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     $scope.finishDisabled = true;
     $scope.currentStep = $scope.steps[0];
 
+    $scope.schemaName = null;
+    $scope.dbUsername = null;
+    $scope.dbPassword = null;
+    
+    $scope.neoUsername = null;
+    $scope.neoPassword = null;
+    $scope.neoAuthCode = null;
+    $scope.neoSubaccount = null;
+    $scope.neoHostName = null;
+    
+    $scope.selectedDeliveyUnit = null;
+    $scope.selectedWorkspace = null;
+
     $scope.setFinishVisible = function (visible) {
         $scope.finishVisible = visible;
     };
