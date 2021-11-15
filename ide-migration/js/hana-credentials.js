@@ -112,7 +112,7 @@ migrationLaunchView.controller('HanaCredentialsViewController', ['$scope', '$htt
     }
 
     $scope.userInput = function () {
-        if ($scope.schemaName && $scope.username && $scope.password && $scope.areDatabasesLoaded) {
+        if ($scope.$parent.schemaName && $scope.$parent.dbUsername && $scope.$parent.dbPassword && $scope.areDatabasesLoaded) {
             $scope.$parent.setNextEnabled(true);
         } else {
             $scope.$parent.setNextEnabled(false);
@@ -138,7 +138,7 @@ migrationLaunchView.controller('HanaCredentialsViewController', ['$scope', '$htt
     };
 
     $scope.databaseSelected = function (database) {
-        $scope.schemaName = database;
+        $scope.$parent.schemaName = database;
         $scope.databasesDropdownText = database;
     };
 
@@ -164,9 +164,9 @@ migrationLaunchView.controller('HanaCredentialsViewController', ['$scope', '$htt
             if (msg.data.getData === "all") {
                 $messageHub.message(msg.data.controller, {
                     hanaData: {
-                        "databaseSchema": $scope.schemaName,
-                        "username": $scope.username,
-                        "password": $scope.password,
+                        "databaseSchema": $scope.$parent.schemaName,
+                        "username": $scope.$parent.dbUsername,
+                        "password": $scope.$parent.dbPassword,
                         "processId": processId
                     }
                 });

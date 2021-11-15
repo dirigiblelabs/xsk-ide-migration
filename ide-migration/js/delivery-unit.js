@@ -21,8 +21,6 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     $scope.deliveryUnits = [];
     $scope.deliveryUnitList = $scope.deliveryUnits;
     $scope.dataLoaded = false;
-    let selectedDeliveyUnit = undefined;
-    let selectedWorkspace = undefined;
     let descriptionList = [
         "Please wait while we get all delivery units...",
         "Provide the target workspace and delivery unit"
@@ -151,13 +149,13 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     };
 
     $scope.workspaceSelected = function (workspace) {
-        selectedWorkspace = workspace;
+        $scope.$parent.selectedWorkspace = workspace;
         $scope.workspacesDropdownText = workspace;
         $scope.duDropdownDisabled = false;
     };
 
     $scope.duSelected = function (deliveryUnit) {
-        selectedDeliveyUnit = deliveryUnit;
+        $scope.$parent.selectedDeliveyUnit = deliveryUnit;
         $scope.duDropdownText = deliveryUnit.name;
         $scope.$parent.setFinishEnabled(true);
     };
@@ -172,7 +170,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
                 $scope.descriptionText = descriptionList[0];
                 $scope.isVisible = msg.data.isVisible;
                 if (msg.data.isVisible) {
-                    if (selectedDeliveyUnit) {
+                    if ($scope.$parent.selectedDeliveyUnit) {
                         $scope.$parent.setFinishEnabled(true);
                     } else {
                         $scope.$parent.setFinishEnabled(false);
@@ -203,8 +201,8 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
                     duData: {
                         "processId": processId,
                         "connectionId": connectionId,
-                        "workspace": selectedWorkspace,
-                        "du": selectedDeliveyUnit,
+                        "workspace": $scope.$parent.selectedWorkspace,
+                        "du": $scope.$parent.selectedDeliveyUnit,
                     }
                 });
             }
