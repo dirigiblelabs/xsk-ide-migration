@@ -9,7 +9,8 @@
  * SPDX-FileCopyrightText: 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
  * SPDX-License-Identifier: EPL-2.0
  */
-migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
+migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$messageHub', 'migrationDataState', function ($scope, $messageHub, migrationDataState) {
+    $scope.migrationDataState = migrationDataState;
     $scope.isVisible = true;
     $scope.passwordVisible = false;
     $scope.authCodeVisible = false;
@@ -27,7 +28,7 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
     $scope.regionList = $scope.regions;
 
     $scope.userInput = function () {
-        if ($scope.$parent.neoHostName && $scope.$parent.neoSubaccount && $scope.$parent.neoUsername && $scope.$parent.neoPassword) {
+        if (migrationDataState.neoHostName && migrationDataState.neoSubaccount && migrationDataState.neoUsername && migrationDataState.neoPassword) {
             $scope.$parent.setNextEnabled(true);
         } else {
             $scope.$parent.setNextEnabled(false);
@@ -43,7 +44,7 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
     };
 
     $scope.regionSelected = function (regionObject) {
-        $scope.$parent.neoHostName = regionObject.region;
+        migrationDataState.neoHostName = regionObject.region;
 
             if (regionObject.isUserEnteredRegion) {
               $scope.regionDropdownText = regionObject.region;
@@ -91,18 +92,6 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
                     $scope.$parent.setFinishVisible(false);
                 }
             });
-        }
-        if ("getData" in msg.data) {
-            if (msg.data.getData === "all") {
-                $messageHub.message(msg.data.controller, {
-                    neoData: {
-                        hostName: $scope.$parent.neoHostName,
-                        subaccount: $scope.$parent.neoSubaccount,
-                        username: $scope.$parent.neoUsername,
-                        password: $scope.$parent.neoPassword + $scope.$parent.neoAuthCode,
-                    }
-                });
-            }
         }
     }.bind(this));
 }]);

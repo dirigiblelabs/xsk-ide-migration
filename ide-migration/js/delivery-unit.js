@@ -9,7 +9,8 @@
  * SPDX-FileCopyrightText: 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
  * SPDX-License-Identifier: EPL-2.0
  */
-migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http', '$messageHub', function ($scope, $http, $messageHub) {
+migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http', '$messageHub', 'migrationDataState', function ($scope, $http, $messageHub, migrationDataState) {
+    $scope.migrationDataState = migrationDataState;
     $scope.showCreateButton = false;
     $scope.showSeparator = false;
     $scope.isVisible = false;
@@ -26,21 +27,21 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
         "Provide the target workspace and delivery unit"
     ];
     $scope.descriptionText = descriptionList[0];
-    let connectionId = undefined;
-    let neoData = undefined;
-    let hanaData = undefined;
     let defaultErrorTitle = "Error loading delivery units";
     let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
-    let processId = undefined;
 
     function getDUData() {
         body = {
             neo: {
-                hostName: neoData.hostName,
-                subaccount: neoData.subaccount,
+                hostName: migrationDataState.neoHostName,
+                subaccount: migrationDataState.neoSubaccount,
             },
-            hana: hanaData,
-            processInstanceId: processId
+            hana: {
+                databaseSchema: migrationDataState.schemaName,
+                username: migrationDataState.dbUsername,
+                password: migrationDataState.dbPassword
+            },
+            processInstanceId: migrationDataState.processInstanceId
         }
 
         $http.post(
@@ -63,7 +64,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
                         errorOccurred();
                     } else if (response.data.workspaces && response.data.deliveryUnits && response.data.connectionId) {
                         clearInterval(timer);
-                        connectionId = response.data.connectionId;
+                        migrationDataState.connectionId = response.data.connectionId;
                         $scope.workspaces = response.data.workspaces;
                         $scope.workspacesList = $scope.workspaces;
                         $scope.deliveryUnits = response.data.deliveryUnits;
@@ -149,13 +150,13 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     };
 
     $scope.workspaceSelected = function (workspace) {
-        $scope.$parent.selectedWorkspace = workspace;
+        migrationDataState.selectedWorkspace = workspace;
         $scope.workspacesDropdownText = workspace;
         $scope.duDropdownDisabled = false;
     };
 
     $scope.duSelected = function (deliveryUnit) {
-        $scope.$parent.selectedDeliveyUnit = deliveryUnit;
+        migrationDataState.selectedDeliveryUnit = deliveryUnit;
         $scope.duDropdownText = deliveryUnit.name;
         $scope.$parent.setFinishEnabled(true);
     };
@@ -170,7 +171,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
                 $scope.descriptionText = descriptionList[0];
                 $scope.isVisible = msg.data.isVisible;
                 if (msg.data.isVisible) {
-                    if ($scope.$parent.selectedDeliveyUnit) {
+                    if (migrationDataState.selectedDeliveryUnit) {
                         $scope.$parent.setFinishEnabled(true);
                     } else {
                         $scope.$parent.setFinishEnabled(false);
@@ -183,28 +184,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
                 }
             });
             if (msg.data.isVisible) {
-                $messageHub.message('migration.neo-credentials', { controller: "migration.delivery-unit", getData: "all" });
-                $messageHub.message('migration.hana-credentials', { controller: "migration.delivery-unit", getData: "all" });
-            }
-        }
-        if ("neoData" in msg.data) {
-            neoData = msg.data.neoData;
-        }
-        if ("hanaData" in msg.data) {
-            hanaData = msg.data.hanaData;
-            processId = msg.data.hanaData.processId;
-            getDUData();
-        }
-        if ("getData" in msg.data) {
-            if (msg.data.getData === "all") {
-                $messageHub.message(msg.data.controller, {
-                    duData: {
-                        "processId": processId,
-                        "connectionId": connectionId,
-                        "workspace": $scope.$parent.selectedWorkspace,
-                        "du": $scope.$parent.selectedDeliveyUnit,
-                    }
-                });
+                getDUData();
             }
         }
     }.bind(this));
