@@ -39,6 +39,31 @@ migrationLaunchView.factory('$messageHub', [function () {
     };
 }]);
 
+migrationLaunchView.factory('migrationDataState', migrationDataState);
+
+function migrationDataState() {
+
+    let state = {
+        schemaName: null,
+        dbUsername: null,
+        dbPassword: null,
+
+        neoUsername: null,
+        neoPassword: null,
+        neoAuthCode: null,
+        neoSubaccount: null,
+        neoHostName: null,
+
+        selectedDeliveryUnit: null,
+        selectedWorkspace: null,
+
+        processInstanceId: null,
+        connectionId: null,
+    };
+
+    return state;
+}
+
 migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
     $scope.steps = [
         { id: 1, name: "SAP BTP Neo Credentials", topicId: "migration.neo-credentials" },
@@ -54,19 +79,6 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     $scope.finishVisible = false;
     $scope.finishDisabled = true;
     $scope.currentStep = $scope.steps[0];
-
-    $scope.schemaName = null;
-    $scope.dbUsername = null;
-    $scope.dbPassword = null;
-    
-    $scope.neoUsername = null;
-    $scope.neoPassword = null;
-    $scope.neoAuthCode = null;
-    $scope.neoSubaccount = null;
-    $scope.neoHostName = null;
-    
-    $scope.selectedDeliveyUnit = null;
-    $scope.selectedWorkspace = null;
 
     $scope.setFinishVisible = function (visible) {
         $scope.finishVisible = visible;
