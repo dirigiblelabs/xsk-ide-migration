@@ -12,7 +12,6 @@
 migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
     $scope.isVisible = true;
     $scope.passwordVisible = false;
-    $scope.authCodeVisible = false;
     $scope.regionDropdownText = "---Please select---";
     $scope.regions = [
         { name: 'Australia (Sydney) | ap1.hana.ondemand.com', region: 'ap1.hana.ondemand.com' },
@@ -36,10 +35,6 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
 
     $scope.showPassword = function () {
         $scope.passwordVisible = !$scope.passwordVisible;
-    };
-
-    $scope.showAuthCode = function () {
-        $scope.authCodeVisible = !$scope.authCodeVisible;
     };
 
     $scope.regionSelected = function (regionObject) {
@@ -99,7 +94,7 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
                         hostName: $scope.hostName,
                         subaccount: $scope.subaccount,
                         username: $scope.username,
-                        password: $scope.password + $scope.authCode,
+                        password: $scope.password,
                     }
                 });
             }
