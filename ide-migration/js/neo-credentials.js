@@ -10,6 +10,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
+    $scope.passwordHintMessage = "If you have enabled 2FA for your account, append your 2FA code after the password";
     $scope.isVisible = true;
     $scope.passwordVisible = false;
     $scope.regionDropdownText = "---Please select---";
