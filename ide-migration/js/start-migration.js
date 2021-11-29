@@ -9,6 +9,7 @@
  * SPDX-FileCopyrightText: 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
  * SPDX-License-Identifier: EPL-2.0
  */
+
 migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http', '$messageHub', function ($scope, $http, $messageHub) {
     $scope.isVisible = false;
     $scope.migrationFinished = false;
@@ -25,6 +26,7 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
     let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
     let selectedWorkspace = '';
 
+
     function startMigration(duData) {
         selectedWorkspace = duData.workspace;
         body = {
@@ -35,17 +37,16 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
             hana: hanaData,
             connectionId: duData.connectionId,
             workspace: duData.workspace,
-            du: {
-                name: duData.du.name,
-                vendor: duData.du.vendor
-            },
+            du: duData.du,             
             processInstanceId: duData.processId
         };
+        $scope.statusMessage = duData.du.length > 1 ? `Migrating ${duData.du.length} projects` : `Migrating project`;
+
         $http.post(
             "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/continue-process",
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
-        ).then(function (response) {
+        ).then(function (response) {                        
             $scope.progressTitle = titleList[1];
             $scope.statusMessage = `Project "${duData.du.name}" has been successfully created. Go to workspace "${duData.workspace}" and publish it.`;
             $scope.migrationFinished = true;
