@@ -25,7 +25,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     let selectedWorkspace = undefined;
     let descriptionList = [
         "Please wait while we get all delivery units...",
-        "Provide the target workspace and delivery unit"
+        "Select the target workspace and delivery unit(s)"
     ];
     $scope.descriptionText = descriptionList[0];
     let connectionId = undefined;
