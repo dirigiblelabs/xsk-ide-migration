@@ -6,7 +6,7 @@
   ~ http://www.eclipse.org/legal/epl-v20.html
   ~ Contributors:
   ~ SAP - initial API and implementation
-  -->  
+  -->
 <div ng-controller="DeliveryUnitViewController as duvc" ng-show="isVisible">
 	<h1 class="section-title">Delivery Units</h1>
 	<p class="margin-top-bottom-nl">{{descriptionText}}</p>
@@ -44,13 +44,9 @@
 			<li role="separator" class="divider"></li>
 			<li class="dropdown-item" ng-class="allDUSelectable()" ng-click="toggleSelectAllDU()">
 				{{selectAllText}}</li>
-			<li class="dropdown-item" ng-repeat="option in deliveryUnitList" ng-class="isDUSelected(option)" ng-click="duSelected(option)">
+			<li class="dropdown-item" ng-repeat="option in deliveryUnitList" ng-class="isDUSelected(option)"
+				ng-click="duSelected(option)">
 				{{option.name}}</li>
 		</ul>
 	</div>
-	<script>
-		$('.multy-selectable').on('click', function (e) {
-        e.stopPropagation();
-    });
-		</script>
 </div>
