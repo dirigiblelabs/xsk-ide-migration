@@ -7,7 +7,6 @@ class MigrationToolExecutor {
     execute(script, data) {
         const defaultLoggingConfig = config.get(DIRIGIBLE_EXEC_COMMAND_LOGGING_ENABLED);
         config.set(DIRIGIBLE_EXEC_COMMAND_LOGGING_ENABLED, "false");
-        console.log("SCRIPT " + script)
         const execResult = exec.exec(script, data);
 
         if (defaultLoggingConfig) {
