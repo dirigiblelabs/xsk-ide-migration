@@ -11,6 +11,7 @@
  */
 const HanaRepository = require('ide-migration/server/migration/repository/hana-repository');
 const workspaceManager = require("platform/v4/workspace");
+const repositoryManager = require("platform/v4/repository");
 const bytes = require("io/v4/bytes");
 const database = require("db/v4/database");
 const config = require("core/v4/configurations");
@@ -103,7 +104,7 @@ class MigrationService {
             if (deployable.artifacts && deployable.artifacts.length > 0) {
                 const hdiConfigPath = this.createHdiConfigFile(deployable.project);
                 this.createHdiFile(deployable.project, hdiConfigPath, deployable.artifacts);
-            }    
+            }
         }
     }
 
@@ -155,6 +156,79 @@ class MigrationService {
 
     getDefaultHanaUser() {
         return config.get(HANA_USERNAME, "DBADMIN");
+    }
+
+    copyFilesLocally(workspaceName, lists) {
+        let collection = repositoryManager.createCollection(workspaceName);
+
+        let locals = [];
+        for (let i = 0; i < lists.length; i++) {
+            const file = lists[i];
+            let fileRunLocation = file.RunLocation;
+
+            // each file's package id is based on its directory
+            // if we do not get only the first part of the package id, we would have several XSK projects created for directories in the same XS app
+            const projectName = file.packageId.split('.')[0];
+
+            if (fileRunLocation.startsWith("/" + projectName)) {
+                // remove package id from file location in order to remove XSK project and folder nesting
+                fileRunLocation = fileRunLocation.slice(projectName.length + 1);
+            }
+
+            let copiedFile = collection.createResource(fileRunLocation, file._content);
+            locals.push({ resource: copiedFile, projectName, runLocation: file.RunLocation })
+        }
+        return locals;
+    }
+
+    createMigratedWorkspace(workspaceName, du) {
+        let workspace;
+        if (!workspaceName) {
+            workspace = workspaceManager.getWorkspace(du.name)
+            if (!workspace) {
+                workspaceManager.createWorkspace(du.name)
+                workspace = workspaceManager.getWorkspace(du.name)
+            }
+        }
+        workspace = workspaceManager.getWorkspace(workspaceName);
+
+        return workspace;
+    }
+
+    addFileToWorkspace(workspace, filePath, runLocation, projectName, oldDeployables) {
+        const deployables = oldDeployables;
+
+        let project = workspace.getProject(projectName)
+        if (!project) {
+            workspace.createProject(projectName)
+            project = workspace.getProject(projectName)
+        }
+
+        if (!deployables.find(x => x.projectName === projectName)) {
+            deployables.push({
+                project: project,
+                projectName: projectName,
+                artifacts: []
+            });
+        }
+
+        let projectFile = project.createFile(filePath);
+
+        let resource = repositoryManager.getResource(filePath);
+        projectFile.setContent(resource.getContent());
+
+        if (filePath.endsWith('hdbcalculationview')
+            || filePath.endsWith('calculationview')) {
+            deployables.find(x => x.projectName === projectName).artifacts.push(runLocation);
+        }
+
+        return deployables;
+    }
+
+    getAllFilesForDU(du) {
+        let context = {};
+        const filesAndPackagesObject = this.repo.getAllFilesForDu(context, du);
+        return filesAndPackagesObject.files;
     }
 
 }
