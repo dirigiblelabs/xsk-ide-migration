@@ -174,9 +174,9 @@ class MigrationService {
                 // remove package id from file location in order to remove XSK project and folder nesting
                 fileRunLocation = fileRunLocation.slice(projectName.length + 1);
             }
-
-            let copiedFile = collection.createResource(fileRunLocation, file._content);
-            locals.push({ resource: copiedFile, projectName, runLocation: file.RunLocation })
+            let content = this.repo.getContentForObject(file._name, file._packageName, file._suffix);
+            let copiedFile = collection.createResource(fileRunLocation, content);
+            locals.push({ path: copiedFile.getPath(), projectName, runLocation: file.RunLocation })
         }
         return locals;
     }
@@ -195,7 +195,7 @@ class MigrationService {
         return workspace;
     }
 
-    addFileToWorkspace(workspace, filePath, runLocation, projectName, oldDeployables) {
+    collectDeployables(workspace, filePath, runLocation, projectName, oldDeployables) {
         const deployables = oldDeployables;
 
         let project = workspace.getProject(projectName)
@@ -212,17 +212,26 @@ class MigrationService {
             });
         }
 
-        let projectFile = project.createFile(filePath);
-
-        let resource = repositoryManager.getResource(filePath);
-        projectFile.setContent(resource.getContent());
-
         if (filePath.endsWith('hdbcalculationview')
             || filePath.endsWith('calculationview')) {
             deployables.find(x => x.projectName === projectName).artifacts.push(runLocation);
         }
 
         return deployables;
+    }
+
+    addFileToWorkspace(workspace, filePath, projectName) {
+
+        let project = workspace.getProject(projectName)
+        if (!project) {
+            workspace.createProject(projectName)
+            project = workspace.getProject(projectName)
+        }
+
+        let projectFile = project.createFile(filePath);
+
+        let resource = repositoryManager.getResource(filePath);
+        projectFile.setContent(resource.getContent());
     }
 
     getAllFilesForDU(du) {
