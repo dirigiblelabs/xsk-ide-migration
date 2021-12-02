@@ -12,56 +12,55 @@
 var migrationStatisticView = angular.module('migration-statistic', []);
 
 migrationStatisticView.factory('$messageHub', [function () {
-  var messageHub = new FramesMessageHub();
-  var announceAlert = function (title, message, type) {
-    messageHub.post({
-      data: {
-        title: title,
+    var messageHub = new FramesMessageHub();
+    var announceAlert = function (title, message, type) {
+        messageHub.post({
+            data: {
+                title: title,
+                message: message,
+                type: type
+            }
+        }, 'ide.alert');
+    };
+    var announceAlertError = function (title, message) {
+        announceAlert(title, message, "error");
+    };
+    var message = function (evtName, data) {
+        messageHub.post({data: data}, evtName);
+    };
+    var on = function (topic, callback) {
+        messageHub.subscribe(callback, topic);
+    };
+    return {
+        announceAlert: announceAlert,
+        announceAlertError: announceAlertError,
         message: message,
-        type: type
-      }
-    }, 'ide.alert');
-  };
-  var announceAlertError = function (title, message) {
-    announceAlert(title, message, "error");
-  };
-  var message = function (evtName, data) {
-    messageHub.post({ data: data }, evtName);
-  };
-  var on = function (topic, callback) {
-    messageHub.subscribe(callback, topic);
-  };
-  return {
-    announceAlert: announceAlert,
-    announceAlertError: announceAlertError,
-    message: message,
-    on: on
-  };
+        on: on
+    };
 
 }]);
 
 migrationStatisticView.controller('MigrationStatisticsController', ['$scope', '$http', '$interval', function ($scope, $http, $interval) {
-  let body = { 'migrations': 'empty' };
-  $scope.text = 'Migration Statistic';
-  populateData();
-  $interval(populateData, 5000);
+    let body = {'migrations': 'empty'};
+    $scope.text = 'Migration Statistic';
+    populateData();
+    $interval(populateData, 5000);
 
-  function populateData() {
-    $http.post(
-        "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/migrationsTrack",
-        JSON.stringify(body),
-        { headers: { 'Content-Type': 'application/json' } }
-    ).then(function (response) {
-      console.log("RESPONSE " + JSON.parse(JSON.stringify(response.data)));
-      $scope.migrations = JSON.parse(JSON.stringify(response.data));
-      if ($scope.migrations === 'empty') {
-        $scope.showTable = true;
-      } else {
-        $scope.showTable = false;
-      }
-    }, function (response) {
-      console.log(response)
+    function populateData() {
+        $http.post(
+            "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/migrationsTrack",
+            JSON.stringify(body),
+            {headers: {'Content-Type': 'application/json'}}
+        ).then(function (response) {
+            $scope.migrations = JSON.parse(JSON.stringify(response.data));
+            if ($scope.migrations === 'empty') {
+                $scope.showTable = true;
+            } else {
+                $scope.showTable = false;
+            }
+        }, function (response) {
+            console.log(response)
 
-    });
-  }
+        });
+    }
 }]);

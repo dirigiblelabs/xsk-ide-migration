@@ -16,117 +16,115 @@ let migrationsTable = null;
 
 
 class TrackService {
-  setupTable() {
-    migrationsTable = dao.create({
-      table: "MIGRATIONS",
-      properties: [{
-        name: "id",
-        column: "ID",
-        type: "BIGINT",
-        id: true
-      }, {
-        name: "deliveryUnit",
-        column: "DELIVERY_UNIT",
-        type: "VARCHAR",
-        required: false
-      }, {
-        name: "startedOn",
-        column: "STARTED_ON",
-        type: "TIMESTAMP",
-        required: false
-      }, {
-        name: "lastUpdated",
-        column: "LAST_UPDATED",
-        type: "TIMESTAMP",
-        required: false
-      },
-        {
-          name: "status",
-          column: "STATUS",
-          type: "VARCHAR",
-          required: false
-        }]
+    setupTable() {
+        migrationsTable = dao.create({
+            table: "MIGRATIONS",
+            properties: [{
+                name: "id",
+                column: "ID",
+                type: "BIGINT",
+                id: true
+            }, {
+                name: "deliveryUnit",
+                column: "DELIVERY_UNIT",
+                type: "VARCHAR",
+                required: false
+            }, {
+                name: "startedOn",
+                column: "STARTED_ON",
+                type: "TIMESTAMP",
+                required: false
+            }, {
+                name: "lastUpdated",
+                column: "LAST_UPDATED",
+                type: "TIMESTAMP",
+                required: false
+            },
+                {
+                    name: "status",
+                    column: "STATUS",
+                    type: "VARCHAR",
+                    required: false
+                }]
 
-    });
+        });
 
-    if (!migrationsTable.existsTable()) {
-      migrationsTable.createTable();
-      console.log("LOG: Migration track table created.")
-    } else {
-      console.log("LOG: Migration track table already exists");
+        if (!migrationsTable.existsTable()) {
+            migrationsTable.createTable();
+        }
+
     }
-  }
 
-  addEntry(duName, time, status) {
-    if(this.checkDu(duName) === 0){
-      migrationsTable.insert({
-        deliveryUnit: duName,
-        startedOn: time,
-        lastUpdated: Date.now(),
-        status: status
-      });
+    addEntry(duName, time, status) {
+        if (this.checkDu(duName) === 0) {
+            migrationsTable.insert({
+                deliveryUnit: duName,
+                startedOn: time,
+                lastUpdated: Date.now(),
+                status: status
+            });
+        }
     }
-  }
 
-  updateEntry(deliveryUnit) {
-    let connection = database.getConnection();
-    try {
-      let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='MIGRATED', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT='" + deliveryUnit + "'");
-      statement.executeUpdate();
-      statement.close();
-    } catch (e) {
-      console.trace(e);
-      console.log(e.message);
-    } finally {
-      connection.close();
+    updateEntry(deliveryUnit) {
+        let connection = database.getConnection();
+        try {
+            let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='MIGRATED', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT='" + deliveryUnit + "'");
+            statement.executeUpdate();
+            statement.close();
+        } catch (e) {
+            console.trace(e);
+            console.log(e.message);
+        } finally {
+            connection.close();
+        }
     }
-  }
 
-  updateOnStart(deliveryUnit) {
-    let connection = database.getConnection();
-    try {
-      let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='PROCESSING', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT='" + deliveryUnit + "'");
-      statement.executeUpdate();
-      statement.close();
-    } catch (e) {
-      console.trace(e);
-      console.log(e.message);
-    } finally {
-      connection.close();
+    updateOnStart(deliveryUnit) {
+        let connection = database.getConnection();
+        try {
+            let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='PROCESSING', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT='" + deliveryUnit + "'");
+            statement.executeUpdate();
+            statement.close();
+        } catch (e) {
+            console.trace(e);
+            console.log(e.message);
+        } finally {
+            connection.close();
+        }
     }
-  }
 
-  updateOnFail(deliveryUnit) {
-    let connection = database.getConnection();
-    try {
-      let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='FAILED', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT='" + deliveryUnit + "'");
-      statement.executeUpdate();
-      statement.close();
-    } catch (e) {
-      console.trace(e);
-      console.log(e.message);
-    } finally {
-      connection.close();
+    updateOnFail(deliveryUnit) {
+        let connection = database.getConnection();
+        try {
+            let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='FAILED', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT='" + deliveryUnit + "'");
+            statement.executeUpdate();
+            statement.close();
+        } catch (e) {
+            console.trace(e);
+            console.log(e.message);
+        } finally {
+            connection.close();
+        }
     }
-  }
 
 
-  checkDu(deliveryUnit) {
-    let connection = database.getConnection();
-    let result = 0;
-    try {
-      const statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS='QUEUED' WHERE DELIVERY_UNIT ='" + deliveryUnit + "'");
-      let resultSet = statement.executeUpdate();
-      result = resultSet;
-      resultSet.close();
-      statement.close();
-    } catch (e) {
-      console.trace(e);
-    } finally {
-      connection.close();
+    checkDu(deliveryUnit) {
+        let connection = database.getConnection();
+        let result = 0;
+        try {
+            const statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS='QUEUED' WHERE DELIVERY_UNIT ='" + deliveryUnit + "'");
+            let resultSet = statement.executeUpdate();
+            result = resultSet;
+            resultSet.close();
+            statement.close();
+        } catch (e) {
+            console.trace(e);
+        } finally {
+            connection.close();
+        }
+        return result;
     }
-    return result;
-  }
 
 };
 module.exports = TrackService;

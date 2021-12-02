@@ -23,11 +23,10 @@ try {
     for (let i = 0; i < userData.du.length; i++) {
         console.log(`MIGRATING ${userData.du[i].name} IN WORKSPACE ${userData.workspace} (${(i + 1).toString()} of ${userData.du.length})`);
         try {
-
             try {
                 trackService.updateOnStart(userData.du[i].name);
             } catch (e) {
-                console.log("LOG CANT INSERT ENTRY" + e.toString())
+                console.log(e.toString())
             }
 
             migrationService.setupConnection(userDatabaseData.databaseSchema, userDatabaseData.username, userDatabaseData.password, connectionUrl);
@@ -42,7 +41,7 @@ try {
             try {
                 trackService.updateEntry(userData.du[i].name);
             } catch (e) {
-                console.log("LOG CANT INSERT ENTRY" + e.toString())
+                console.log(e.toString())
             }
         } catch {
             trackService.updateOnFail(userData.du[i].name);

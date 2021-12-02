@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 exports.getView = function () {
-	var view = {
+	let view = {
 		"id": "migration-launch",
 		"name": "Migration Launch",
 		"factory": "frame",
