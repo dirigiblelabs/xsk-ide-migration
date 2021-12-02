@@ -18,7 +18,7 @@ migrationPerspective.config(["messageHubProvider", function (messageHubProvider)
 migrationPerspective.factory('$messageHub', [function () {
     let messageHub = new FramesMessageHub();
     let message = function (evtName, data) {
-        messageHub.post({ data: data }, evtName);
+        messageHub.post({data: data}, evtName);
     };
     let on = function (topic, callback) {
         messageHub.subscribe(callback, topic);
@@ -30,14 +30,17 @@ migrationPerspective.factory('$messageHub', [function () {
 }]);
 
 migrationPerspective.controller('MigrationViewController', ['Layouts', function (Layouts) {
-    this.layoutModel = {
-        views: ['migration-launch'],
-        viewSettings: {
-            'migration-launch': { isClosable: false }
-        },
-        layoutSettings: {
-            hasHeaders: false,
-            showCloseIcon: false
+    this.layoutModel =
+        {
+            views: ['migration-launch', 'migration-statistic'],
+            viewSettings: {
+                'migration-launch': {isClosable: false},
+                'migration-statistic': {isClosable: false}
+            },
+            layoutSettings: {
+                hasHeaders: true,
+                showCloseIcon: false
+            }
         }
-    };
+    ;
 }]);
