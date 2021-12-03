@@ -38,7 +38,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
     let processId = undefined;
 
-    $('.multy-selectable').on('click', function (e) {
+    $('.multi-selectable').on('click', function (e) {
         e.stopPropagation();
     });
 
