@@ -195,7 +195,14 @@ class MigrationService {
         return workspace;
     }
 
-    collectDeployables(workspace, filePath, runLocation, projectName, oldDeployables) {
+    collectDeployables(workspaceName, filePath, runLocation, projectName, oldDeployables) {
+
+        let workspace = workspaceManager.getWorkspace(workspaceName)
+        if (!workspace) {
+            workspaceManager.createWorkspace(workspaceName)
+            workspace = workspaceManager.getWorkspace(workspaceName)
+        }
+
         const deployables = oldDeployables;
 
         let project = workspace.getProject(projectName)
@@ -220,14 +227,10 @@ class MigrationService {
         return deployables;
     }
 
-    addFileToWorkspace(workspace, filePath, projectName) {
+    addFileToWorkspace(workspaceName, filePath, projectName) {
 
+        let workspace = workspaceManager.getWorkspace(workspaceName)
         let project = workspace.getProject(projectName)
-        if (!project) {
-            workspace.createProject(projectName)
-            project = workspace.getProject(projectName)
-        }
-
         let projectFile = project.createFile(filePath);
 
         let resource = repositoryManager.getResource(filePath);
