@@ -64,7 +64,6 @@ migrationLaunchView.controller('HanaCredentialsViewController', ['$scope', '$htt
                         $scope.$parent.setPreviousEnabled(true);
                         $scope.$parent.setNextVisible(true);
                         $scope.$parent.setNextEnabled(true);
-                        $scope.$parent.setFinishVisible(false);
 
                         $scope.databasesDropdownText = "---Please select---";
                         $scope.databases = response.data.databases;
@@ -139,6 +138,7 @@ migrationLaunchView.controller('HanaCredentialsViewController', ['$scope', '$htt
     $scope.databaseSelected = function (database) {
         migrationDataState.schemaName = database;
         $scope.databasesDropdownText = database;
+        $scope.userInput();
     };
 
     $messageHub.on('migration.hana-credentials', function (msg) {
