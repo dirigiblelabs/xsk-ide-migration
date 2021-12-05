@@ -9,11 +9,11 @@
  * SPDX-FileCopyrightText: 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
  * SPDX-License-Identifier: EPL-2.0
  */
-var migrationLaunchView = angular.module('migration-launch', []);
+let migrationLaunchView = angular.module('migration-launch', []);
 
 migrationLaunchView.factory('$messageHub', [function () {
-    var messageHub = new FramesMessageHub();
-    var announceAlert = function (title, message, type) {
+    let messageHub = new FramesMessageHub();
+    let announceAlert = function (title, message, type) {
         messageHub.post({
             data: {
                 title: title,
@@ -22,13 +22,13 @@ migrationLaunchView.factory('$messageHub', [function () {
             }
         }, 'ide.alert');
     };
-    var announceAlertError = function (title, message) {
+    let announceAlertError = function (title, message) {
         announceAlert(title, message, "error");
     };
-    var message = function (evtName, data) {
+    let message = function (evtName, data) {
         messageHub.post({ data: data }, evtName);
     };
-    var on = function (topic, callback) {
+    let on = function (topic, callback) {
         messageHub.subscribe(callback, topic);
     };
     return {
@@ -44,23 +44,19 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         { id: 1, name: "SAP BTP Neo Credentials", topicId: "migration.neo-credentials" },
         { id: 2, name: "SAP HANA Credentials", topicId: "migration.hana-credentials" },
         { id: 3, name: "Delivery Units", topicId: "migration.delivery-unit" },
-        { id: 4, name: "Migration", topicId: "migration.start-migration" },
+        { id: 4, name: "Changes", topicId: "migration.changes" },
+        { id: 5, name: "Migration", topicId: "migration.start-migration" },
     ];
+    $scope.fullWidthEnabled = false;
     $scope.bottomNavHidden = false;
     $scope.previousDisabled = false;
     $scope.nextDisabled = true;
     $scope.previousVisible = false;
     $scope.nextVisible = true;
-    $scope.finishVisible = false;
-    $scope.finishDisabled = true;
     $scope.currentStep = $scope.steps[0];
 
-    $scope.setFinishVisible = function (visible) {
-        $scope.finishVisible = visible;
-    };
-
-    $scope.setFinishEnabled = function (enabled) {
-        $scope.finishDisabled = !enabled;
+    $scope.setFullWidthEnabled = function (enabled) {
+        $scope.fullWidthEnabled = enabled;
     };
 
     $scope.setNextVisible = function (visible) {
@@ -109,7 +105,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         };
     };
 
-    $scope.finishClicked = function () {
+    $scope.migrateClicked = function () {
         $messageHub.message($scope.currentStep.topicId, { isVisible: false });
         $scope.currentStep = $scope.steps[$scope.steps.length - 1];
         $messageHub.message($scope.currentStep.topicId, { isVisible: true });
@@ -124,7 +120,4 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         else
             return "inactive";
     }
-
-    $messageHub.on('migration.launch', function (msg) {
-    }.bind(this));
 }]);

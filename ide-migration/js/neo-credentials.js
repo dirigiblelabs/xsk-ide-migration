@@ -28,7 +28,7 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
     ];
     $scope.regionList = $scope.regions;
     $scope.hostName = '';
-    
+
     $scope.userInput = function () {
         if ($scope.hostName && $scope.subaccount && $scope.username && $scope.password) {
             $scope.$parent.setNextEnabled(true);
@@ -45,38 +45,35 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
         return $scope.hostName === regionObject.region ? "selected" : '';
     }
 
-    $scope.regionSelected = function (regionObject) {                            
-            
-            $scope.hostName = regionObject.region;
-            $scope.regionDropdownText = regionObject.name;
-            
-            $scope.$parent.setFinishEnabled(true);
-        };
+    $scope.regionSelected = function (regionObject) {
+        $scope.hostName = regionObject.region;
+        $scope.regionDropdownText = regionObject.name;
+    };
 
     $scope.filterRegions = function () {
-            if ($scope.regionSearch) {
-                let filtered = [];
-                let alreadyHaveUserEnteredRegion = false;
-                for (let i = 0; i < $scope.regions.length; i++) {
-                    if ($scope.regions[i].name.toLowerCase().includes($scope.regionSearch.toLowerCase())) {
-                        const region = $scope.regions[i];
-                        filtered.push(region);
+        if ($scope.regionSearch) {
+            let filtered = [];
+            let alreadyHaveUserEnteredRegion = false;
+            for (let i = 0; i < $scope.regions.length; i++) {
+                if ($scope.regions[i].name.toLowerCase().includes($scope.regionSearch.toLowerCase())) {
+                    const region = $scope.regions[i];
+                    filtered.push(region);
 
-                        if (region.region === $scope.regionSearch) {
-                          alreadyHaveUserEnteredRegion = true;
-                        }
+                    if (region.region === $scope.regionSearch) {
+                        alreadyHaveUserEnteredRegion = true;
                     }
                 }
-
-                if (!alreadyHaveUserEnteredRegion) {
-                  filtered.push({name: 'Use "' + $scope.regionSearch + '" as a region', region: $scope.regionSearch, isUserEnteredRegion: true})
-                }
-
-                $scope.regionList = filtered;
-            } else {
-                $scope.regionList = $scope.regions;
             }
-        };
+
+            if (!alreadyHaveUserEnteredRegion) {
+                filtered.push({ name: 'Use "' + $scope.regionSearch + '" as a region', region: $scope.regionSearch, isUserEnteredRegion: true })
+            }
+
+            $scope.regionList = filtered;
+        } else {
+            $scope.regionList = $scope.regions;
+        }
+    };
 
     $messageHub.on('migration.neo-credentials', function (msg) {
         if ("isVisible" in msg.data) {
@@ -87,7 +84,6 @@ migrationLaunchView.controller('NeoCredentialsViewController', ['$scope', '$mess
                     $scope.$parent.setPreviousVisible(false);
                     $scope.$parent.setPreviousEnabled(true);
                     $scope.$parent.setNextVisible(true);
-                    $scope.$parent.setFinishVisible(false);
                 }
             });
         }

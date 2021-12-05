@@ -37,7 +37,7 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
             hana: hanaData,
             connectionId: duData.connectionId,
             workspace: duData.workspace,
-            du: duData.du,             
+            du: duData.du,
             processInstanceId: duData.processId
         };
         $scope.statusMessage = duData.du.length > 1 ? `Migrating ${duData.du.length} projects` : `Migrating project`;
@@ -46,7 +46,7 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
             "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/continue-process",
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
-        ).then(function (response) {                        
+        ).then(function (response) {
             $scope.progressTitle = titleList[1];
             $scope.statusMessage = `Project "${duData.du.name}" has been successfully created. Go to workspace "${duData.workspace}" and publish it.`;
             $scope.migrationFinished = true;
@@ -104,6 +104,7 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
         if ("isVisible" in msg.data) {
             $scope.$apply(function () {
                 $scope.isVisible = msg.data.isVisible;
+                if (msg.data.isVisible) $scope.$parent.setFullWidthEnabled(false);
             });
             if (msg.data.isVisible) {
                 $messageHub.message('migration.neo-credentials', { controller: "migration.start-migration", getData: "all" });
