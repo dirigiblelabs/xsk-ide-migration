@@ -100,9 +100,7 @@ class HanaRepository {
 
     _addLanguage(repositoryObject) {
         const originalLanguage = this._getOriginalLanguage(repositoryObject.PackageName.packageName)
-        // const content = this._getFileContent(repositoryObject);
         repositoryObject.originalLanguage = originalLanguage;
-        // repositoryObject.content = content;
         return repositoryObject;
     }
 
