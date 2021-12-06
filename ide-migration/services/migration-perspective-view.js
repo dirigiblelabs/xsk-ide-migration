@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 exports.getPerspective = function () {
-    let perspective = {
+    const perspective = {
         "name": "SAP HANA XS Classic Migration",
         "link": "../ide-migration/migration-perspective.html",
         "order": "820",

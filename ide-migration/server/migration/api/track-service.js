@@ -75,7 +75,6 @@ class TrackService {
             statement.close();
         } catch (e) {
             console.trace(e);
-            console.log(e.message);
         } finally {
             connection.close();
         }
@@ -90,7 +89,6 @@ class TrackService {
             statement.close();
         } catch (e) {
             console.trace(e);
-            console.log(e.message);
         } finally {
             connection.close();
         }
@@ -105,7 +103,6 @@ class TrackService {
             statement.close();
         } catch (e) {
             console.trace(e);
-            console.log(e.message);
         } finally {
             connection.close();
         }

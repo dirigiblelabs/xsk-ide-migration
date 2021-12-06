@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 exports.getView = function () {
-    let view = {
+    const view = {
         "id": "migration-statistic",
         "name": "Migration Statistic",
         "factory": "frame",
