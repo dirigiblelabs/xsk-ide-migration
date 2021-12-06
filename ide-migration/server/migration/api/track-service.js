@@ -69,7 +69,8 @@ class TrackService {
     updateEntry(deliveryUnit) {
         let connection = database.getConnection();
         try {
-            let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='MIGRATED', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT='" + deliveryUnit + "'");
+            let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='MIGRATED', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT=?");
+            statement.setString(1, deliveryUnit);
             statement.executeUpdate();
             statement.close();
         } catch (e) {
@@ -83,7 +84,8 @@ class TrackService {
     updateOnStart(deliveryUnit) {
         let connection = database.getConnection();
         try {
-            let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='PROCESSING', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT='" + deliveryUnit + "'");
+            let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='PROCESSING', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT=?");
+            statement.setString(1, deliveryUnit);
             statement.executeUpdate();
             statement.close();
         } catch (e) {
@@ -97,7 +99,8 @@ class TrackService {
     updateOnFail(deliveryUnit) {
         let connection = database.getConnection();
         try {
-            let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='FAILED', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT='" + deliveryUnit + "'");
+            let statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS ='FAILED', LAST_UPDATED = CURRENT_TIMESTAMP WHERE DELIVERY_UNIT=?");
+            statement.setString(1, deliveryUnit);
             statement.executeUpdate();
             statement.close();
         } catch (e) {
@@ -113,7 +116,8 @@ class TrackService {
         let connection = database.getConnection();
         let result = 0;
         try {
-            const statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS='QUEUED' WHERE DELIVERY_UNIT ='" + deliveryUnit + "'");
+            const statement = connection.prepareStatement("UPDATE MIGRATIONS SET STATUS='QUEUED' WHERE DELIVERY_UNIT = ?");
+            statement.setString(1, deliveryUnit);
             let resultSet = statement.executeUpdate();
             result = resultSet;
             resultSet.close();
@@ -126,6 +130,7 @@ class TrackService {
         return result;
     }
 
-};
+}
+
 module.exports = TrackService;
 
