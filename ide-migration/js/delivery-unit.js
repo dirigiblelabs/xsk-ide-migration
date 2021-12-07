@@ -163,16 +163,16 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     };
 
     $scope.isDUSelected = (du) => {
-        return $scope.$parent.selectedDeliveyUnit.includes(du) ? "selected" : '';
+        return migrationDataState.selectedDeliveryUnit.includes(du) ? "selected" : '';
 
     };
 
     $scope.allDUSelectable = () => {
-        return $scope.$parent.selectedDeliveyUnit.length < $scope.deliveryUnitList.length ? "selected" : "";
+        return migrationDataState.selectedDeliveryUnit.length < $scope.deliveryUnitList.length ? "selected" : "";
     }
 
     $scope.toggleSelectAllDU = () => {
-        let compare_value = ($scope.$parent.selectedDeliveyUnit.length != $scope.deliveryUnitList.length);
+        let compare_value = (migrationDataState.selectedDeliveryUnit.length != $scope.deliveryUnitList.length);
         for (let i = 0; i < $scope.deliveryUnitList.length; i++)
             if (Boolean($scope.isDUSelected($scope.deliveryUnitList[i])) !== compare_value)
                 $scope.duSelected($scope.deliveryUnitList[i]);
