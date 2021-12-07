@@ -1,8 +1,8 @@
 const process = require('bpm/v4/process');
 const execution = process.getExecutionContext();
-try {
-    const MigrationService = require('ide-migration/server/migration/api/migration-service');
+const MigrationService = require('ide-migration/server/migration/api/migration-service');
 
+try {
     process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_EXECUTING');
     const userDataJson = process.getVariable(execution.getId(), 'userData');
     const userData = JSON.parse(userDataJson);

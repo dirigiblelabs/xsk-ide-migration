@@ -1,7 +1,7 @@
-try {
-  const process = require('bpm/v4/process');
+const process = require('bpm/v4/process');
+const execution = process.getExecutionContext();
 
-  const execution = process.getExecutionContext();
+try {
   const userDataJson = process.getVariable(execution.getId(), 'userData');
   const userJwtToken = process.getVariable(execution.getId(), 'userJwtToken');
   const userData = JSON.parse(userDataJson);
