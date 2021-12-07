@@ -116,7 +116,7 @@
     <sequenceFlow id="sid-772428AA-7E10-46EE-A757-32A49713378A" sourceRef="sid-FFB6E58B-1F4A-4F09-9C3A-ADAEC8D387F9" targetRef="userSelectDeliveryUnitAndWorkspaceTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${migrationState == 'MIGRATION_FAILED'}]]></conditionExpression>
     </sequenceFlow>
-    <sequenceFlow id="sid-221982B5-4C45-4981-A562-EC46282FE8D4" sourceRef="copyFilesTask"/>
+    <sequenceFlow id="sid-1B647715-A769-4A06-A38A-0260EC9F92D8" sourceRef="copyFilesTask" targetRef="createWorkspaceTask"/>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_migrationProcess">
     <bpmndi:BPMNPlane bpmnElement="migrationProcess" id="BPMNPlane_migrationProcess">
@@ -198,9 +198,9 @@
         <omgdi:waypoint x="384.95" y="290.87301587301585"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-12790E31-88FB-4511-A911-297A6C4391E6" id="BPMNEdge_sid-12790E31-88FB-4511-A911-297A6C4391E6">
-        <omgdi:waypoint x="905.0" y="129.93524408284026"/>
-        <omgdi:waypoint x="905.0" y="177.5"/>
-        <omgdi:waypoint x="785.0" y="177.5"/>
+        <omgdi:waypoint x="905.0" y="129.93513412816694"/>
+        <omgdi:waypoint x="905.0" y="177.0"/>
+        <omgdi:waypoint x="785.0" y="177.0"/>
         <omgdi:waypoint x="785.0" y="225.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-4280E3CA-DD12-4743-9C5B-70DB5EA19700" id="BPMNEdge_sid-4280E3CA-DD12-4743-9C5B-70DB5EA19700">
@@ -222,6 +222,10 @@
       <bpmndi:BPMNEdge bpmnElement="sid-E766566B-8B50-46B5-9FF8-BFD66468C081" id="BPMNEdge_sid-E766566B-8B50-46B5-9FF8-BFD66468C081">
         <omgdi:waypoint x="890.4777070063694" y="115.46401273885351"/>
         <omgdi:waypoint x="384.95000000000005" y="306.140350877193"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-1B647715-A769-4A06-A38A-0260EC9F92D8" id="BPMNEdge_sid-1B647715-A769-4A06-A38A-0260EC9F92D8">
+        <omgdi:waypoint x="834.9499999999999" y="430.0"/>
+        <omgdi:waypoint x="884.9999999999363" y="430.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-983EFE4C-0C0D-403E-B55E-1AC7E62761C2" id="BPMNEdge_sid-983EFE4C-0C0D-403E-B55E-1AC7E62761C2">
         <omgdi:waypoint x="785.0" y="304.95000000000005"/>
