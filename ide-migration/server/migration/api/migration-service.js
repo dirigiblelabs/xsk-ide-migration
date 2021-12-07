@@ -16,6 +16,11 @@ const bytes = require("io/v4/bytes");
 const database = require("db/v4/database");
 const config = require("core/v4/configurations");
 const HANA_USERNAME = "HANA_USERNAME";
+const TransformerFactory = Java.type("javax.xml.transform.TransformerFactory");
+const StreamSource = Java.type("javax.xml.transform.stream.StreamSource");
+const StreamResult = Java.type("javax.xml.transform.stream.StreamResult")
+const StringReader = Java.type("java.io.StringReader")
+const StringWriter = Java.type("java.io.StringWriter")
 
 class MigrationService {
 
@@ -87,13 +92,15 @@ class MigrationService {
                 fileRunLocation = fileRunLocation.slice(projectName.length + 1);
             }
 
-            let projectFile = project.createFile(fileRunLocation);
-            projectFile.setContent(file._content);
-
             if (fileRunLocation.endsWith('hdbcalculationview')
                 || fileRunLocation.endsWith('calculationview')) {
+                file._content = this.transformPrivileges(file._content);
+                file._content = this.transformColumnObject(file._content);
                 deployables.find(x => x.projectName === projectName).artifacts.push(file.RunLocation);
             }
+
+            let projectFile = project.createFile(fileRunLocation);
+            projectFile.setContent(file._content);
         }
 
         this.handlePossibleDeployableArtifacts(deployables);
@@ -241,6 +248,73 @@ class MigrationService {
         let context = {};
         const filesAndPackagesObject = this.repo.getAllFilesForDu(context, du);
         return filesAndPackagesObject.files;
+    }
+
+    transformPrivileges(calculationViewXml) {
+        const privilegesTransformationXslt = `
+            <?xml version="1.0" encoding="ISO-8859-1"?>
+            <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+                <xsl:template match="node()|@*">
+                    <xsl:copy>
+                        <xsl:apply-templates select="node()|@*"/>
+                    </xsl:copy>
+                </xsl:template>
+
+                <xsl:template match="*[name()='Calculation:scenario']/@applyPrivilegeType">
+                    <xsl:attribute name="applyPrivilegeType">
+                        <xsl:value-of select="'NONE'"/>
+                    </xsl:attribute>
+                </xsl:template>
+
+                <xsl:template match="*[name()='Calculation:scenario']/@checkAnalyticPrivileges">
+                    <xsl:attribute name="checkAnalyticPrivileges">
+                        <xsl:value-of select="'false'"/>
+                    </xsl:attribute>
+                </xsl:template>
+            </xsl:stylesheet>
+        `;
+
+        const factory = TransformerFactory.newInstance();
+        const source = new StreamSource(new StringReader(privilegesTransformationXslt));
+        const transformer = factory.newTransformer(source);
+        const text = new StreamSource(new StringReader(calculationViewXml));
+
+        const stringWriter = new StringWriter();
+        transformer.transform(text, new StreamResult(stringWriter));
+        const res = stringWriter.toString();
+        return res;
+    }
+
+    transformColumnObject(calculationViewXml) {
+        const columnObjectToResourceUriXslt = `
+            <?xml version="1.0" encoding="ISO-8859-1"?>
+            <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+                <xsl:template match="node()|@*">
+                    <xsl:copy>
+                        <xsl:apply-templates select="node()|@*"/>
+                    </xsl:copy>
+                </xsl:template>
+
+                <xsl:template match="DataSource[@type='DATA_BASE_TABLE']/columnObject[@columnObjectName]">
+                    <xsl:element name="resourceUri">
+                        <xsl:value-of select="@columnObjectName"/>
+                    </xsl:element>
+                </xsl:template>
+            </xsl:stylesheet>
+        `;
+
+        const factory = TransformerFactory.newInstance();
+        const source = new StreamSource(new StringReader(columnObjectToResourceUriXslt));
+        const transformer = factory.newTransformer(source);
+
+        const text = new StreamSource(new StringReader(calculationViewXml));
+
+        const stringWriter = new StringWriter();
+        transformer.transform(text, new StreamResult(stringWriter));
+        const res = stringWriter.toString();
+        return res;
     }
 
 }
