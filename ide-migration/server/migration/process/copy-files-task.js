@@ -11,12 +11,13 @@ try {
 
     const migrationService = new MigrationService();
 
-    for (let i = 0; i < userData.du.length; i++) {
+    for (const deliveryUnit of userData.du) {
         migrationService.setupConnection(userDatabaseData.databaseSchema, userDatabaseData.username, userDatabaseData.password, connectionUrl);
-        let files = migrationService.getAllFilesForDU(userData.du[i]);
-        let locals = migrationService.copyFilesLocally(userData.workspace, files);
-        userData.du[i]['locals'] = locals;
+        const files = migrationService.getAllFilesForDU(deliveryUnit);
+        const locals = migrationService.copyFilesLocally(userData.workspace, files);
+        deliveryUnit.locals = locals;
     }
+    
     process.setVariable(execution.getId(), 'userData', JSON.stringify(userData));
     process.setVariable(execution.getId(), 'migrationState', 'COPY_FILES_EXECUTED');
 } catch (e) {

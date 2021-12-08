@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2021 SAP SE or an SAP affiliate company and XSK contributors
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Apache License, v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 const process = require('bpm/v4/process');
 const execution = process.getExecutionContext();
 const MigrationService = require('ide-migration/server/migration/api/migration-service');
@@ -9,12 +20,11 @@ try {
 
     const migrationService = new MigrationService();
 
-    for (let i = 0; i < userData.du.length; i++) {
-        let locals = userData.du[i].locals;
-        let deployables = [];
-        for (let i = 0; i < locals.length; i++) {
-            const local = locals[i];
-            deployables = migrationService.collectDeployables(userData.workspace, local.path, local.runLocation, local.projectName, deployables);
+    for (const deliveryUnit of userData.du) {
+        const locals = deliveryUnit.locals;
+        const deployables = [];
+        for (const local of locals) {
+            deployables = migrationService.collectDeployables(userData.workspace, local.repositoryPath, local.runLocation, local.projectName, deployables);
         }
         migrationService.handlePossibleDeployableArtifacts(deployables);
     }

@@ -8,13 +8,12 @@ try {
     const userData = JSON.parse(userDataJson);
 
     const migrationService = new MigrationService();
+    const workspace = userData.workspace;
 
-    for (let i = 0; i < userData.du.length; i++) {
-        let locals = userData.du[i].locals;
-        let workspace = userData.workspace;
-        for (let i = 0; i < locals.length; i++) {
-            const local = locals[i];
-            migrationService.addFileToWorkspace(workspace, local.path, local.projectName);
+    for (const deliveryUnit of userData.du) {
+        const locals = deliveryUnit.locals;
+        for (const local of locals) {
+            migrationService.addFileToWorkspace(workspace, local.repositoryPath, local.relativePath, local.projectName);
         }
     }
     process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');
