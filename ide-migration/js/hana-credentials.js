@@ -32,7 +32,7 @@ migrationLaunchView.controller('HanaCredentialsViewController', ['$scope', '$htt
                 hostName: migrationDataState.neoHostName,
                 subaccount: migrationDataState.neoSubaccount,
                 username: migrationDataState.neoUsername,
-                password: migrationDataState.neoPassword + migrationDataState.neoAuthCode
+                password: migrationDataState.neoPassword
             }
         };
 

@@ -50,7 +50,6 @@ function migrationDataState() {
 
         neoUsername: null,
         neoPassword: null,
-        neoAuthCode: null,
         neoSubaccount: null,
         neoHostName: null,
 
