@@ -39,6 +39,30 @@ migrationLaunchView.factory('$messageHub', [function () {
     };
 }]);
 
+migrationLaunchView.factory('migrationDataState', migrationDataState);
+
+function migrationDataState() {
+
+    let state = {
+        schemaName: null,
+        dbUsername: null,
+        dbPassword: null,
+
+        neoUsername: null,
+        neoPassword: null,
+        neoSubaccount: null,
+        neoHostName: null,
+
+        selectedDeliveryUnits: [],
+        selectedWorkspace: null,
+
+        processInstanceId: null,
+        connectionId: null,
+    };
+
+    return state;
+}
+
 migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
     $scope.steps = [
         { id: 1, name: "SAP BTP Neo Credentials", topicId: "migration.neo-credentials" },

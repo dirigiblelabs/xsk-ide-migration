@@ -1,6 +1,6 @@
-const MigrationService = require('ide-migration/server/migration/api/migration-service');
 const process = require('bpm/v4/process');
 const execution = process.getExecutionContext();
+const MigrationService = require('ide-migration/server/migration/api/migration-service');
 
 try {
     process.setVariable(execution.getId(), 'migrationState', 'DELIVERY_UNITS_LISTING');
