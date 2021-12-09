@@ -1,7 +1,7 @@
-try {
-    const process = require('bpm/v4/process');
-    const execution = process.getExecutionContext();
+const process = require('bpm/v4/process');
+const execution = process.getExecutionContext();
 
+try {
     process.setVariable(execution.getId(), 'migrationState', 'TUNNEL_CLOSING');
 
     const userDataJson = process.getVariable(execution.getId(), 'userData');
