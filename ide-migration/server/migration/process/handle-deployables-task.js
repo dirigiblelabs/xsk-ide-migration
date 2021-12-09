@@ -22,7 +22,7 @@ try {
 
     for (const deliveryUnit of userData.du) {
         const locals = deliveryUnit.locals;
-        const deployables = [];
+        let deployables = [];
         for (const local of locals) {
             deployables = migrationService.collectDeployables(userData.workspace, local.repositoryPath, local.runLocation, local.projectName, deployables);
         }
