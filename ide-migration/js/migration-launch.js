@@ -53,7 +53,7 @@ function migrationDataState() {
         neoSubaccount: null,
         neoHostName: null,
 
-        selectedDeliveryUnit: [],
+        selectedDeliveryUnits: [],
         selectedWorkspace: null,
 
         processInstanceId: null,

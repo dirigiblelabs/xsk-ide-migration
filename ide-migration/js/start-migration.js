@@ -24,7 +24,7 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
     let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
 
 
-    function startMigration(duData) {
+    function startMigration() {
         body = {
             neo: {
                 hostName: migrationDataState.neoHostName,
@@ -37,23 +37,22 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
             },
             connectionId: migrationDataState.connectionId,
             workspace: migrationDataState.selectedWorkspace,
-            du: migrationDataState.selectedDeliveryUnit,
+            du: migrationDataState.selectedDeliveryUnits,
             processInstanceId: migrationDataState.processInstanceId
         };
-        $scope.statusMessage = duData.du.length > 1 ? `Migrating ${duData.du.length} projects` : `Migrating project`;
+
+        const selectedDeliveryUnitsCount = migrationDataState.selectedDeliveryUnits.length;
+        $scope.statusMessage = selectedDeliveryUnitsCount > 1 ? `Migrating ${selectedDeliveryUnitsCount} projects` : `Migrating project`;
 
         $http.post(
             "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/continue-process",
             JSON.stringify(body),
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
-            var duNames = [];
-            duData.du.forEach(du => {
-                duNames.push(du.name);
-            });
-            var duNamesFormatted = `["${duNames.join("\", \"")}"]`; // quoted with comma - ["name1", "name2"]
+            const duNames = migrationDataState.selectedDeliveryUnits.map(x => x.name);
+            const duNamesFormatted = `["${duNames.join("\", \"")}"]`; // quoted with comma - ["name1", "name2"]
             $scope.progressTitle = titleList[1];
-            $scope.statusMessage = `Successfully migrated Delivery Units to the following projects: ${duNamesFormatted}. Go to workspace "${duData.workspace}" and publish them.`;
+            $scope.statusMessage = `Successfully migrated Delivery Units to the following projects: ${duNamesFormatted}. Go to workspace "${migrationDataState.selectedWorkspace}" and publish them.`;
             $scope.migrationFinished = true;
         }, function (response) {
             if (response.data) {
