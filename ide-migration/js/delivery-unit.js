@@ -26,12 +26,12 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
     $scope.selectAllText = 'Select all';
     $scope.duSelectedUItext = [];
     let descriptionList = [
-        "Please wait while we get all delivery unit(s)...",
+        "Please, wait while we get all delivery unit(s)...",
         "Select the target workspace and delivery unit(s)"
     ];
     $scope.descriptionText = descriptionList[0];
     let defaultErrorTitle = "Error loading delivery units";
-    let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
+    let defaultErrorDesc = "Please, check if the information you provided is correct and try again.";
 
     $('.multi-selectable').on('click', function (e) {
         e.stopPropagation();
@@ -111,6 +111,14 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
                 );
             }
             errorOccurred();
+        }).catch((e) => {
+            console.log(e)
+            hanaData = undefined;
+            $messageHub.announceAlertError(
+                defaultErrorTitle,
+                defaultErrorDesc
+            );
+            errorOccurred();
         });
     };
 
@@ -176,6 +184,7 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
         for (let i = 0; i < $scope.deliveryUnitList.length; i++)
             if (Boolean($scope.isDUSelected($scope.deliveryUnitList[i])) !== compare_value)
                 $scope.duSelected($scope.deliveryUnitList[i]);
+        $scope.$parent.setNextEnabled(selectedDeliveyUnit.length);
     };
 
     $scope.duSelected = function (deliveryUnit) {
@@ -188,30 +197,39 @@ migrationLaunchView.controller('DeliveryUnitViewController', ['$scope', '$http',
         }
 
         $scope.duDropdownText = $scope.duSelectedUItext.length ? $scope.duSelectedUItext.join(", ") : $scope.duDropdownInitText;
-        $scope.selectAllText = migrationDataState.selectedDeliveryUnits.length == $scope.deliveryUnitList.length ? "Unselect all" : "Select all";
-        $scope.$parent.setNextEnabled(true);
 
+        $scope.selectAllText = migrationDataState.selectedDeliveryUnits.length == $scope.deliveryUnitList.length ? "Unselect all" : "Select all";
+        $scope.$parent.setNextEnabled(migrationDataState.selectedDeliveryUnits.length);
     };
 
     $messageHub.on('migration.delivery-unit', function (msg) {
         if ("isVisible" in msg.data) {
             $scope.$apply(function () {
-                $scope.dataLoaded = false;
-                $scope.duDropdownDisabled = true;
-                $scope.duDropdownText = "---Please select---";
-                $scope.workspacesDropdownText = "---Please select---";
-                $scope.descriptionText = descriptionList[0];
+                if (migrationDataState.connectionId)
+                    $scope.dataLoaded = true;
+                else {
+                    $scope.dataLoaded = false;
+                    $scope.duDropdownDisabled = true;
+                    $scope.duDropdownText = "---Please select---";
+                    $scope.workspacesDropdownText = "---Please select---";
+                    $scope.descriptionText = descriptionList[0];
+                }
                 $scope.isVisible = msg.data.isVisible;
                 if (msg.data.isVisible) {
                     $scope.$parent.setFullWidthEnabled(false);
-                    $scope.$parent.setBottomNavEnabled(false);
+                    if (migrationDataState.connectionId) {
+                        $scope.$parent.setBottomNavEnabled(true);
+                        $scope.$parent.setNextEnabled(true);
+                    } else {
+                        $scope.$parent.setBottomNavEnabled(false);
+                        $scope.$parent.setNextEnabled(false);
+                    }
                     $scope.$parent.setPreviousVisible(true);
                     $scope.$parent.setPreviousEnabled(true);
-                    $scope.$parent.setNextEnabled(false);
                     $scope.$parent.setNextVisible(true);
                 }
             });
-            if (msg.data.isVisible) {
+            if (msg.data.isVisible && !migrationDataState.connectionId) {
                 getDUData();
             }
         }

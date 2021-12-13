@@ -42,41 +42,51 @@ migrationLaunchView.controller('HanaCredentialsViewController', ['$scope', '$htt
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
             migrationDataState.processInstanceId = body.processInstanceId = response.data.processInstanceId;
-            const timer = setInterval(function () {
-                $http.post(
-                    "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/get-process",
-                    JSON.stringify(body),
-                    { headers: { 'Content-Type': 'application/json' } }
-                ).then(function (response) {
-                    if (response.data && response.data.failed) {
-                        clearInterval(timer);
-                        $messageHub.announceAlertError(
-                            defaultErrorTitle,
-                            defaultErrorDesc
-                        );
-                        errorOccurred();
-                    } else if (response.data.databases) {
-                        clearInterval(timer);
-                        $scope.areDatabasesLoaded = true;
-                        $scope.descriptionText = descriptionList[1];
-                        $scope.userInput();
-                        $scope.$parent.setPreviousVisible(true);
-                        $scope.$parent.setPreviousEnabled(true);
-                        $scope.$parent.setNextVisible(true);
-                        $scope.$parent.setNextEnabled(true);
+            if (!migrationDataState.processInstanceId) {
+                $messageHub.announceAlertError(
+                    defaultErrorTitle,
+                    defaultErrorDesc
+                );
+                errorOccurred();
+            } else {
+                const timer = setInterval(function () {
+                    $http.post(
+                        "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/get-process",
+                        JSON.stringify(body),
+                        { headers: { 'Content-Type': 'application/json' } }
+                    ).then(function (response) {
+                        if (response.data && response.data.failed) {
+                            clearInterval(timer);
+                            $messageHub.announceAlertError(
+                                defaultErrorTitle,
+                                defaultErrorDesc
+                            );
+                            errorOccurred();
+                        } else if (response.data.databases) {
+                            clearInterval(timer);
+                            $scope.areDatabasesLoaded = true;
+                            $scope.descriptionText = descriptionList[1];
+                            $scope.userInput();
+                            $scope.$parent.setPreviousVisible(true);
+                            $scope.$parent.setPreviousEnabled(true);
+                            $scope.$parent.setNextVisible(true);
+                            $scope.$parent.setNextEnabled(true);
 
-                        $scope.databasesDropdownText = "---Please select---";
-                        $scope.databases = response.data.databases;
-                        $scope.databasesList = $scope.databases;
+                            $scope.databases = response.data.databases;
+                            if ($scope.schemaName && $scope.databases.includes($scope.schemaName)) {
+                                $scope.databasesDropdownText = $scope.schemaName;
+                            } else
+                                $scope.databasesDropdownText = "---Please select---";
+                            $scope.databasesList = $scope.databases;
 
-                    }
-                }, function (response) { })
-            }, 1000);
-
+                        }
+                    }, function (response) { })
+                }, 1000);
+            }
         }, function (response) {
             if (response.data) {
-                if ("error" in response.data) {
-                    if ("message" in response.data.error) {
+                if (response.status == 500 || "error" in response.data) {
+                    if (response.data.error && "message" in response.data.error) {
                         $messageHub.announceAlertError(
                             defaultErrorTitle,
                             response.data.error.message

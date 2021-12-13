@@ -21,8 +21,7 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
     $scope.progressTitle = titleList[0];
     $scope.statusMessage = "Configuration processing...";
     let defaultErrorTitle = "Error migrating project";
-    let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
-
+    let defaultErrorDesc = "Please, check if the information you provided is correct and try again.";
 
     function startMigration() {
         body = {
