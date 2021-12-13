@@ -23,7 +23,7 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
     let neoData = undefined;
     let hanaData = undefined;
     let defaultErrorTitle = "Error migrating project";
-    let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
+    let defaultErrorDesc = "Please, check if the information you provided is correct and try again.";
     let selectedWorkspace = '';
 
 
