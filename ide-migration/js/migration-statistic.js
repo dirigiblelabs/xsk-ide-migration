@@ -51,26 +51,23 @@ migrationStatisticView.controller('MigrationStatisticsController', [
 	function($scope, $http, $interval) {
 		let body = { migrations: 'empty' };
 		$scope.text = 'XSK Migration Statistic';
+		let defaultErrorTitle = "Error loading migrations information.";
+		let defaultErrorDesc = "Please check if the migrations table exist.";
 		populateData();
 		$interval(populateData, 5000);
 
+		
 		function populateData() {
-			$http
-				.post(
-					'/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/migrationsTrack',
-					JSON.stringify(body),
-					{ headers: { 'Content-Type': 'application/json' } }
-				)
-				.then(
-					function(response) {
-						$scope.migrations = JSON.parse(JSON.stringify(response.data));
-						$scope.showTable = $scope.migrations === 'empty';
-					},
-					function(response) {
-						if (response.data && response.data.failed) {
-						}
-					}
-				);
+			$http.post(
+				"/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/migrationsTrack",
+				JSON.stringify(body),
+				{ headers: { 'Content-Type': 'application/json' } }
+			).then(function (response) {
+				$scope.migrations = JSON.parse(JSON.stringify(response.data));
+				$scope.showTable = $scope.migrations === 'empty';
+			}, function (response) {
+				$messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
+                console.error(response)});
 		}
 	}
 ]);

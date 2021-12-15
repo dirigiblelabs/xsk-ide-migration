@@ -113,7 +113,6 @@ function getMigrations(ctx, request, response) {
 		resultSet.close();
 		statement.close();
 	} catch (e) {
-		console.trace(e);
 	} finally {
 		connection.close();
 	}
