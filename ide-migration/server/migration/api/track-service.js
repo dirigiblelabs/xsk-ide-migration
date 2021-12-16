@@ -91,6 +91,7 @@ class TrackService {
 
   addEntry(status) {
     this.setupTable()
+
     try {
       entryInstance = migrationsTable.insert({
         executedBy: userName,
@@ -98,8 +99,7 @@ class TrackService {
         lastUpdated: Date.now(),
         status: status
       });
-      const entry = migrationsTable.find(entryInstance)
-      this.currentIndex = entry.id;
+      this.currentIndex = entryInstance;
     } catch (e) {
       throw new Error("Cant add new migration entry. Reason: " + e)
     }
