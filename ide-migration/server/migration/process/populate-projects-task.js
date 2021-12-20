@@ -2,6 +2,7 @@ const process = require('bpm/v4/process');
 const execution = process.getExecutionContext();
 const MigrationService = require('ide-migration/server/migration/api/migration-service');
 const git = require('utils/git');
+var repositoryManager = require("platform/v4/repository");
 
 try {
     process.setVariable(execution.getId(), 'migrationState', 'POPULATING_PROJECTS');
@@ -27,6 +28,8 @@ try {
         }
         let repositoryName = locals[0].projectName;
         git.commit('migration', '', userData.workspace, repositoryName, 'Artifacts handled', true);
+
+        repositoryManager.deleteCollection(userData.workspace);
 
     }
     process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');
