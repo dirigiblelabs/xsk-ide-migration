@@ -26,7 +26,7 @@ try {
         for (const local of locals) {
             deployables = migrationService.collectDeployables(userData.workspace, local.repositoryPath, local.runLocation, local.projectName, deployables);
         }
-        migrationService.handlePossibleDeployableArtifacts(deployables);
+        deliveryUnit['deployableArtifactsResult'] = migrationService.handlePossibleDeployableArtifacts(userData.workspace, deployables);
     }
     process.setVariable(execution.getId(), 'userData', JSON.stringify(userData));
     process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_EXECUTED');
