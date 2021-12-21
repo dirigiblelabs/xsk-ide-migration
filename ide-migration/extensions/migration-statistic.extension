@@ -1,0 +1,5 @@
+{
+    "module": "ide-migration/services/migration-statistic-view.js",
+    "extensionPoint": "ide-view",
+    "description": "XS Migration Statistic Page"
+}
