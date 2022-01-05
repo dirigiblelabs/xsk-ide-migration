@@ -19,7 +19,6 @@ try {
 
 	process.setVariable(execution.getId(), 'databases', JSON.stringify(databases));
 	process.setVariable(execution.getId(), 'migrationState', 'DATABASES_LISTED');
-	trackService.addEntry('DATABASES_LISTING');
 	trackService.updateMigrationStatus('DATABASES LISTED');
 } catch (e) {
 	process.setVariable(execution.getId(), 'migrationState', 'DATABASES_LISTING_FAILED');
