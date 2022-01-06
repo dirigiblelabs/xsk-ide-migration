@@ -44,16 +44,22 @@ class MigrationService {
         return this.repo.getAllDeliveryUnits();
     }
 
-    handlePossibleDeployableArtifacts(deployables) {
+    handlePossibleDeployableArtifacts(workspaceName, deployables) {
+        let generatedFiles = [];
+        let updatedFiles = [];
         for (const deployable of deployables) {
             if (deployable.artifacts && deployable.artifacts.length > 0) {
-                const hdiConfigPath = this.createHdiConfigFile(deployable.project);
-                this.createHdiFile(deployable.project, hdiConfigPath, deployable.artifacts);
+                const hdiConfigPath = this.createHdiConfigFile(workspaceName, deployable.project);
+                generatedFiles.push(hdiConfigPath);
+                let hdiPath = this.createHdiFile(workspaceName, deployable.project, hdiConfigPath, deployable.artifacts);
+                generatedFiles.push(hdiPath);
             }
         }
+
+        return { generated: generatedFiles, updated: updatedFiles };
     }
 
-    createHdiConfigFile(project) {
+    createHdiConfigFile(workspaceName, project) {
         const hdiConfig = {
             file_suffixes: {
                 hdbcalculationview: {
@@ -67,17 +73,25 @@ class MigrationService {
             }
         };
 
+
+
         const projectName = project.getName();
         const hdiConfigPath = `${projectName}.hdiconfig`;
-        const hdiConfigFile = project.createFile(hdiConfigPath);
         const hdiConfigJson = JSON.stringify(hdiConfig, null, 4);
         const hdiConfigJsonBytes = bytes.textToByteArray(hdiConfigJson);
-        hdiConfigFile.setContent(hdiConfigJsonBytes);
 
-        return hdiConfigPath;
+        const workspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName);
+        const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
+        let localResource = projectCollection.createResource(hdiConfigPath, hdiConfigJsonBytes);
+
+        return {
+            repositoryPath: localResource.getPath(),
+            relativePath: hdiConfigPath,
+            projectName: projectName
+        }
     }
 
-    createHdiFile(project, hdiConfigPath, deployables) {
+    createHdiFile(workspaceName, project, hdiConfigPath, deployables) {
         const projectName = project.getName();
         const defaultHanaUser = this.getDefaultHanaUser();
 
@@ -91,12 +105,18 @@ class MigrationService {
         };
 
         const hdiPath = `${projectName}.hdi`;
-        const hdiFile = project.createFile(`${projectName}.hdi`);
         const hdiJson = JSON.stringify(hdi, null, 4);
         const hdiJsonBytes = bytes.textToByteArray(hdiJson);
-        hdiFile.setContent(hdiJsonBytes);
 
-        return hdiPath;
+        const workspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName);
+        const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
+        let localResource = projectCollection.createResource(hdiPath, hdiJsonBytes);
+
+        return {
+            repositoryPath: localResource.getPath(),
+            relativePath: hdiPath,
+            projectName: projectName
+        }
     }
 
     getDefaultHanaUser() {
@@ -126,12 +146,12 @@ class MigrationService {
 
             const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
             const localResource = projectCollection.createResource(fileRunLocation, content);
-            
-            locals.push({ 
+
+            locals.push({
                 repositoryPath: localResource.getPath(),
-                relativePath: fileRunLocation, 
-                projectName: projectName, 
-                runLocation: file.RunLocation 
+                relativePath: fileRunLocation,
+                projectName: projectName,
+                runLocation: file.RunLocation
             })
         }
         return locals;
@@ -192,13 +212,12 @@ class MigrationService {
         return workspaceCollection.createCollection(projectName);
     }
 
-    createMigratedWorkspace(workspaceName, du) {
+    createMigratedWorkspace(workspaceName) {
         let workspace;
         if (!workspaceName) {
-            workspace = workspaceManager.getWorkspace(du.name)
+            workspace = workspaceManager.getWorkspace(workspaceName);
             if (!workspace) {
-                workspaceManager.createWorkspace(du.name)
-                workspace = workspaceManager.getWorkspace(du.name)
+                workspaceManager.createWorkspace(workspaceName);
             }
         }
         workspace = workspaceManager.getWorkspace(workspaceName);
@@ -255,5 +274,3 @@ class MigrationService {
 }
 
 module.exports = MigrationService;
-
-

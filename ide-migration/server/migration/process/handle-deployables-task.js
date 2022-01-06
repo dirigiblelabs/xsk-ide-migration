@@ -23,22 +23,22 @@ try {
 
 	const migrationService = new MigrationService();
 
-	for (const deliveryUnit of userData.du) {
-		const locals = deliveryUnit.locals;
-		let deployables = [];
-		for (const local of locals) {
-			deployables = migrationService.collectDeployables(
-				userData.workspace,
-				local.repositoryPath,
-				local.runLocation,
-				local.projectName,
+    for (const deliveryUnit of userData.du) {
+        const locals = deliveryUnit.locals;
+        let deployables = [];
+        for (const local of locals) {
+            deployables = migrationService.collectDeployables(
+				userData.workspace, 
+				local.repositoryPath, 
+				local.runLocation, 
+				local.projectName, 
 				deployables
 			);
-		}
-		migrationService.handlePossibleDeployableArtifacts(deployables);
-	}
-	process.setVariable(execution.getId(), 'userData', JSON.stringify(userData));
-	process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_EXECUTED');
+        }
+        deliveryUnit['deployableArtifactsResult'] = migrationService.handlePossibleDeployableArtifacts(userData.workspace, deployables);
+    }
+    process.setVariable(execution.getId(), 'userData', JSON.stringify(userData));
+    process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_EXECUTED');
 	trackService.updateMigrationStatus('HANDLE DEPLOYABLES EXECUTED');
 } catch (e) {
 	console.log('HANDLE_DEPLOYABLES failed with error:');
