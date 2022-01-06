@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
+ * Copyright (c) 2021 SAP SE or an SAP affiliate company and XSK contributors
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v2.0
+ * are made available under the terms of the Apache License, v2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v20.html
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * SPDX-FileCopyrightText: 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
- * SPDX-License-Identifier: EPL-2.0
+ * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
+ * SPDX-License-Identifier: Apache-2.0
  */
 var migrationLaunchView = angular.module('migration-launch', []);
 
@@ -70,6 +70,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         { id: 3, name: "Delivery Units", topicId: "migration.delivery-unit" },
         { id: 4, name: "Migration", topicId: "migration.start-migration" },
     ];
+    $scope.onStatisticsPage = true;
     $scope.bottomNavHidden = false;
     $scope.previousDisabled = false;
     $scope.nextDisabled = true;
@@ -78,6 +79,10 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     $scope.finishVisible = false;
     $scope.finishDisabled = true;
     $scope.currentStep = $scope.steps[0];
+
+    $scope.showMigrationScreen = function () {
+        $scope.onStatisticsPage = false;
+    }
 
     $scope.setFinishVisible = function (visible) {
         $scope.finishVisible = visible;

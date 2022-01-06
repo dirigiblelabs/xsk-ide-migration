@@ -12,27 +12,38 @@
 const process = require('bpm/v4/process');
 const execution = process.getExecutionContext();
 const MigrationService = require('ide-migration/server/migration/api/migration-service');
+const TrackService = require('ide-migration/server/migration/api/track-service');
+const trackService = new TrackService();
 
 try {
-    process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_EXECUTING');
-    const userDataJson = process.getVariable(execution.getId(), 'userData');
-    const userData = JSON.parse(userDataJson);
+	process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_EXECUTING');
+	trackService.updateMigrationStatus('HANDLE DEPLOYABLES EXECUTING');
+	const userDataJson = process.getVariable(execution.getId(), 'userData');
+	const userData = JSON.parse(userDataJson);
 
-    const migrationService = new MigrationService();
+	const migrationService = new MigrationService();
 
     for (const deliveryUnit of userData.du) {
         const locals = deliveryUnit.locals;
         let deployables = [];
         for (const local of locals) {
-            deployables = migrationService.collectDeployables(userData.workspace, local.repositoryPath, local.runLocation, local.projectName, deployables);
+            deployables = migrationService.collectDeployables(
+				userData.workspace, 
+				local.repositoryPath, 
+				local.runLocation, 
+				local.projectName, 
+				deployables
+			);
         }
         deliveryUnit['deployableArtifactsResult'] = migrationService.handlePossibleDeployableArtifacts(userData.workspace, deployables);
     }
     process.setVariable(execution.getId(), 'userData', JSON.stringify(userData));
     process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_EXECUTED');
+	trackService.updateMigrationStatus('HANDLE DEPLOYABLES EXECUTED');
 } catch (e) {
-    console.log('HANDLE_DEPLOYABLES failed with error:');
-    console.log(e.message)
-    process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_FAILED');
-    process.setVariable(execution.getId(), 'HANDLE_DEPLOYABLES_FAILED_REASON', e.toString());
+	console.log('HANDLE_DEPLOYABLES failed with error:');
+	console.log(e.message);
+	process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_FAILED');
+	trackService.updateMigrationStatus('HANDLE DEPLOYABLES FAILED');
+	process.setVariable(execution.getId(), 'HANDLE_DEPLOYABLES_FAILED_REASON', e.toString());
 }
