@@ -39,6 +39,7 @@
 
 		<!-- Project-specific stuff -->
 		<script type="text/javascript" src="js/migration-launch.js"></script>
+		<script type="text/javascript" src="js/migration-statistic.js"></script>
 		<script type="text/javascript" src="js/delivery-unit.js"></script>
 		<script type="text/javascript" src="js/neo-credentials.js"></script>
 		<script type="text/javascript" src="js/hana-credentials.js"></script>
@@ -49,8 +50,18 @@
 	</head>
 
 	<body ng-app="migration-launch" ng-controller="MigrationLaunchViewController" class="view migration-launch-body">
-		<div class="migration-title"><span>SAP HANA XS Classic Migration</span></div>
-		<div class="flex-container">
+		<div class="migration-title">
+			<span class="pull-left">
+				SAP HANA XS Classic Migration
+			</span>
+			<button type="button" class="btn btn-primary btn-big pull-right" ng-click="showMigrationScreen()" ng-show="onStatisticsPage">
+				Migrate a project
+			</button>
+		</div>
+
+		<div ng-include="'partials/migration-statistic.html'" ng-show="onStatisticsPage"></div>
+		
+		<div class="flex-container" ng-hide="onStatisticsPage">
 			<div class="migration-nav">
 				<div class="nav-progress">
 					<div class="nav-progress-line">

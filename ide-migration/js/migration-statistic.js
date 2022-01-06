@@ -9,65 +9,24 @@
  * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-var migrationStatisticView = angular.module('migration-statistic', []);
+migrationLaunchView.controller('MigrationStatisticsController', ['$scope', '$http', '$interval', function ($scope, $http, $interval) {
+	let body = { migrations: 'empty' };
+	let defaultErrorTitle = "Error loading migrations information.";
+	populateData();
+	$interval(populateData, 5000);
 
-migrationStatisticView.factory('$messageHub', [
-	function() {
-		var messageHub = new FramesMessageHub();
-		var announceAlert = function(title, message, type) {
-			messageHub.post(
-				{
-					data: {
-						title: title,
-						message: message,
-						type: type
-					}
-				},
-				'ide.alert'
-			);
-		};
-		var announceAlertError = function(title, message) {
-			announceAlert(title, message, 'error');
-		};
-		var message = function(evtName, data) {
-			messageHub.post({ data: data }, evtName);
-		};
-		var on = function(topic, callback) {
-			messageHub.subscribe(callback, topic);
-		};
-		return {
-			announceAlert: announceAlert,
-			announceAlertError: announceAlertError,
-			message: message,
-			on: on
-		};
+	function populateData() {
+		$http.post(
+			"/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/migrationsTrack",
+			JSON.stringify(body),
+			{ headers: { 'Content-Type': 'application/json' } }
+		).then(function (response) {
+			$scope.migrations = JSON.parse(JSON.stringify(response.data));
+			$scope.hideTable = $scope.migrations === 'empty';
+		}, function (response) {
+			$messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
+			console.error(response)
+		});
 	}
-]);
-
-migrationStatisticView.controller('MigrationStatisticsController', [
-	'$scope',
-	'$http',
-	'$interval',
-	function($scope, $http, $interval) {
-		let body = { migrations: 'empty' };
-		$scope.text = 'XSK Migration Statistic';
-		let defaultErrorTitle = "Error loading migrations information.";
-		let defaultErrorDesc = "Please check if the migrations table exist.";
-		populateData();
-		$interval(populateData, 5000);
-
-		
-		function populateData() {
-			$http.post(
-				"/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/migrationsTrack",
-				JSON.stringify(body),
-				{ headers: { 'Content-Type': 'application/json' } }
-			).then(function (response) {
-				$scope.migrations = JSON.parse(JSON.stringify(response.data));
-				$scope.showTable = $scope.migrations === 'empty';
-			}, function (response) {
-				$messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
-                console.error(response)});
-		}
-	}
+}
 ]);
