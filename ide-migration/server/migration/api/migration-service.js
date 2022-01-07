@@ -23,6 +23,8 @@ const StringReader = Java.type("java.io.StringReader");
 const StringWriter = Java.type("java.io.StringWriter");
 const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream");
 const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
+const CalculationViewModifierService = require("ide-migration/server/migration/api/calculationViewModifierService");
+const calculationViewModifier = new CalculationViewModifierService()
 
 class MigrationService {
 
@@ -270,7 +272,15 @@ class MigrationService {
         const project = workspace.getProject(projectName)
         const projectFile = project.createFile(relativePath);
         const resource = repositoryManager.getResource(repositoryPath);
-        projectFile.setContent(resource.getContent());
+        if (relativePath.endsWith('hdbcalculationview') || relativePath.endsWith('calculationview') || repositoryPath.endsWith('hdbcalculationview') || repositoryPath.endsWith('calculationview')) {
+            try {
+                projectFile.setContent(calculationViewModifier.removeTypeArtifact(resource.getContent()));
+            } catch (e) {
+                throw new Error(e)
+            }
+        } else {
+            projectFile.setContent(resource.getContent());
+        }
     }
 
     getAllFilesForDU(du) {
