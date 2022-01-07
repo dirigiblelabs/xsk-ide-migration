@@ -69,6 +69,14 @@ class MigrationService {
                 calculationview: {
                     plugin_name: "com.sap.hana.di.calculationview",
                     plugin_version: "12.1.0"
+                },
+                hdbanalyticprivilege: {
+                    plugin_name: "com.sap.hana.di.analyticprivilege",
+                    plugin_version: "12.1.0"
+                },
+                analyticprivilege: {
+                    plugin_name: "com.sap.hana.di.analyticprivilege",
+                    plugin_version: "12.1.0"
                 }
             }
         };
