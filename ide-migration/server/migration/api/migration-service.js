@@ -58,7 +58,7 @@ class MigrationService {
             }
         }
 
-        return { generated: generatedFiles, updated: updatedFiles };
+        return {generated: generatedFiles, updated: updatedFiles};
     }
 
     createHdiConfigFile(workspaceName, project) {
@@ -82,7 +82,6 @@ class MigrationService {
                 }
             }
         };
-
 
 
         const projectName = project.getName();
@@ -190,15 +189,15 @@ class MigrationService {
             </xsl:stylesheet>
         `;
 
-        const factory = TransformerFactory.newInstance();
-        const source = new StreamSource(new StringReader(columnObjectToResourceUriXslt));
-        const transformer = factory.newTransformer(source);
+            const factory = TransformerFactory.newInstance();
+            const source = new StreamSource(new StringReader(columnObjectToResourceUriXslt));
+            const transformer = factory.newTransformer(source);
 
-        const text = new StreamSource(new ByteArrayInputStream(calculationViewXmlBytes));
-        const bout = new ByteArrayOutputStream();
+            const text = new StreamSource(new ByteArrayInputStream(calculationViewXmlBytes));
+            const bout = new ByteArrayOutputStream();
 
-        transformer.transform(text, new StreamResult(bout));
-        return bout.toByteArray();
+            transformer.transform(text, new StreamResult(bout));
+            return bout.toByteArray();
         } catch (e) {
             console.log("Error json: " + JSON.stringify(e));
         }
@@ -272,12 +271,9 @@ class MigrationService {
         const project = workspace.getProject(projectName)
         const projectFile = project.createFile(relativePath);
         const resource = repositoryManager.getResource(repositoryPath);
+
         if (relativePath.endsWith('hdbcalculationview') || relativePath.endsWith('calculationview') || repositoryPath.endsWith('hdbcalculationview') || repositoryPath.endsWith('calculationview')) {
-            try {
-                projectFile.setContent(calculationViewModifier.removeTypeArtifact(resource.getContent()));
-            } catch (e) {
-                throw new Error(e)
-            }
+            projectFile.setContent(calculationViewModifier.removeTypeArtifact(resource.getContent()));
         } else {
             projectFile.setContent(resource.getContent());
         }
