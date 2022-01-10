@@ -31,9 +31,6 @@ try {
         }
         let repositoryName = locals[0].projectName;
         git.commit('migration', '', userData.workspace, repositoryName, 'Artifacts handled', true);
-
-        repositoryManager.deleteCollection(userData.workspace);
-
     }
     process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');
 	trackService.updateMigrationStatus('MIGRATION EXECUTED');
