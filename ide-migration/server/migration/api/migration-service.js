@@ -274,8 +274,10 @@ class MigrationService {
         const projectFile = project.createFile(relativePath);
         const resource = repositoryManager.getResource(repositoryPath);
         const xskModificator = new XSKProjectMigrationInterceptor();
+
         if (relativePath.endsWith('hdbcalculationview') || relativePath.endsWith('calculationview') || repositoryPath.endsWith('hdbcalculationview') || repositoryPath.endsWith('calculationview')) {
-            projectFile.setContent(xskModificator.modify(resource.getContent()));
+            const modifiedContent = xskModificator.modify(resource.getContent());
+            projectFile.setContent(modifiedContent);
         } else {
             projectFile.setContent(resource.getContent());
         }
