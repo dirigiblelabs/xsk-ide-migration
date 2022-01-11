@@ -25,6 +25,8 @@ const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream");
 const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
 const CalculationViewModifierService = require("ide-migration/server/migration/api/calculationViewModifierService");
 const calculationViewModifier = new CalculationViewModifierService()
+const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor")
+
 
 class MigrationService {
 
@@ -271,9 +273,11 @@ class MigrationService {
         const project = workspace.getProject(projectName)
         const projectFile = project.createFile(relativePath);
         const resource = repositoryManager.getResource(repositoryPath);
+        const xskModificator = new XSKProjectMigrationInterceptor();
 
         if (relativePath.endsWith('hdbcalculationview') || relativePath.endsWith('calculationview') || repositoryPath.endsWith('hdbcalculationview') || repositoryPath.endsWith('calculationview')) {
-            projectFile.setContent(calculationViewModifier.removeTypeArtifact(resource.getContent()));
+            const modifiedContent = xskModificator.modify(resource.getContent());
+            projectFile.setContent(modifiedContent);
         } else {
             projectFile.setContent(resource.getContent());
         }
