@@ -1,7 +1,8 @@
-const process = require('bpm/v4/process');
+// @ts-ignore
+import { process } from "@dirigible/bpm";
 const execution = process.getExecutionContext();
-const MigrationService = require('ide-migration/server/migration/api/migration-service');
-const TrackService = require('ide-migration/server/migration/api/track-service');
+import { MigrationService } from "../api/migration-service";
+import { TrackService } from "../api/track-service";
 const trackService = new TrackService();
 try {
 	process.setVariable(execution.getId(), 'migrationState', 'EXECUTING_CREATE_WORKSPACE');
@@ -12,12 +13,12 @@ try {
 	const migrationService = new MigrationService();
 
 	for (let i = 0; i < userData.du.length; i++) {
-		migrationService.createMigratedWorkspace(userData.workspace, userData.du[i]);
+		migrationService.createMigratedWorkspace(userData.workspace);
 	}
 	process.setVariable(execution.getId(), 'userData', JSON.stringify(userData));
 	process.setVariable(execution.getId(), 'migrationState', 'WORKSPACE_CREATE_EXECUTED');
 	trackService.updateMigrationStatus('CREATING WORKSPACE EXECUTED');
-} catch (e) {
+} catch (e: any) {
 	console.log('WORKSPACE_CREATE failed with error:');
 	console.log(e.message);
 	process.setVariable(execution.getId(), 'migrationState', 'WORKSPACE_CREATE_FAILED');

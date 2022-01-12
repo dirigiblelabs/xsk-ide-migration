@@ -1,26 +1,14 @@
-const Utils = require('ide-migration/server/migration/utils');
+import { Utils } from "../utils"
 
-class RepositoryHeader {
+export class RepositoryHeader {
 
-    constructor(attachmentCount, contentLength) {
-        this._protocol = "repoV2";
-        this._attachmentCount = attachmentCount;
-        this._contentLength = contentLength;
+    _protocol = "repoV2";
+
+    constructor(private readonly attachmentCount, private readonly contentLength) {
     }
-
 
     get protocol() {
         return this._protocol;
-    }
-
-
-    get attachmentCount() {
-        return this._attachmentCount;
-    }
-
-
-    get contentLength() {
-        return this._contentLength;
     }
 
     static fromBuffer(buffer) {
@@ -37,5 +25,3 @@ class RepositoryHeader {
     }
 
 }
-
-module.exports = RepositoryHeader;

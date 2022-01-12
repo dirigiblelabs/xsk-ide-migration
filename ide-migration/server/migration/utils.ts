@@ -1,4 +1,4 @@
-class Utils {
+export class Utils {
     static arrayCopy(src, srcIndex, dest, destIndex, length) {
         dest.splice(destIndex, length, ...src.slice(srcIndex, srcIndex + length));
     }
@@ -11,5 +11,3 @@ class Utils {
         return org.eclipse.dirigible.api.v3.io.BytesFacade.byteArrayToInt(arr, "LITTLE_ENDIAN");
     }
 }
-
-module.exports = Utils;

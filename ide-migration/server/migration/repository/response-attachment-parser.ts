@@ -1,6 +1,6 @@
-const Utils = require('ide-migration/server/migration/utils');
+import { Utils } from "../utils"
 
-class ResponseAttachmentParser {
+export class ResponseAttachmentParser {
 
     static parse(responseAttachmentBuffer, numberOfAttachments) {
         let attachments = [];
@@ -24,5 +24,3 @@ class ResponseAttachmentParser {
     }
 
 }
-
-module.exports = ResponseAttachmentParser;

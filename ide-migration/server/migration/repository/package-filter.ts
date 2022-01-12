@@ -6,11 +6,12 @@ let GENERIC_FILTER_PACKAGES = [
 
 let QUOTE_PATTERN = /\"([^\"]*)\"/;
 
-function PackageFilter() {
+export class PackageFilter {
 
-    this.splitName = function (name) {
+    splitName = function (name) {
         let n = name;
         let paths = [];
+        let m = null;
         while (n.length > 0 && (m = n.match(QUOTE_PATTERN)) != null) {
             let pre = n.substring(0, m.index);
             if (pre[pre.length - 1] === '.') {
@@ -31,7 +32,7 @@ function PackageFilter() {
         return paths;
     }
 
-    this.filterGenericPackages = function (packageList) {
+    filterGenericPackages(packageList) {
         let that = this;
         let filteredPackages = [];
         packageList.forEach(function (pkg) {
@@ -52,7 +53,7 @@ function PackageFilter() {
         return filteredPackages;
     }
 
-    this.filterPackages = function (context, opackageList) {
+    filterPackages(context, opackageList) {
 
         let packageList = this.filterGenericPackages(opackageList);
         let newPackageList = [];
@@ -86,5 +87,3 @@ function PackageFilter() {
         return newPackageList;
     }
 }
-
-module.exports = new PackageFilter();

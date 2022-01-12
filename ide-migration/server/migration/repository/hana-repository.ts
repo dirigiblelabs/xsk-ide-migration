@@ -1,16 +1,15 @@
-const RepositoryResponse = require('ide-migration/server/migration/repository/repository-response');
-const RepositoryObject = require('ide-migration/server/migration/repository/repository-object');
-const RepositoryPackage = require('ide-migration/server/migration/repository/repository-package');
-
-const packageFilter = require('ide-migration/server/migration/repository/package-filter');
+import { RepositoryResponse } from './repository-response';
+import { RepositoryObject } from './repository-object';
+import { RepositoryPackage } from './repository-package';
+import { PackageFilter } from './package-filter';
+const packageFilter = new PackageFilter();
 const utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
-const Utils = require('ide-migration/server/migration/utils');
+import { Utils } from "../utils"
 const bytesUtils = require("io/v4/bytes");
 
-class HanaRepository {
+export class HanaRepository {
 
-    constructor(hdbClient) {
-        this.hdbClient = hdbClient;
+    constructor(private readonly hdbClient) {
     }
 
     getAllDeliveryUnits() {
@@ -226,7 +225,7 @@ class HanaRepository {
 
         let bArrJSONLength = [];
         Utils.arrayCopy(respAsByteArr, 10, bArrJSONLength, 0, 4);
-        jsonLength = Utils.byteArrayToInt(bArrJSONLength);
+        let jsonLength = Utils.byteArrayToInt(bArrJSONLength);
         let pointer = 14;
 
         json = utf8.bytesToString(respAsByteArr, pointer, jsonLength);
@@ -236,5 +235,3 @@ class HanaRepository {
     }
 
 }
-
-module.exports = HanaRepository;

@@ -1,11 +1,10 @@
-class RepositoryPackage {
+export class RepositoryPackage {
 
-    constructor(pkg) {
-        this._pkg = pkg;
+    constructor(private readonly pkg) {
     }
 
     get packageName() {
-        return this._pkg.package;
+        return this.pkg.package;
     }
 
     get packageFile() {
@@ -15,5 +14,3 @@ class RepositoryPackage {
     }
 
 }
-
-module.exports = RepositoryPackage;

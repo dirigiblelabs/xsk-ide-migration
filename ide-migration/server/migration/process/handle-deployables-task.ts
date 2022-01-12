@@ -9,10 +9,11 @@
  * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-const process = require('bpm/v4/process');
+// @ts-ignore
+import { process } from "@dirigible/bpm";
 const execution = process.getExecutionContext();
-const MigrationService = require('ide-migration/server/migration/api/migration-service');
-const TrackService = require('ide-migration/server/migration/api/track-service');
+import { MigrationService } from "../api/migration-service";
+import { TrackService } from "../api/track-service";
 const trackService = new TrackService();
 
 try {
@@ -40,7 +41,7 @@ try {
     process.setVariable(execution.getId(), 'userData', JSON.stringify(userData));
     process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_EXECUTED');
 	trackService.updateMigrationStatus('HANDLE DEPLOYABLES EXECUTED');
-} catch (e) {
+} catch (e: any) {
 	console.log('HANDLE_DEPLOYABLES failed with error:');
 	console.log(e.message);
 	process.setVariable(execution.getId(), 'migrationState', 'HANDLE_DEPLOYABLES_FAILED');

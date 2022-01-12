@@ -1,7 +1,9 @@
-const tasksService = require('bpm/v4/tasks');
-const processService = require('bpm/v4/process');
-const httpClient = require('http/v4/client');
-const database = require('db/v4/database');
+// @ts-ignore
+import { process as processService, tasks as tasksService } from "@dirigible/bpm";
+// @ts-ignore
+import {client as httpClient} from "@dirigible/http";
+// @ts-ignore
+import { database } from "@dirigible/db";
 
 const rs = require('http/v4/rs');
 rs.service()
@@ -78,7 +80,7 @@ function getProcessState(ctx, req, res) {
 	const userDataJson = req.getJSON();
 	const processInstanceIdString = userDataJson.processInstanceId.toString();
 	const migrationState = processService.getVariable(processInstanceIdString, 'migrationState');
-	const response = {
+	const response: any = {
 		migrationState: migrationState
 	};
 

@@ -1,9 +1,13 @@
-let RepositoryHeader = require('ide-migration/server/migration/repository/repository-header');
-let ResponseAttachmentParser = require('ide-migration/server/migration/repository/response-attachment-parser');
+import { RepositoryHeader } from './repository-header';
+import { ResponseAttachmentParser } from './response-attachment-parser';
 
 let utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 
-class RepositoryResponse {
+export class RepositoryResponse {
+
+    _header = null;
+    _contentBuffer = null;
+    _attachments = null;
 
     constructor(responseBuffer) {
 
@@ -34,5 +38,3 @@ class RepositoryResponse {
     }
 
 }
-
-module.exports = RepositoryResponse;

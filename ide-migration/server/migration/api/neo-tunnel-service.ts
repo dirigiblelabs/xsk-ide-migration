@@ -9,29 +9,29 @@
  * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-const config = require("core/v4/configurations");
-const MigrationToolExecutor = require("ide-migration/server/migration/api/migration-tool-executor");
+// @ts-ignore
+import { configurations } from "@dirigible/core"
+import { MigrationToolExecutor } from "./migration-tool-executor";
 
-const neoClientPath = config.get("user.dir") + "/target/dirigible/resources-neo-sdk/tools/neo.sh";
+const neoClientPath = configurations.get("user.dir") + "/target/dirigible/resources-neo-sdk/tools/neo.sh";
 
-class NeoTunnelService {
+export class NeoTunnelService {
 
-  constructor() {
-    this.migrationToolExecutor = new MigrationToolExecutor();
+  constructor(private readonly migrationToolExecutor = new MigrationToolExecutor()) {
   }
 
   openTunnel(account, host, jwtToken, databaseId) {
     const script = `${neoClientPath} open-db-tunnel -a "${account}" -h "${host}" -u JWT -p "${jwtToken}" -i "${databaseId}" --output json --background`;
 
     const rawCommandResult = this.migrationToolExecutor.execute(script, {
-      "JAVA_HOME": config.get("JAVA8_HOME"),
-      "PATH": config.get("JAVA8_HOME") + "/bin:" + config.get("PATH")
+      "JAVA_HOME": configurations.get("JAVA8_HOME"),
+      "PATH": configurations.get("JAVA8_HOME") + "/bin:" + configurations.get("PATH")
     });
 
     const commandResult = JSON.parse(rawCommandResult);
     console.log(commandResult)
     if (commandResult.errorMsg) {
-      throw "[NEO CLIENT ERROR]" + neoOutput.errorMsg
+      throw "[NEO CLIENT ERROR] " + commandResult.errorMsg
     }
 
     return commandResult.result;
@@ -40,10 +40,8 @@ class NeoTunnelService {
   closeTunnel(sessionId) {
     const script = `${neoClientPath} close-db-tunnel --session-id ${sessionId}`;
     this.migrationToolExecutor.execute(script, {
-      "JAVA_HOME": config.get("JAVA8_HOME"),
-      "PATH": config.get("JAVA8_HOME") + "/bin:" + config.get("PATH")
+      "JAVA_HOME": configurations.get("JAVA8_HOME"),
+      "PATH": configurations.get("JAVA8_HOME") + "/bin:" + configurations.get("PATH")
     });
   }
 }
-
-module.exports = NeoTunnelService;

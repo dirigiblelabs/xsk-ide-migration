@@ -9,12 +9,15 @@
  * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-const HanaRepository = require('ide-migration/server/migration/repository/hana-repository');
-const workspaceManager = require("platform/v4/workspace");
-const repositoryManager = require("platform/v4/repository");
-const bytes = require("io/v4/bytes");
-const database = require("db/v4/database");
-const config = require("core/v4/configurations");
+import { HanaRepository } from "../repository/hana-repository";
+// @ts-ignore
+import {workspace as workspaceManager, repository as repositoryManager} from "@dirigible/platform"
+// @ts-ignore
+import { bytes } from "@dirigible/bytes";
+// @ts-ignore
+import { database } from "@dirigible/db";
+// @ts-ignore
+import { configurations } from "@dirigible/core";
 const HANA_USERNAME = "HANA_USERNAME";
 const TransformerFactory = Java.type("javax.xml.transform.TransformerFactory");
 const StreamSource = Java.type("javax.xml.transform.stream.StreamSource");
@@ -26,7 +29,7 @@ const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
 const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor")
 
 
-class MigrationService {
+export class MigrationService {
 
     connection = null;
     repo = null;
@@ -125,7 +128,7 @@ class MigrationService {
     }
 
     getDefaultHanaUser() {
-        return config.get(HANA_USERNAME, "DBADMIN");
+        return configurations.get(HANA_USERNAME, "DBADMIN");
     }
 
     copyFilesLocally(workspaceName, lists) {
@@ -284,5 +287,3 @@ class MigrationService {
     }
 
 }
-
-module.exports = MigrationService;

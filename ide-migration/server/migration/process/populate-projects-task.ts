@@ -1,10 +1,10 @@
-const process = require('bpm/v4/process');
+// @ts-ignore
+import { process } from "@dirigible/bpm";
 const execution = process.getExecutionContext();
-const MigrationService = require('ide-migration/server/migration/api/migration-service');
+import { MigrationService } from "../api/migration-service";
 // const git = require('git/v4/client'); 
-const repositoryManager = require("platform/v4/repository");
 
-const TrackService = require('ide-migration/server/migration/api/track-service');
+import { TrackService } from "../api/track-service";
 const trackService = new TrackService();
 const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor")
 
@@ -39,7 +39,7 @@ try {
     }
     process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');
 	trackService.updateMigrationStatus('MIGRATION EXECUTED');
-} catch (e) {
+} catch (e: any) {
 	console.log('POPULATING_PROJECTS failed with error:');
 	console.log(e.message);
 	process.setVariable(execution.getId(), 'migrationState', 'POPULATING_PROJECTS_FAILED');

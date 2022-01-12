@@ -1,4 +1,4 @@
-class ObjectTypeFilter {
+export class ObjectTypeFilter {
 
     static filterObjects(includedTypes, excludedTypes, objectList) {
 
@@ -35,5 +35,3 @@ class ObjectTypeFilter {
     }
 
 }
-
-module.exports = ObjectTypeFilter;

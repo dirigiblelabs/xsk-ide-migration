@@ -1,7 +1,8 @@
-const process = require('bpm/v4/process');
+// @ts-ignore
+import { process } from "@dirigible/bpm";
 const execution = process.getExecutionContext();
-const MigrationService = require('ide-migration/server/migration/api/migration-service');
-const TrackService = require('ide-migration/server/migration/api/track-service');
+import { MigrationService } from "../api/migration-service";
+import { TrackService } from "../api/track-service";
 const trackService = new TrackService();
 try {
 	process.setVariable(execution.getId(), 'migrationState', 'DELIVERY_UNITS_LISTING');

@@ -10,15 +10,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-const dao = require('db/v4/dao');
-const user = require('security/v4/user');
-const process = require('bpm/v4/process');
+// @ts-ignore
+import { dao } from "@dirigible/dao";
+// @ts-ignore
+import { user } from "@dirigible/security";
+// @ts-ignore
+import { process } from "@dirigible/bpm";
 const execution = process.getExecutionContext();
 const userName = user.getName();
 let migrationsTable;
 let entryInstance;
 
-class TrackService {
+export class TrackService {
 
   currentIndex = null;
 
@@ -105,5 +108,3 @@ class TrackService {
     }
   };
 }
-
-module.exports = TrackService;

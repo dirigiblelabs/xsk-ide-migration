@@ -1,4 +1,12 @@
-class RepositoryObject {
+export class RepositoryObject {
+
+    _name = null;
+    _packageName = null;
+    _suffix = null;
+    
+    _toBeCreated = [];
+    _writeContent = true;
+    _container = -1;
 
     constructor(name, packageName, suffix) {
         this._name = name;
@@ -29,8 +37,7 @@ class RepositoryObject {
 
     get PackageName() {
         var PackageName = {
-            packageName: this._packageName,
-            originalLanguage: this._originalLanguage
+            packageName: this._packageName
         };
 
         return PackageName;
@@ -56,24 +63,8 @@ class RepositoryObject {
         return path;
     }
 
-
-    get content() {
-        return this._content;
-    }
-
-
     get fullName() {
         return this._packageName + '::' + this._name;
-    }
-
-
-    set content(content) {
-        this._content = content;
-    }
-
-
-    set originalLanguage(originalLanguage) {
-        this._originalLanguage = originalLanguage;
     }
 
     get privilegeObjectName() {
@@ -118,6 +109,3 @@ class RepositoryObject {
         return this._container;
     }
 }
-
-
-module.exports = RepositoryObject;
