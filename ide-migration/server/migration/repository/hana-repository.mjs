@@ -5,7 +5,8 @@ import { PackageFilter } from './package-filter';
 const packageFilter = new PackageFilter();
 const utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 import { Utils } from "../utils";
-const bytesUtils = require("io/v4/bytes");
+// @ts-ignore
+import { bytes as bytesUtils } from "@dirigible/io";
 export class HanaRepository {
     constructor(hdbClient) {
         this.hdbClient = hdbClient;

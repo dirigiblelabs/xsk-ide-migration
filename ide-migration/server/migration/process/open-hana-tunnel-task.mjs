@@ -2,6 +2,7 @@
 import { process } from "@dirigible/bpm";
 const execution = process.getExecutionContext();
 import { TrackService } from "../api/track-service";
+import { NeoTunnelService } from "../api/neo-tunnel-service";
 const trackService = new TrackService();
 try {
     const userDataJson = process.getVariable(execution.getId(), 'userData');
@@ -12,7 +13,6 @@ try {
     const account = userData.neo.subaccount;
     const host = userData.neo.hostName;
     const databaseId = userData.hana.databaseSchema;
-    const NeoTunnelService = require('ide-migration/server/migration/api/neo-tunnel-service');
     const neoTunnelService = new NeoTunnelService();
     const openedTunnelData = neoTunnelService.openTunnel(account, host, userJwtToken, databaseId);
     userData.sessionId = openedTunnelData.sessionId;

@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 // @ts-ignore
-import { dao } from "@dirigible/dao";
+import { dao } from "@dirigible/db";
 // @ts-ignore
 import { user } from "@dirigible/security";
 // @ts-ignore

@@ -2,6 +2,7 @@
 import { process } from "@dirigible/bpm";
 const execution = process.getExecutionContext();
 import { TrackService } from "../api/track-service";
+import { NeoDatabasesService } from "../api/neo-databases-service";
 const trackService = new TrackService();
 try {
 	const userDataJson = process.getVariable(execution.getId(), 'userData');
@@ -14,7 +15,6 @@ try {
 	const account = userData.neo.subaccount;
 	const host = userData.neo.hostName;
 
-	const NeoDatabasesService = require('ide-migration/server/migration/api/neo-databases-service');
 	const neoDatabasesService = new NeoDatabasesService();
 	const databases = neoDatabasesService.getAvailableDatabases(account, host, userJwtToken);
 

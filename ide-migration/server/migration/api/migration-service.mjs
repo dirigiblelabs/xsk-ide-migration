@@ -13,7 +13,7 @@ import { HanaRepository } from "../repository/hana-repository";
 // @ts-ignore
 import { workspace as workspaceManager, repository as repositoryManager } from "@dirigible/platform";
 // @ts-ignore
-import { bytes } from "@dirigible/bytes";
+import { bytes } from "@dirigible/io";
 // @ts-ignore
 import { database } from "@dirigible/db";
 // @ts-ignore
