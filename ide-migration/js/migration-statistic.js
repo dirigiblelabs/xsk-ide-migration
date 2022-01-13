@@ -17,7 +17,7 @@ migrationLaunchView.controller('MigrationStatisticsController', ['$scope', '$htt
 
 	function populateData() {
 		$http.post(
-			"/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/migrationsTrack",
+			"/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/migrationsTrack",
 			JSON.stringify(body),
 			{ headers: { 'Content-Type': 'application/json' } }
 		).then(function (response) {
