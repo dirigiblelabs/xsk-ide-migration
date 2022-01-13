@@ -4,8 +4,9 @@ import { process as processService, tasks as tasksService } from "@dirigible/bpm
 import {client as httpClient} from "@dirigible/http";
 // @ts-ignore
 import { database } from "@dirigible/db";
+// @ts-ignore
+import { rs } from "@dirigible/http";
 
-const rs = require('http/v4/rs');
 rs.service()
 	.resource('start-process')
 	.post(startProcess)
