@@ -254,10 +254,10 @@ class MigrationService {
             });
         }
 
-        if (filePath.endsWith('hdbcalculationview')
-            || filePath.endsWith('calculationview')
-            || filePath.endsWith('analyticprivilege')
-            || filePath.endsWith('hdbanalyticprivilege')) {
+        if (filePath.endsWith('.hdbcalculationview')
+            || filePath.endsWith('.calculationview')
+            || filePath.endsWith('.analyticprivilege')
+            || filePath.endsWith('.hdbanalyticprivilege')) {
             deployables.find(x => x.projectName === projectName).artifacts.push(runLocation);
         }
 
@@ -271,7 +271,7 @@ class MigrationService {
         const resource = repositoryManager.getResource(repositoryPath);
         const xskModificator = new XSKProjectMigrationInterceptor();
 
-        if (relativePath.endsWith('hdbcalculationview') || relativePath.endsWith('calculationview') || repositoryPath.endsWith('hdbcalculationview') || repositoryPath.endsWith('calculationview')) {
+        if (relativePath.endsWith('.hdbcalculationview') || relativePath.endsWith('.calculationview') || repositoryPath.endsWith('.hdbcalculationview') || repositoryPath.endsWith('.calculationview')) {
             const modifiedContent = xskModificator.modify(resource.getContent());
             projectFile.setContent(modifiedContent);
         } else {
