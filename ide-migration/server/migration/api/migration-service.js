@@ -255,7 +255,9 @@ class MigrationService {
         }
 
         if (filePath.endsWith('hdbcalculationview')
-            || filePath.endsWith('calculationview')) {
+            || filePath.endsWith('calculationview')
+            || filePath.endsWith('analyticprivilege')
+            || filePath.endsWith('hdbanalyticprivilege')) {
             deployables.find(x => x.projectName === projectName).artifacts.push(runLocation);
         }
 
