@@ -23,7 +23,8 @@ const StringReader = Java.type("java.io.StringReader");
 const StringWriter = Java.type("java.io.StringWriter");
 const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream");
 const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
-const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor")
+const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor");
+const HanaVisitor = require('./HanaVisitor');
 
 
 class MigrationService {
@@ -283,6 +284,31 @@ class MigrationService {
         let context = {};
         const filesAndPackagesObject = this.repo.getAllFilesForDu(context, du);
         return filesAndPackagesObject.files;
+    }
+
+    handleHDBTableFunctions(workspaceName, projectName) {
+        const workspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName);
+        const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
+
+        let resNames = projectCollection.getResourcesNames();
+        for (const resPath of resNames) {
+            console.log("RESNAME: " + resPath);
+            if (resPath.endsWith(".hdbtablefunction")) {
+                let resource = projectCollection.getResource(resPath);
+                let content = resource.getText();
+
+                let visitor = new HanaVisitor(content);
+                visitor.visit();
+                console.log(visitor.viewRefs);
+                visitor.removeSchemaRefs();
+                visitor.removeViewRefs();
+                let newName = resPath.split(".")[0] + ".tablefunction";
+                resource.delete();
+                let newResource = projectCollection.createResource(newName, [0]);
+
+                newResource.setText(visitor.content);
+            }
+        }
     }
 
 }

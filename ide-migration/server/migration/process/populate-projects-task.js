@@ -35,6 +35,8 @@ try {
         }
         let repositoryName = locals[0].projectName;
         git.commit('migration', '', userData.workspace, repositoryName, 'Artifacts handled', true);
+        migrationService.handleHDBTableFunctions(workspace, projectName);
+        git.commit('migration', '', userData.workspace, repositoryName, 'HDB Functions handled', true);
     }
     process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');
 	trackService.updateMigrationStatus('MIGRATION EXECUTED');
