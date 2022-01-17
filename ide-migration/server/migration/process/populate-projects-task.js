@@ -41,22 +41,25 @@ try {
             git.commit('migration', '', userData.workspace, repositoryName, 'Overwrite existing project', true);
         } else {
             console.log("Initializing repository...")
-            git.initRepository('migration', '', workspace, locals[0].projectName, locals[0].projectName, "Migration initial commit");
+            git.initRepository('migration', '', workspace, projectName, projectName, "Migration initial commit");
         }
 
         const generated = deliveryUnit['deployableArtifactsResult']['generated'];
         for (const gen of generated) {
-            migrationService.addFileToWorkspace(workspace, gen.repositoryPath, gen.relativePath, locals[0].projectName);
+            migrationService.addFileToWorkspace(workspace, gen.repositoryPath, gen.relativePath, gen.projectName);
         }
         git.commit('migration', '', userData.workspace, repositoryName, 'Artifacts handled', true);
         migrationService.handleHDBTableFunctions(workspace, projectName);
         git.commit('migration', '', userData.workspace, repositoryName, 'HDB Functions handled', true);
+
+
     }
     process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');
     trackService.updateMigrationStatus('MIGRATION EXECUTED');
 } catch (e) {
     console.log('POPULATING_PROJECTS failed with error:');
     console.log(e.message);
+    console.log(e.stack);
     process.setVariable(execution.getId(), 'migrationState', 'POPULATING_PROJECTS_FAILED');
     trackService.updateMigrationStatus('POPULATING PROJECTS FAILED');
     process.setVariable(execution.getId(), 'POPULATING_PROJECTS_FAILED_REASON', e.toString());

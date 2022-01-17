@@ -31,6 +31,7 @@ class MigrationService {
 
     connection = null;
     repo = null;
+    tableFunctionPaths = [];
 
     setupConnection(databaseName, databaseUser, databaseUserPassword, connectionUrl) {
         database.createDataSource(databaseName, "com.sap.db.jdbc.Driver", connectionUrl, databaseUser, databaseUserPassword, null);
@@ -290,35 +291,38 @@ class MigrationService {
         return filesAndPackagesObject.files;
     }
 
-    _visitCollection(project, collection) {
+    _visitCollection(project, collection, parentPath) {
         let resNames = collection.getResourcesNames();
-        for (const resPath of resNames) {
-            let path = resPath;
-            console.log("PATH IS " + path)
+        for (const resName of resNames) {
+            var path = collection.getPath() + "/" + resName;
+            let oldProjectRelativePath = parentPath + "/" + resName;
             if (path.endsWith(".hdbtablefunction")) {
-                let resource = collection.getResource(resPath);
+                let resource = collection.getResource(resName);
                 let content = resource.getText();
                 let visitor = new HanaVisitor(content);
                 visitor.visit();
-                console.log(visitor.viewRefs);
                 visitor.removeSchemaRefs();
                 visitor.removeViewRefs();
-                let newPath = path.split(".")[0] + ".tablefunction";
-                let newFile = project.createFile(newPath);
+                let newName = resName.split(".")[0] + ".tablefunction";
+                let newProjectRelativePath = parentPath + "/" + newName;
+                this.tableFunctionPaths.push(newProjectRelativePath);
+                console.log("Creating new file at: " + newProjectRelativePath);
+                let newFile = project.createFile(newProjectRelativePath);
                 newFile.setText(visitor.content);
-                let newResource = collection.createResource(newPath, [0]);
+                console.log("Creating new resource at: " + newName);
+                let newResource = collection.createResource(newName, [0]);
                 newResource.setText(visitor.content);
-                project.deleteFile(path);
+                console.log("deleting file at: " + path);
+                project.deleteFile(oldProjectRelativePath);
+                console.log("deleting resource at: " + path);
                 resource.delete();
             }
         }
 
         let collectionsNames = collection.getCollectionsNames();
-        console.log("COLLECTION NAMES");
-        console.log(collectionsNames);
         for (const name of collectionsNames) {
             let nestedCollection = collection.getCollection(name)
-            this._visitCollection(project, nestedCollection);
+            this._visitCollection(project, nestedCollection, parentPath + "/" + name);
         }
 
     }
@@ -329,7 +333,26 @@ class MigrationService {
 
         const workspace = workspaceManager.getWorkspace(workspaceName);
         const project = workspace.getProject(projectName);
-        this._visitCollection(project, projectCollection);
+        this._visitCollection(project, projectCollection, ".");
+
+        console.log("Adding tablefunctions to hdi file...")
+        this._addTableFunctionsToHDI(project, projectName, projectCollection);
+    }
+
+    _addTableFunctionsToHDI(project, projectName, projectCollection) {
+        const hdiPath = `${projectName}.hdi`;
+        const hdiFile = project.getFile(hdiPath);
+        const hdiObject = JSON.parse(hdiFile.getText());
+
+        for (const path of this.tableFunctionPaths) {
+            hdiObject['deploy'].push(`/${projectName}/${path}`);
+        }
+
+        const hdiJson = JSON.stringify(hdiObject, null, 4);
+        console.log(projectCollection.getResourcesNames());
+        let resource = projectCollection.getResource(hdiPath);
+        resource.setText(hdiJson);
+        hdiFile.setText(hdiJson);
     }
 
 }
