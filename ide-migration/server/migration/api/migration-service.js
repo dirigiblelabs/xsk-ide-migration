@@ -59,7 +59,7 @@ class MigrationService {
             }
         }
 
-        return {generated: generatedFiles, updated: updatedFiles};
+        return { generated: generatedFiles, updated: updatedFiles };
     }
 
     createHdiConfigFile(workspaceName, project) {
@@ -268,6 +268,10 @@ class MigrationService {
     addFileToWorkspace(workspaceName, repositoryPath, relativePath, projectName) {
         const workspace = workspaceManager.getWorkspace(workspaceName)
         const project = workspace.getProject(projectName)
+
+        if (project.existsFile(relativePath)) {
+            project.deleteFile(relativePath);
+        }
         const projectFile = project.createFile(relativePath);
         const resource = repositoryManager.getResource(repositoryPath);
         const xskModificator = new XSKProjectMigrationInterceptor();
@@ -286,29 +290,46 @@ class MigrationService {
         return filesAndPackagesObject.files;
     }
 
-    handleHDBTableFunctions(workspaceName, projectName) {
-        const workspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName);
-        const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
-
-        let resNames = projectCollection.getResourcesNames();
+    _visitCollection(project, collection) {
+        let resNames = collection.getResourcesNames();
         for (const resPath of resNames) {
-            console.log("RESNAME: " + resPath);
-            if (resPath.endsWith(".hdbtablefunction")) {
-                let resource = projectCollection.getResource(resPath);
+            let path = resPath;
+            console.log("PATH IS " + path)
+            if (path.endsWith(".hdbtablefunction")) {
+                let resource = collection.getResource(resPath);
                 let content = resource.getText();
-
                 let visitor = new HanaVisitor(content);
                 visitor.visit();
                 console.log(visitor.viewRefs);
                 visitor.removeSchemaRefs();
                 visitor.removeViewRefs();
-                let newName = resPath.split(".")[0] + ".tablefunction";
-                resource.delete();
-                let newResource = projectCollection.createResource(newName, [0]);
-
+                let newPath = path.split(".")[0] + ".tablefunction";
+                let newFile = project.createFile(newPath);
+                newFile.setText(visitor.content);
+                let newResource = collection.createResource(newPath, [0]);
                 newResource.setText(visitor.content);
+                project.deleteFile(path);
+                resource.delete();
             }
         }
+
+        let collectionsNames = collection.getCollectionsNames();
+        console.log("COLLECTION NAMES");
+        console.log(collectionsNames);
+        for (const name of collectionsNames) {
+            let nestedCollection = collection.getCollection(name)
+            this._visitCollection(project, nestedCollection);
+        }
+
+    }
+
+    handleHDBTableFunctions(workspaceName, projectName) {
+        const workspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName);
+        const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
+
+        const workspace = workspaceManager.getWorkspace(workspaceName);
+        const project = workspace.getProject(projectName);
+        this._visitCollection(project, projectCollection);
     }
 
 }
