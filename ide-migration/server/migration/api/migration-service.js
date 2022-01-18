@@ -303,7 +303,9 @@ class MigrationService {
                 visitor.visit();
                 visitor.removeSchemaRefs();
                 visitor.removeViewRefs();
-                let newName = resName.split(".")[0] + ".tablefunction";
+                let splitted = resName.split(".");
+                splitted[splitted.length-1] = "tablefunction";
+                let newName = splitted.join(".");
                 let newProjectRelativePath = parentPath + "/" + newName;
                 this.tableFunctionPaths.push(newProjectRelativePath);
                 console.log("Creating new file at: " + newProjectRelativePath);
@@ -345,11 +347,14 @@ class MigrationService {
         const hdiObject = JSON.parse(hdiFile.getText());
 
         for (const path of this.tableFunctionPaths) {
-            hdiObject['deploy'].push(`/${projectName}/${path}`);
+            let trimmed = path;
+            if (path.startsWith('./')) {
+                trimmed = path.substring(2);
+            }
+            hdiObject['deploy'].push(`/${projectName}/${trimmed}`);
         }
 
         const hdiJson = JSON.stringify(hdiObject, null, 4);
-        console.log(projectCollection.getResourcesNames());
         let resource = projectCollection.getResource(hdiPath);
         resource.setText(hdiJson);
         hdiFile.setText(hdiJson);
