@@ -339,6 +339,11 @@ class MigrationService {
 
         console.log("Adding tablefunctions to hdi file...")
         this._addTableFunctionsToHDI(project, projectName, projectCollection);
+        this._resetTableFunctionPaths();
+    }
+
+    _resetTableFunctionPaths() {
+        this.tableFunctionPaths = [];
     }
 
     _addTableFunctionsToHDI(project, projectName, projectCollection) {
