@@ -23,13 +23,15 @@ const StringReader = Java.type("java.io.StringReader");
 const StringWriter = Java.type("java.io.StringWriter");
 const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream");
 const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
-const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor")
+const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor");
+const HanaVisitor = require('./HanaVisitor');
 
 
 class MigrationService {
 
     connection = null;
     repo = null;
+    tableFunctionPaths = [];
 
     setupConnection(databaseName, databaseUser, databaseUserPassword, connectionUrl) {
         database.createDataSource(databaseName, "com.sap.db.jdbc.Driver", connectionUrl, databaseUser, databaseUserPassword, null);
@@ -58,7 +60,7 @@ class MigrationService {
             }
         }
 
-        return {generated: generatedFiles, updated: updatedFiles};
+        return { generated: generatedFiles, updated: updatedFiles };
     }
 
     createHdiConfigFile(workspaceName, project) {
@@ -267,6 +269,10 @@ class MigrationService {
     addFileToWorkspace(workspaceName, repositoryPath, relativePath, projectName) {
         const workspace = workspaceManager.getWorkspace(workspaceName)
         const project = workspace.getProject(projectName)
+
+        if (project.existsFile(relativePath)) {
+            project.deleteFile(relativePath);
+        }
         const projectFile = project.createFile(relativePath);
         const resource = repositoryManager.getResource(repositoryPath);
         const xskModificator = new XSKProjectMigrationInterceptor();
@@ -283,6 +289,80 @@ class MigrationService {
         let context = {};
         const filesAndPackagesObject = this.repo.getAllFilesForDu(context, du);
         return filesAndPackagesObject.files;
+    }
+
+    _visitCollection(project, collection, parentPath) {
+        let resNames = collection.getResourcesNames();
+        for (const resName of resNames) {
+            var path = collection.getPath() + "/" + resName;
+            let oldProjectRelativePath = parentPath + "/" + resName;
+            if (path.endsWith(".hdbtablefunction")) {
+                let resource = collection.getResource(resName);
+                let content = resource.getText();
+                let visitor = new HanaVisitor(content);
+                visitor.visit();
+                visitor.removeSchemaRefs();
+                visitor.removeViewRefs();
+                let splitted = resName.split(".");
+                splitted[splitted.length-1] = "tablefunction";
+                let newName = splitted.join(".");
+                let newProjectRelativePath = parentPath + "/" + newName;
+                this.tableFunctionPaths.push(newProjectRelativePath);
+                console.log("Creating new file at: " + newProjectRelativePath);
+                let newFile = project.createFile(newProjectRelativePath);
+                newFile.setText(visitor.content);
+                console.log("Creating new resource at: " + newName);
+                let newResource = collection.createResource(newName, [0]);
+                newResource.setText(visitor.content);
+                console.log("deleting file at: " + path);
+                project.deleteFile(oldProjectRelativePath);
+                console.log("deleting resource at: " + path);
+                resource.delete();
+            }
+        }
+
+        let collectionsNames = collection.getCollectionsNames();
+        for (const name of collectionsNames) {
+            let nestedCollection = collection.getCollection(name)
+            this._visitCollection(project, nestedCollection, parentPath + "/" + name);
+        }
+
+    }
+
+    handleHDBTableFunctions(workspaceName, projectName) {
+        const workspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName);
+        const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
+
+        const workspace = workspaceManager.getWorkspace(workspaceName);
+        const project = workspace.getProject(projectName);
+        this._visitCollection(project, projectCollection, ".");
+
+        console.log("Adding tablefunctions to hdi file...")
+        this._addTableFunctionsToHDI(project, projectName, projectCollection);
+        this._resetTableFunctionPaths();
+    }
+
+    _resetTableFunctionPaths() {
+        this.tableFunctionPaths = [];
+    }
+
+    _addTableFunctionsToHDI(project, projectName, projectCollection) {
+        const hdiPath = `${projectName}.hdi`;
+        const hdiFile = project.getFile(hdiPath);
+        const hdiObject = JSON.parse(hdiFile.getText());
+
+        for (const path of this.tableFunctionPaths) {
+            let trimmed = path;
+            if (path.startsWith('./')) {
+                trimmed = path.substring(2);
+            }
+            hdiObject['deploy'].push(`/${projectName}/${trimmed}`);
+        }
+
+        const hdiJson = JSON.stringify(hdiObject, null, 4);
+        let resource = projectCollection.getResource(hdiPath);
+        resource.setText(hdiJson);
+        hdiFile.setText(hdiJson);
     }
 
 }
