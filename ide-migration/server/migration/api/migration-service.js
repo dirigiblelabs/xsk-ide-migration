@@ -14,7 +14,7 @@ const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream");
 const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
 const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor");
 const HanaVisitor = require('./HanaVisitor');
-
+const hdiFile = require('ide-migration/server/migration/repository/hdi-plugins')
 const xskModificator = new XSKProjectMigrationInterceptor();
 const git = require('git/v4/client');
 
