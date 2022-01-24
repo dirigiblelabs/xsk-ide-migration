@@ -1,11 +1,9 @@
 const process = require('bpm/v4/process');
 const execution = process.getExecutionContext();
 const MigrationService = require('ide-migration/server/migration/api/migration-service');
-const git = require('git/v4/client');
 
 const TrackService = require('ide-migration/server/migration/api/track-service');
 const trackService = new TrackService();
-const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor")
 
 try {
     process.setVariable(execution.getId(), 'migrationState', 'POPULATING_PROJECTS');
@@ -15,43 +13,16 @@ try {
 
     const migrationService = new MigrationService();
     const workspace = userData.workspace;
-    const modificator = new XSKProjectMigrationInterceptor();
 
     for (const deliveryUnit of userData.du) {
         const locals = deliveryUnit.locals;
         if (!(locals && locals.length > 0)) {
             throw ("Delivery unit is empty");
         }
-        for (const local of locals) {
-            migrationService.addFileToWorkspace(workspace, local.repositoryPath, local.relativePath, local.projectName);
-        }
-        const projectName = locals[0].projectName;
-        modificator.interceptXSKProject(workspace, projectName);
-        let repositoryName = locals[0].projectName;
-        modificator.interceptXSKProject(workspace, projectName);
-        let repos = git.getGitRepositories(workspace);
-        let repoExists = false;
-        for (let i = 0; i < repos.size(); i++) {
-            if (repos.get(i).getName() === repositoryName) {
-                repoExists = true;
-                break;
-            }
-        }
-        if (repoExists) {
-            git.commit('migration', '', userData.workspace, repositoryName, 'Overwrite existing project', true);
-        } else {
-            console.log("Initializing repository...")
-            git.initRepository('migration', '', workspace, projectName, projectName, "Migration initial commit");
-        }
 
-        const generated = deliveryUnit['deployableArtifactsResult']['generated'];
-        for (const gen of generated) {
-            migrationService.addFileToWorkspace(workspace, gen.repositoryPath, gen.relativePath, gen.projectName);
-        }
-        git.commit('migration', '', userData.workspace, repositoryName, 'Artifacts handled', true);
-        migrationService.handleHDBTableFunctions(workspace, projectName);
-        git.commit('migration', '', userData.workspace, repositoryName, 'HDB Functions handled', true);
-
+        migrationService.addFilesWithoutGenerated(userData, workspace, locals);
+        migrationService.addGeneratedFiles(userData, deliveryUnit, workspace, locals);
+        migrationService.modifyFiles(workspace, locals);
 
     }
     process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');

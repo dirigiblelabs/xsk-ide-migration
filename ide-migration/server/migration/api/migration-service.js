@@ -1,14 +1,3 @@
-/*
- * Copyright (c) 2021 SAP SE or an SAP affiliate company and XSK contributors
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Apache License, v2.0
- * which accompanies this distribution, and is available at
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
- * SPDX-License-Identifier: Apache-2.0
- */
 const HanaRepository = require('ide-migration/server/migration/repository/hana-repository');
 const workspaceManager = require("platform/v4/workspace");
 const repositoryManager = require("platform/v4/repository");
@@ -25,7 +14,8 @@ const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream");
 const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
 const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor");
 const HanaVisitor = require('./HanaVisitor');
-
+const xskModificator = new XSKProjectMigrationInterceptor();
+const git = require('git/v4/client');
 
 class MigrationService {
 
@@ -60,7 +50,7 @@ class MigrationService {
             }
         }
 
-        return { generated: generatedFiles, updated: updatedFiles };
+        return {generated: generatedFiles, updated: updatedFiles};
     }
 
     createHdiConfigFile(workspaceName, project) {
@@ -275,7 +265,6 @@ class MigrationService {
         }
         const projectFile = project.createFile(relativePath);
         const resource = repositoryManager.getResource(repositoryPath);
-        const xskModificator = new XSKProjectMigrationInterceptor();
 
         if (relativePath.endsWith('.hdbcalculationview') || relativePath.endsWith('.calculationview') || repositoryPath.endsWith('.hdbcalculationview') || repositoryPath.endsWith('.calculationview')) {
             const modifiedContent = xskModificator.modify(resource.getContent());
@@ -304,7 +293,7 @@ class MigrationService {
                 visitor.removeSchemaRefs();
                 visitor.removeViewRefs();
                 let splitted = resName.split(".");
-                splitted[splitted.length-1] = "tablefunction";
+                splitted[splitted.length - 1] = "tablefunction";
                 let newName = splitted.join(".");
                 let newProjectRelativePath = parentPath + "/" + newName;
                 this.tableFunctionPaths.push(newProjectRelativePath);
@@ -364,6 +353,48 @@ class MigrationService {
         resource.setText(hdiJson);
         hdiFile.setText(hdiJson);
     }
+
+    addFilesWithoutGenerated(userData, workspace, locals) {
+        for (const local of locals) {
+            this.addFileToWorkspace(workspace, local.repositoryPath, local.relativePath, local.projectName);
+            const projectName = local.projectName;
+            let repos = git.getGitRepositories(workspace);
+            let repoExists = false;
+            for (const repo of repos) {
+                if (repo.getName() === projectName) {
+                    repoExists = true;
+                    break;
+                }
+            }
+            if (repoExists) {
+                git.commit('migration', '', userData.workspace, projectName, 'Overwrite existing project', true);
+            } else {
+                console.log("Initializing repository...")
+                git.initRepository('migration', '', workspace, projectName, projectName, "Migration initial commit");
+            }
+        }
+    }
+
+    addGeneratedFiles(userData, deliveryUnit, workspace, locals) {
+        for (const local of locals) {
+            const projectName = local.projectName;
+            const generated = deliveryUnit['deployableArtifactsResult']['generated'].filter(x => x.projectName === projectName);
+            for (const gen of generated) {
+                this.addFileToWorkspace(workspace, gen.repositoryPath, gen.relativePath, gen.projectName);
+            }
+            git.commit('migration', '', userData.workspace, projectName, 'Artifacts handled', true);
+            this.handleHDBTableFunctions(workspace, projectName);
+            git.commit('migration', '', userData.workspace, projectName, 'HDB Functions handled', true);
+        }
+    }
+
+    modifyFiles(workspace, locals) {
+        for (const local of locals) {
+            const projectName = local.projectName;
+            xskModificator.interceptXSKProject(workspace, projectName);
+        }
+    }
+
 
 }
 
