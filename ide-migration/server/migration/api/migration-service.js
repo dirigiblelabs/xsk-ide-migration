@@ -379,13 +379,14 @@ class MigrationService {
         for (const localFile of localFiles) {
             const projectName = localFile.projectName;
             const generatedFiles = deliveryUnit['deployableArtifactsResult']['generatedFiles'].filter(x => x.projectName === projectName);
-            for (const generatedFile of generatedFiles)
+            for (const generatedFile of generatedFiles) {
                 this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
             }
             git.commit('migration', '', userData.workspace, projectName, 'Artifacts handled', true);
             this.handleHDBTableFunctions(workspace, projectName);
             git.commit('migration', '', userData.workspace, projectName, 'HDB Functions handled', true);
         }
+    }
 
 
     modifyFiles(workspace, localFiles) {
