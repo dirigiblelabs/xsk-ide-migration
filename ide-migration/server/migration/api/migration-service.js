@@ -378,7 +378,7 @@ class MigrationService {
     addGeneratedFiles(userData, deliveryUnit, workspace, localFiles) {
         for (const localFile of localFiles) {
             const projectName = localFile.projectName;
-            const generatedFiles = deliveryUnit['deployableArtifactsResult']['generatedFiles'].filter(x => x.projectName === projectName);
+            const generatedFiles = deliveryUnit['deployableArtifactsResult']['generated'].filter(x => x.projectName === projectName);
             for (const generatedFile of generatedFiles) {
                 this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
             }
