@@ -51,7 +51,6 @@ exports.getHdiFilePlugins = function () {
             },
             hdbfunction: {
                 plugin_name: "com.sap.hana.di.function",
-                plugin_version: "4.0.0.0"
             },
             hdbflowgraph: {
                 plugin_name: "com.sap.hana.di.flowgraph"
@@ -86,16 +85,13 @@ exports.getHdiFilePlugins = function () {
                 plugin_name: "com.sap.hana.di.reptask"
             },
             hdbrole: {
-                plugin_name: "com.sap.hana.di.role",
-                plugin_version: "4.0.0.0"
+                plugin_name: "com.sap.hana.di.role"
             },
             hdbroleconfig: {
-                plugin_name: "com.sap.hana.di.role.config",
-                plugin_version: "4.0.0.0"
+                plugin_name: "com.sap.hana.di.role.config"
             },
             hdbsearchruleset: {
-                plugin_name: "com.sap.hana.di.searchruleset",
-                plugin_version: "4.0.0.0"
+                plugin_name: "com.sap.hana.di.searchruleset"
             },
             hdbsequence: {
                 plugin_name: "com.sap.hana.di.sequence"
