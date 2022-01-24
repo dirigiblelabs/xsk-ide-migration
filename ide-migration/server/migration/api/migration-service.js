@@ -14,8 +14,13 @@ const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream");
 const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
 const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor");
 const HanaVisitor = require('./HanaVisitor');
+
 const xskModificator = new XSKProjectMigrationInterceptor();
 const git = require('git/v4/client');
+
+
+
+
 
 class MigrationService {
 
@@ -54,22 +59,7 @@ class MigrationService {
     }
 
     createHdiConfigFile(workspaceName, project) {
-        const hdiConfig = {
-            file_suffixes: {
-                hdbcalculationview: {
-                    plugin_name: "com.sap.hana.di.calculationview"
-                },
-                calculationview: {
-                    plugin_name: "com.sap.hana.di.calculationview"
-                },
-                hdbanalyticprivilege: {
-                    plugin_name: "com.sap.hana.di.analyticprivilege"
-                },
-                analyticprivilege: {
-                    plugin_name: "com.sap.hana.di.analyticprivilege"
-                }
-            }
-        };
+        const hdiConfig = hdiFile.getHdiFilePlugins();
 
 
         const projectName = project.getName();
