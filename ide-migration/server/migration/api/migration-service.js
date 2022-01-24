@@ -25,6 +25,7 @@ const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream");
 const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
 const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor");
 const HanaVisitor = require('./HanaVisitor');
+const hdiFile = require('ide-migration/server/migration/repository/hdi-plugins')
 
 
 class MigrationService {
@@ -60,26 +61,11 @@ class MigrationService {
             }
         }
 
-        return { generated: generatedFiles, updated: updatedFiles };
+        return {generated: generatedFiles, updated: updatedFiles};
     }
 
     createHdiConfigFile(workspaceName, project) {
-        const hdiConfig = {
-            file_suffixes: {
-                hdbcalculationview: {
-                    plugin_name: "com.sap.hana.di.calculationview"
-                },
-                calculationview: {
-                    plugin_name: "com.sap.hana.di.calculationview"
-                },
-                hdbanalyticprivilege: {
-                    plugin_name: "com.sap.hana.di.analyticprivilege"
-                },
-                analyticprivilege: {
-                    plugin_name: "com.sap.hana.di.analyticprivilege"
-                }
-            }
-        };
+        const hdiConfig = hdiFile.getHdiFilePlugins();
 
 
         const projectName = project.getName();
@@ -304,7 +290,7 @@ class MigrationService {
                 visitor.removeSchemaRefs();
                 visitor.removeViewRefs();
                 let splitted = resName.split(".");
-                splitted[splitted.length-1] = "tablefunction";
+                splitted[splitted.length - 1] = "tablefunction";
                 let newName = splitted.join(".");
                 let newProjectRelativePath = parentPath + "/" + newName;
                 this.tableFunctionPaths.push(newProjectRelativePath);
