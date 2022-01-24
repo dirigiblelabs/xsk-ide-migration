@@ -15,14 +15,14 @@ try {
     const workspace = userData.workspace;
 
     for (const deliveryUnit of userData.du) {
-        const locals = deliveryUnit.locals;
-        if (!(locals && locals.length > 0)) {
+        const localFiles = deliveryUnit.locals;
+        if (!(localFiles && localFiles.length > 0)) {
             throw ("Delivery unit is empty");
         }
 
-        migrationService.addFilesWithoutGenerated(userData, workspace, locals);
-        migrationService.addGeneratedFiles(userData, deliveryUnit, workspace, locals);
-        migrationService.modifyFiles(workspace, locals);
+        migrationService.addFilesWithoutGenerated(userData, workspace, localFiles);
+        migrationService.addGeneratedFiles(userData, deliveryUnit, workspace, localFiles);
+        migrationService.modifyFiles(workspace, localFiles);
 
     }
     process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');

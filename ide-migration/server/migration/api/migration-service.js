@@ -354,10 +354,10 @@ class MigrationService {
         hdiFile.setText(hdiJson);
     }
 
-    addFilesWithoutGenerated(userData, workspace, locals) {
-        for (const local of locals) {
-            this.addFileToWorkspace(workspace, local.repositoryPath, local.relativePath, local.projectName);
-            const projectName = local.projectName;
+    addFilesWithoutGenerated(userData, workspace, localFiles) {
+        for (const localFile of localFiles) {
+            this.addFileToWorkspace(workspace, localFile.repositoryPath, localFile.relativePath, localFile.projectName);
+            const projectName = localFile.projectName;
             let repos = git.getGitRepositories(workspace);
             let repoExists = false;
             for (const repo of repos) {
@@ -375,21 +375,21 @@ class MigrationService {
         }
     }
 
-    addGeneratedFiles(userData, deliveryUnit, workspace, locals) {
-        for (const local of locals) {
-            const projectName = local.projectName;
-            const generated = deliveryUnit['deployableArtifactsResult']['generated'].filter(x => x.projectName === projectName);
-            for (const gen of generated) {
-                this.addFileToWorkspace(workspace, gen.repositoryPath, gen.relativePath, gen.projectName);
+    addGeneratedFiles(userData, deliveryUnit, workspace, localFiles) {
+        for (const localFile of localFiles) {
+            const projectName = localFile.projectName;
+            const generatedFiles = deliveryUnit['deployableArtifactsResult']['generatedFiles'].filter(x => x.projectName === projectName);
+            for (const generatedFile of generatedFiles)
+                this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
             }
             git.commit('migration', '', userData.workspace, projectName, 'Artifacts handled', true);
             this.handleHDBTableFunctions(workspace, projectName);
             git.commit('migration', '', userData.workspace, projectName, 'HDB Functions handled', true);
         }
-    }
 
-    modifyFiles(workspace, locals) {
-        for (const local of locals) {
+
+    modifyFiles(workspace, localFiles) {
+        for (const localFile of localFiles) {
             const projectName = local.projectName;
             xskModificator.interceptXSKProject(workspace, projectName);
         }
