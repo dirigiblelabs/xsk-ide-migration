@@ -391,7 +391,7 @@ class MigrationService {
 
     modifyFiles(workspace, localFiles) {
         for (const localFile of localFiles) {
-            const projectName = local.projectName;
+            const projectName = localFile.projectName;
             xskModificator.interceptXSKProject(workspace, projectName);
         }
     }
