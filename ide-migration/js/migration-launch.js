@@ -92,6 +92,8 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     $scope.selectZipMigration = function () {
         $scope.onStatisticsPage = false;
         $scope.migrationFromZip = true;
+        $scope.setNextVisible(false);
+        $scope.setFinishVisible(true);
     }
 
     $scope.setFinishVisible = function (visible) {
@@ -155,6 +157,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     };
 
     $scope.revertStep = function () {
+        $scope.setFinishEnabled(false);
         for (let i = $scope.steps.length - 1; i >= 0; i--) {
             if ($scope.steps[i].id < $scope.currentStep.id) {
                 $scope.currentStep = $scope.steps[i];

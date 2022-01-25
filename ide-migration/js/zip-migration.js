@@ -1,42 +1,5 @@
 
 let uploader = null;
-// angular
-//     .module('migration', ['angularFileUpload'])
-//     .factory('httpRequestInterceptor', function () {
-//         let csrfToken = null;
-//         return {
-//             request: function (config) {
-//                 config.headers['X-Requested-With'] = 'Fetch';
-//                 config.headers['X-CSRF-Token'] = csrfToken ? csrfToken : 'Fetch';
-//                 return config;
-//             },
-//             response: function (response) {
-//                 let token = response.headers()['x-csrf-token'];
-//                 if (token) {
-//                     csrfToken = token;
-//                     uploader.headers['X-CSRF-Token'] = csrfToken;
-//                 }
-//                 return response;
-//             }
-//         };
-//     })
-//     .config(['$httpProvider', function ($httpProvider) {
-//         $httpProvider.interceptors.push('httpRequestInterceptor');
-//     }])
-//     .factory('$messageHub', [function () {
-//         let messageHub = new FramesMessageHub();
-//         let message = function (evtName, evtData) {
-//             messageHub.post({ data: evtData }, evtName);
-//         };
-//         let on = function (topic, callback) {
-//             messageHub.subscribe(callback, topic);
-//         };
-//         return {
-//             message: message,
-//             on: on
-//         };
-//     }]);
-
 
 migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUploader', '$messageHub', function ($scope, $http, FileUploader, $messageHub) {
 
@@ -71,7 +34,7 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
     };
     $scope.uploader.onBeforeUploadItem = function (item) {
         //        console.info('onBeforeUploadItem', item);
-        item.url = $scope.TRANSPORT_PROJECT_URL + "/" + $scope.selectedWs;
+        item.url = $scope.TRANSPORT_PROJECT_URL + "/temp-du-migration";
     };
     $scope.uploader.onProgressItem = function (fileItem, progress) {
         //        console.info('onProgressItem', fileItem, progress);
@@ -90,6 +53,7 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
         //        console.info('onCancelItem', fileItem, response, status, headers);
     };
     $scope.uploader.onCompleteItem = function (fileItem, response, status, headers) {
+        $scope.setFinishEnabled(true);
         //refreshFolder();
         //        console.info('onCompleteItem', fileItem, response, status, headers);
     };
