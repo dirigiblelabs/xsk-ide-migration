@@ -70,7 +70,12 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         { id: 3, name: "Delivery Units", topicId: "migration.delivery-unit" },
         { id: 4, name: "Migration", topicId: "migration.start-migration" },
     ];
+    $scope.zipsteps = [
+        { id: 1, name: "Upload ZIP file", topicId: "migration.delivery-unit" },
+        { id: 2, name: "Migration", topicId: "migration.start-migration" },
+    ];
     $scope.onStatisticsPage = true;
+    $scope.migrationFromZip = false;
     $scope.bottomNavHidden = false;
     $scope.previousDisabled = false;
     $scope.nextDisabled = true;
@@ -82,6 +87,11 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
 
     $scope.showMigrationScreen = function () {
         $scope.onStatisticsPage = false;
+    }
+
+    $scope.selectZipMigration = function () {
+        $scope.onStatisticsPage = false;
+        $scope.migrationFromZip = true;
     }
 
     $scope.setFinishVisible = function (visible) {
@@ -122,6 +132,21 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         };
         $messageHub.message($scope.currentStep.topicId, { isVisible: true });
     };
+
+    $scope.backToChoice = function () {
+        $scope.setPreviousVisible(false);
+        $scope.setPreviousEnabled(false);
+        $scope.onStatisticsPage = true;
+        $scope.migrationFromZip = false;
+        $scope.bottomNavHidden = false;
+        $scope.previousDisabled = false;
+        $scope.nextDisabled = true;
+        $scope.previousVisible = false;
+        $scope.nextVisible = true;
+        $scope.finishVisible = false;
+        $scope.finishDisabled = true;
+        $scope.currentStep = $scope.steps[0];
+    }
 
     $scope.previousClicked = function () {
         $messageHub.message($scope.currentStep.topicId, { isVisible: false });

@@ -37,6 +37,8 @@
 		<!-- Custom IDE Styles -->
 		<link type="text/css" rel="stylesheet" href="/services/v4/js/theme/resources.js/ide.css" />
 
+		<script type="text/javascript" src="js/angular-file-upload.min.js"></script>
+
 		<!-- Project-specific stuff -->
 		<script type="text/javascript" src="js/migration-launch.js"></script>
 		<script type="text/javascript" src="js/migration-statistic.js"></script>
@@ -44,6 +46,7 @@
 		<script type="text/javascript" src="js/neo-credentials.js"></script>
 		<script type="text/javascript" src="js/hana-credentials.js"></script>
 		<script type="text/javascript" src="js/start-migration.js"></script>
+		<script type="text/javascript" src="js/zip-migration.js"></script>
 		<link type="text/css" rel="stylesheet" href="/services/v4/js/theme/resources.js/migration.css" />
 		<link type="text/css" rel="stylesheet" href="/services/v4/js/theme/resources.js/dropdown.css" />
 
@@ -54,13 +57,18 @@
 			<span class="pull-left">
 				SAP HANA XS Classic Migration
 			</span>
-			<button type="button" class="btn btn-primary btn-big pull-right" ng-click="showMigrationScreen()" ng-show="onStatisticsPage">
-				Migrate a project
+			<button type="button" class="btn btn-primary btn-big pull-right" ng-click="showMigrationScreen()"
+				ng-show="onStatisticsPage">
+				Migrate live project(s)
+			</button>
+			<button type="button" class="btn btn-secondary btn-big pull-right" ng-click="selectZipMigration()"
+				ng-show="onStatisticsPage">
+				Migrate project(s) from ZIP
 			</button>
 		</div>
 
 		<div ng-include="'partials/migration-statistic.html'" ng-show="onStatisticsPage"></div>
-		
+
 		<div class="flex-container" ng-hide="onStatisticsPage">
 			<div class="migration-nav">
 				<div class="nav-progress">
@@ -74,12 +82,15 @@
 			</div>
 			<div class="migration-main">
 				<div class="steps-container">
+					<div ng-include="'partials/zip-migration.html'" ng-show="migrationFromZip"></div>
 					<div ng-include="'partials/delivery-unit.html'"></div>
 					<div ng-include="'partials/neo-credentials.html'"></div>
 					<div ng-include="'partials/hana-credentials.html'"></div>
 					<div ng-include="'partials/start-migration.html'"></div>
 
 					<div class="bottom-nav margin-top-bottom-lg" ng-hide="bottomNavHidden">
+						<button type="button" class="btn btn-default btn-big pull-left" ng-click="backToChoice()"
+							ng-hide="previousVisible">Previous</button>
 						<button type="button" class="btn btn-default btn-big pull-left" ng-click="previousClicked()"
 							ng-disabled="previousDisabled" ng-show="previousVisible">Previous</button>
 						<button type="button" class="btn btn-primary btn-big pull-right" ng-click="nextClicked()"
