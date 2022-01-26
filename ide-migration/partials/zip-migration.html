@@ -26,6 +26,16 @@
 <div ng-controller="ImportZippedDU" ng-show="migrationFromZip">
     <h1 class="section-title">Migrate Delivery Unit(s) from ZIP</h1>
     <p class="margin-top-bottom-nl">Upload ZIP file containing your Delivery Unit</p>
+    <div class="row">
+        <div class="col-md-6">
+            <p>Save files to the following workspace</p>
+        </div>
+        <div class="col-md-6">
+            <p><select ng-model="selectedWs" ng-options="o as o for o in workspaces"
+                    class="dropdown btn btn-default dropdown-toggle dropdown-top" title="Workspaces"></select>
+            </p>
+        </div>
+    </div>
 
     <div class="row" nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">
         <div class="col-md-12">
