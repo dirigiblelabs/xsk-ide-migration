@@ -5,6 +5,8 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
 
     $scope.TRANSPORT_PROJECT_URL = "/services/v4/transport/project";
     $scope.WORKSPACES_URL = "/services/v4/ide/workspaces";
+    $scope.TEMP_MIGRATION_ROOT = "temp/migrations/";
+    $scope.zipPaths = [];
 
     let url = $scope.WORKSPACES_URL;
     $http.get(url)
@@ -15,7 +17,9 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
                 $scope.selectedWs = $scope.workspaces[0];
             }
         });
-
+    $scope.projectFromZipPath = function (zipname = '') {
+        return $scope.TEMP_MIGRATION_ROOT + $scope.selectedWs + "/" + zipname.split('.').slice(0, -1).join('.');
+    }
 
     // FILE UPLOADER
 
@@ -48,7 +52,7 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
         console.info('onBeforeUploadItem', item);
         console.log('WS selected', $scope.selectedWs)
         // item.url = $scope.TRANSPORT_PROJECT_URL + "/" + $scope.selectedWs + '/' + item.file.name.split('.').slice(0, -1).join('-');
-        item.url = $scope.TRANSPORT_PROJECT_URL + "/" + item.file.name.split('.').slice(0, -1).join('-');
+        item.url = $scope.TRANSPORT_PROJECT_URL + "?path=" + encodeURI($scope.projectFromZipPath(item.file.name));
     };
     $scope.uploader.onProgressItem = function (fileItem, progress) {
         //        console.info('onProgressItem', fileItem, progress);
@@ -63,16 +67,21 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
         //        console.info('onErrorItem', fileItem, response, status, headers);
         alert(response.err.message);
     };
+    $scope.uploader.onRemove = function (fileItem) {
+        console.log('REMOVE' + fileItem.file.name);
+        return true;
+    }
     $scope.uploader.onCancelItem = function (fileItem, response, status, headers) {
+        console.log('CANCEL' + fileItem.file.name)
         //        console.info('onCancelItem', fileItem, response, status, headers);
     };
     $scope.uploader.onCompleteItem = function (fileItem, response, status, headers) {
-        $scope.setFinishEnabled(true);
+        $scope.zipPaths.push($scope.projectFromZipPath(fileItem.file.name));
         //refreshFolder();
-        //        console.info('onCompleteItem', fileItem, response, status, headers);
+        // console.info('onCompleteItem', fileItem, response, status, headers);
     };
     $scope.uploader.onCompleteAll = function () {
-        $messageHub.message('workspace.refresh');
+        $scope.setFinishEnabled(true);
     };
 
 }]);
