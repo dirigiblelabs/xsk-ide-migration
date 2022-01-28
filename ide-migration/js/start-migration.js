@@ -12,6 +12,7 @@
 migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http', '$messageHub', 'migrationDataState', function ($scope, $http, $messageHub, migrationDataState) {
     $scope.migrationDataState = migrationDataState;
     $scope.isVisible = false;
+    $scope.isZipMigrationVisible = false;
     $scope.migrationFinished = false;
     $scope.progressBarPercentage = 100;
     let titleList = [
@@ -114,4 +115,13 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
             }
         }
     }.bind(this));
+
+    $messageHub.on('migration.start-zip-migration', function (msg) {
+        if ("isVisible" in msg.data) {
+            $scope.$apply(function () {
+                $scope.isZipMigrationVisible = msg.data.isVisible;
+            });
+        }
+    }.bind(this));
+
 }]);

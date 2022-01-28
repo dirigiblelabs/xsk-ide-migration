@@ -50,8 +50,6 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
     };
     $scope.uploader.onBeforeUploadItem = function (item) {
         console.info('onBeforeUploadItem', item);
-        console.log('WS selected', $scope.selectedWs)
-        // item.url = $scope.TRANSPORT_PROJECT_URL + "/" + $scope.selectedWs + '/' + item.file.name.split('.').slice(0, -1).join('-');
         item.url = $scope.TRANSPORT_PROJECT_URL + "?path=" + encodeURI($scope.projectFromZipPath(item.file.name));
     };
     $scope.uploader.onProgressItem = function (fileItem, progress) {
@@ -69,16 +67,14 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
     };
 
     $scope.uploader.onCancelItem = function (fileItem, response, status, headers) {
-        console.log('CANCEL' + fileItem.file.name)
         //        console.info('onCancelItem', fileItem, response, status, headers);
     };
     $scope.uploader.onCompleteItem = function (fileItem, response, status, headers) {
         $scope.zipPaths.push($scope.projectFromZipPath(fileItem.file.name));
-        //refreshFolder();
         // console.info('onCompleteItem', fileItem, response, status, headers);
     };
 
-    $scope.startMigration = function (ws, uploader) {
+    $scope.startZipMigration = function (ws, uploader) {
         if (!uploader.queue || !uploader.queue.length) return false;
         let zipPaths = [];
 
@@ -89,23 +85,25 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
             selectedWorkspace: ws,
             zipPath: zipPaths
         };
+        $messageHub.message($scope.currentZipStep.topicId, { isVisible: false });
+        $scope.currentZipStep = $scope.zipsteps[$scope.zipsteps.length - 1];
+        $messageHub.message($scope.currentZipStep.topicId, { isVisible: true });
 
-        console.log(uploader.queue)
-
-        console.log(JSON.stringify(body));
         $http.post(
             "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process-from-zip",
             body,
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
-            console.log("RESPONCE" + response);
+            console.log("RESPONSE" + response);
+        }, function (response) {
+            console.log('ERROR', response);
         });
+
     };
 
     $scope.uploader.onCompleteAll = function () {
         $scope.setFinishEnabled(true);
-        console.log('UPLOAD COMPLETE');
-        $scope.startMigration($scope.selectedWs, $scope.uploader);
+        $scope.startZipMigration($scope.selectedWs, $scope.uploader);
     };
     $scope.removeAll = function (uploader) {
         uploader.clearQueue();

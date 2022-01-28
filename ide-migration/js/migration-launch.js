@@ -72,7 +72,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     ];
     $scope.zipsteps = [
         { id: 1, name: "Upload ZIP file", topicId: "migration.delivery-unit" },
-        { id: 2, name: "Migration", topicId: "migration.start-migration" },
+        { id: 2, name: "Migration", topicId: "migration.start-zip-migration" },
     ];
     $scope.onStatisticsPage = true;
     $scope.migrationFromZip = false;
@@ -84,6 +84,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     $scope.finishVisible = false;
     $scope.finishDisabled = true;
     $scope.currentStep = $scope.steps[0];
+    $scope.currentZipStep = $scope.zipsteps[0];
 
     $scope.showMigrationScreen = function () {
         $scope.onStatisticsPage = false;
@@ -95,6 +96,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         $scope.setNextVisible(false);
         $scope.setFinishVisible(true);
         $scope.setBottomNavEnabled(false);
+        $scope.currentStep = $scope.zipsteps[0];
     }
 
     $scope.setFinishVisible = function (visible) {
@@ -149,6 +151,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         $scope.finishVisible = false;
         $scope.finishDisabled = true;
         $scope.currentStep = $scope.steps[0];
+        $scope.currentZipStep = $scope.zipsteps[0];
     }
 
     $scope.previousClicked = function () {
@@ -168,14 +171,10 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     };
 
     $scope.finishClicked = function () {
-        if (!$scope.migrationFromZip) {
-            $messageHub.message($scope.currentStep.topicId, { isVisible: false });
-            $scope.currentStep = $scope.steps[$scope.steps.length - 1];
-            $messageHub.message($scope.currentStep.topicId, { isVisible: true });
-            $scope.bottomNavHidden = true;
-        } else {
-            console.log('Finish ZIP migration')
-        }
+        $messageHub.message($scope.currentStep.topicId, { isVisible: false });
+        $scope.currentStep = $scope.steps[$scope.steps.length - 1];
+        $messageHub.message($scope.currentStep.topicId, { isVisible: true });
+        $scope.bottomNavHidden = true;
     };
 
     $scope.isStepActive = function (stepId) {
@@ -186,6 +185,16 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         else
             return "inactive";
     }
+
+    $scope.isZipStepActive = function (stepId) {
+        if (stepId == $scope.currentZipStep.id)
+            return "active";
+        else if (stepId < $scope.currentZipStep.id)
+            return "done";
+        else
+            return "inactive";
+    }
+
 
     $messageHub.on('migration.launch', function (msg) {
     }.bind(this));
