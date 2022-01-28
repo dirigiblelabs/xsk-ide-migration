@@ -67,10 +67,7 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
         //        console.info('onErrorItem', fileItem, response, status, headers);
         alert(response.err.message);
     };
-    $scope.uploader.onRemove = function (fileItem) {
-        console.log('REMOVE' + fileItem.file.name);
-        return true;
-    }
+
     $scope.uploader.onCancelItem = function (fileItem, response, status, headers) {
         console.log('CANCEL' + fileItem.file.name)
         //        console.info('onCancelItem', fileItem, response, status, headers);
@@ -80,8 +77,42 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
         //refreshFolder();
         // console.info('onCompleteItem', fileItem, response, status, headers);
     };
+
+    $scope.startMigration = function (ws, uploader) {
+        if (!uploader.queue || !uploader.queue.length) return false;
+        let zipPaths = [];
+
+        for (let i = 0; i < uploader.queue.length; i++)
+            zipPaths.push($scope.projectFromZipPath(uploader.queue[i].file.name));
+
+        let body = {
+            selectedWorkspace: ws,
+            zipPath: zipPaths
+        };
+
+        console.log(uploader.queue)
+
+        console.log(JSON.stringify(body));
+        $http.post(
+            "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process-from-zip",
+            body,
+            { headers: { 'Content-Type': 'application/json' } }
+        ).then(function (response) {
+            console.log("RESPONCE" + response);
+        });
+    };
+
     $scope.uploader.onCompleteAll = function () {
         $scope.setFinishEnabled(true);
+        console.log('UPLOAD COMPLETE');
+        $scope.startMigration($scope.selectedWs, $scope.uploader);
     };
+    $scope.removeAll = function (uploader) {
+        uploader.clearQueue();
+        $scope.zipPaths = [];
+    };
+    $scope.uploadAndMigrate = function (uploader) {
+        uploader.uploadAll();
+    }
 
 }]);

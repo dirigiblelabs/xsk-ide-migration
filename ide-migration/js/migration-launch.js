@@ -94,6 +94,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         $scope.migrationFromZip = true;
         $scope.setNextVisible(false);
         $scope.setFinishVisible(true);
+        $scope.setBottomNavEnabled(false);
     }
 
     $scope.setFinishVisible = function (visible) {
@@ -167,10 +168,14 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     };
 
     $scope.finishClicked = function () {
-        $messageHub.message($scope.currentStep.topicId, { isVisible: false });
-        $scope.currentStep = $scope.steps[$scope.steps.length - 1];
-        $messageHub.message($scope.currentStep.topicId, { isVisible: true });
-        $scope.bottomNavHidden = true;
+        if (!$scope.migrationFromZip) {
+            $messageHub.message($scope.currentStep.topicId, { isVisible: false });
+            $scope.currentStep = $scope.steps[$scope.steps.length - 1];
+            $messageHub.message($scope.currentStep.topicId, { isVisible: true });
+            $scope.bottomNavHidden = true;
+        } else {
+            console.log('Finish ZIP migration')
+        }
     };
 
     $scope.isStepActive = function (stepId) {

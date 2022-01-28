@@ -64,9 +64,7 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat="item in uploader.queue">
-                        <td><strong>{{ item.file.name }}</strong><br>
-                            {{ item.file}}
-                        </td>
+                        <td><strong>{{ item.file.name }}</strong></td>
                         <td ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
                         <td ng-show="uploader.isHTML5">
                             <div class="progress" style="margin-bottom: 0;">
@@ -80,14 +78,14 @@
                             <span ng-show="item.isError"><i class="fa fa-warning"></i></span>
                         </td>
                         <td nowrap>
-                            <button type="button" class="btn btn-success btn-xs" ng-click="item.upload()"
+                            <!-- button type="button" class="btn btn-success btn-xs" ng-click="item.upload()"
                                 ng-disabled="item.isReady || item.isUploading || item.isSuccess">
                                 <span class="fa fa-upload"></span> Upload
                             </button>
                             <button type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()"
                                 ng-disabled="!item.isUploading">
                                 <span class="fa fa-close"></span> Cancel
-                            </button>
+                            </button -->
                             <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
                                 <span class="fa fa-trash"></span> Remove
                             </button>
@@ -103,20 +101,28 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()"
+                <!-- button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()"
                     ng-disabled="!uploader.getNotUploadedItems().length">
                     <span class="fa fa-upload"></span> Upload All
                 </button>
                 <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()"
                     ng-disabled="!uploader.isUploading">
                     <span class="fa fa-close"></span> Cancel All
-                </button>
-                <button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()"
+                </button -->
+                <button type="button" class="btn btn-danger btn-s" ng-click="removeAll(uploader);"
                     ng-disabled="!uploader.queue.length">
                     <span class="fa fa-trash"></span> Remove All
                 </button>
             </div>
         </div>
     </div>
+
+    <div class="bottom-nav margin-top-bottom-lg">
+        <button type="button" class="btn btn-default btn-big pull-left" ng-click="backToChoice()"
+            ng-hide="previousVisible">Previous</button>
+        <button type="button" class="btn btn-primary btn-big pull-right" ng-click="uploadAndMigrate(uploader)"
+            ng-disabled="!uploader.queue.length" ng-show="finishVisible">Finish</button>
+    </div>
+
 
 </div>
