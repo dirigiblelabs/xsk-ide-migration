@@ -17,6 +17,6 @@ jobs:
         uses: creyD/prettier_action@v4.2
         with:
           # This part is also where you can pass other options, for example:
-          prettier_options: --write **/*.{js,md}
+          prettier_options: --printWidth 140 --write **/*.{js,md}
           same_commit: True
           only_changed: True
