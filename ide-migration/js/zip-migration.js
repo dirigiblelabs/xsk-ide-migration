@@ -9,6 +9,7 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
     $scope.zipPaths = [];
 
     let url = $scope.WORKSPACES_URL;
+
     $http.get(url)
         .then(function (response) {
             let workspaceNames = response.data;

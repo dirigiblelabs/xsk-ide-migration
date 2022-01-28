@@ -22,6 +22,7 @@ migrationLaunchView.factory('$messageHub', [function () {
             }
         }, 'ide.alert');
     };
+
     var announceAlertError = function (title, message) {
         announceAlert(title, message, "error");
     };
