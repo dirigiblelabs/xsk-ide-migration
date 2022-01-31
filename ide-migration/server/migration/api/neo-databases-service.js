@@ -14,7 +14,7 @@ const MigrationToolExecutor = require("ide-migration/server/migration/api/migrat
 
 const neoClientPath = config.get("user.dir") + "/target/dirigible/resources-neo-sdk/tools/neo.sh";
 
-class NeoDatabasesService {
+export class NeoDatabasesService {
     constructor() {
         this.migrationToolExecutor = new MigrationToolExecutor();
     }
@@ -51,5 +51,3 @@ class NeoDatabasesService {
         return databasesList;
     }
 }
-
-module.exports = NeoDatabasesService;

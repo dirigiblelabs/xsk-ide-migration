@@ -14,7 +14,7 @@ const MigrationToolExecutor = require("ide-migration/server/migration/api/migrat
 
 const neoClientPath = config.get("user.dir") + "/target/dirigible/resources-neo-sdk/tools/neo.sh";
 
-class NeoTunnelService {
+export class NeoTunnelService {
     constructor() {
         this.migrationToolExecutor = new MigrationToolExecutor();
     }
@@ -37,5 +37,3 @@ class NeoTunnelService {
       this.migrationToolExecutor.execute(script);
     }
 }
-
-module.exports = NeoTunnelService;

@@ -17,5 +17,3 @@ class MigrationToolExecutor {
         return execResult;
     }
 }
-
-module.exports = MigrationToolExecutor;

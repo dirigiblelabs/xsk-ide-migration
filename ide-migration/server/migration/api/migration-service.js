@@ -9,20 +9,19 @@ const TransformerFactory = Java.type("javax.xml.transform.TransformerFactory");
 const StreamSource = Java.type("javax.xml.transform.stream.StreamSource");
 const StreamResult = Java.type("javax.xml.transform.stream.StreamResult");
 const StringReader = Java.type("java.io.StringReader");
-const StringWriter = Java.type("java.io.StringWriter");
 const ByteArrayInputStream = Java.type("java.io.ByteArrayInputStream");
 const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
 const XSKProjectMigrationInterceptor = Java.type(
     "com.sap.xsk.modificators.XSKProjectMigrationInterceptor"
 );
 const XSKHDBCoreFacade = Java.type("com.sap.xsk.hdb.ds.facade.XSKHDBCoreFacade");
-const HanaVisitor = require("./HanaVisitor");
+const HanaVisitor = require("./hana-visitor");
 const hdbDDModel = "com.sap.xsk.hdb.ds.model.hdbdd.XSKDataStructureCdsModel";
 const hdiFile = require("ide-migration/server/migration/repository/hdi-plugins");
 const xskModificator = new XSKProjectMigrationInterceptor();
 const git = require("git/v4/client");
 
-class MigrationService {
+export class MigrationService {
     connection = null;
     repo = null;
     tableFunctionPaths = [];
@@ -653,5 +652,3 @@ class MigrationService {
         }
     }
 }
-
-module.exports = MigrationService;

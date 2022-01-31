@@ -3,7 +3,7 @@ let ResponseAttachmentParser = require("ide-migration/server/migration/repositor
 
 let utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 
-class RepositoryResponse {
+export class RepositoryResponse {
     constructor(responseBuffer) {
         let headerBuffer = responseBuffer.slice(0, 14);
         this._header = RepositoryHeader.fromBuffer(headerBuffer);
@@ -33,5 +33,3 @@ class RepositoryResponse {
         return this._attachments;
     }
 }
-
-module.exports = RepositoryResponse;

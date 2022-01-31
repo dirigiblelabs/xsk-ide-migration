@@ -18,7 +18,7 @@ const userName = user.getName();
 let migrationsTable;
 let entryInstance;
 
-class TrackService {
+export class TrackService {
     currentIndex = null;
 
     getCurrentMigrationIndex() {
@@ -106,5 +106,3 @@ class TrackService {
         }
     }
 }
-
-module.exports = TrackService;
