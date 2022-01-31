@@ -63,18 +63,16 @@ export class HanaVisitor {
     }
 
     removeSchemaRefs() {
-        for (let i = 0; i < this.schemaRefs.length; i++) {
-            let str = this.schemaRefs[i];
-            let edited = str.split('"."')[1].replace(/['"]+/g, "");
-            this.content = this.replaceAll(this.content, str, edited);
+        for (const schemaRef of this.schemaRefs) {
+            let edited = schemaRef.split('"."')[1].replace(/['"]+/g, "");
+            this.content = this.replaceAll(this.content, schemaRef, edited);
         }
     }
 
     removeViewRefs() {
-        for (let i = 0; i < this.viewRefs.length; i++) {
-            let str = this.viewRefs[i];
-            let edited = str.split("/")[1].replace(/['"]+/g, "");
-            this.content = this.replaceAll(this.content, str, edited);
+        for (const viewRef of this.viewRefs) {
+            let edited = viewRef.split("/")[1].replace(/['"]+/g, "");
+            this.content = this.replaceAll(this.content, viewRef, edited);
         }
     }
 

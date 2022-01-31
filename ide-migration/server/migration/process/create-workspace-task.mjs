@@ -13,9 +13,10 @@ try {
 
     const migrationService = new MigrationService();
 
-    for (let i = 0; i < userData.du.length; i++) {
-        migrationService.createMigratedWorkspace(userData.workspace, userData.du[i]);
+    for (const deliveryUnit of userData.du) {
+        migrationService.createMigratedWorkspace(userData.workspace, deliveryUnit);
     }
+    
     process.setVariable(execution.getId(), "userData", JSON.stringify(userData));
     process.setVariable(execution.getId(), "migrationState", "WORKSPACE_CREATE_EXECUTED");
     trackService.updateMigrationStatus("CREATING WORKSPACE EXECUTED");
