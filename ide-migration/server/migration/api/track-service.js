@@ -10,9 +10,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-const dao = require("db/v4/dao");
-const user = require("security/v4/user");
-const process = require("bpm/v4/process");
+import {dao} from "@dirigible/db";
+import {user} from "@dirigible/security";
+import {process} from "@dirigible/bpm";
+
 const execution = process.getExecutionContext();
 const userName = user.getName();
 let migrationsTable;

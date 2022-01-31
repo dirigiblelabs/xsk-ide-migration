@@ -1,12 +1,12 @@
-const RepositoryResponse = require("ide-migration/server/migration/repository/repository-response");
-const RepositoryObject = require("ide-migration/server/migration/repository/repository-object");
-const RepositoryPackage = require("ide-migration/server/migration/repository/repository-package");
+import {bytes as bytesUtils} from "@dirigible/io";
+import { RepositoryResponse } from "./repository-response";
+import { RepositoryObject } from "./repository-object";
+import { RepositoryPackage } from "./repository-package";
+import { PackageFilter } from "./package-filter";
+import { Utils } from "../utils";
 
-const PackageFilter = require("ide-migration/server/migration/repository/package-filter");
 const packageFilter = PackageFilter();
 const utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
-const Utils = require("ide-migration/server/migration/utils");
-const bytesUtils = require("io/v4/bytes");
 
 export class HanaRepository {
     constructor(hdbClient) {

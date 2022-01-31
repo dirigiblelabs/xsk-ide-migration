@@ -1,10 +1,8 @@
-const tasksService = require("bpm/v4/tasks");
-const processService = require("bpm/v4/process");
-const httpClient = require("http/v4/client");
-const database = require("db/v4/database");
-const url = require("utils/v4/url");
+import { tasks as tasksService, process as processService } from "@dirigible/bpm";
+import {client as httpClient, rs} from "@dirigible/http";
+import { database } from "@dirigible/db";
+import { url } from "@dirigible/utils";
 
-const rs = require("http/v4/rs");
 rs.service()
     .resource("start-process")
     .post(startProcess)
@@ -46,7 +44,9 @@ function startProcess(ctx, req, res) {
 }
 
 function getJwtToken(host, username, password) {
-    const jwtTokenServiceUrl = `https://oauthasservices.${host}/oauth2/api/v1/token?grant_type=password&username=${url.encode(username)}&password=${url.encode(password)}`;
+    const encodedUsername = url.encode(username);
+    const encodedPassword = url.encode(password);
+    const jwtTokenServiceUrl = `https://oauthasservices.${host}/oauth2/api/v1/token?grant_type=password&username=${encodedUsername}&password=${encodedPassword}`;
     const jwtTokenResponse = httpClient.post(jwtTokenServiceUrl, {
         headers: [
             {

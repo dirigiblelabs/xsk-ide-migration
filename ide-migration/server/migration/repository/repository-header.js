@@ -1,4 +1,4 @@
-const Utils = require("ide-migration/server/migration/utils");
+import { Utils } from "../utils";
 
 export class RepositoryHeader {
     constructor(attachmentCount, contentLength) {

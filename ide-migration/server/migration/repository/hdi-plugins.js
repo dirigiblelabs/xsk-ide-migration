@@ -1,4 +1,4 @@
-exports.getHdiFilePlugins = function () {
+export function getHdiFilePlugins() {
     return {
         file_suffixes: {
             hdbconstraint: {
