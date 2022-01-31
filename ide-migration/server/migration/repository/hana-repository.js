@@ -2,12 +2,13 @@ const RepositoryResponse = require("ide-migration/server/migration/repository/re
 const RepositoryObject = require("ide-migration/server/migration/repository/repository-object");
 const RepositoryPackage = require("ide-migration/server/migration/repository/repository-package");
 
-const packageFilter = require("ide-migration/server/migration/repository/package-filter");
+const PackageFilter = require("ide-migration/server/migration/repository/package-filter");
+const packageFilter = PackageFilter();
 const utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 const Utils = require("ide-migration/server/migration/utils");
 const bytesUtils = require("io/v4/bytes");
 
-class HanaRepository {
+export class HanaRepository {
     constructor(hdbClient) {
         this.hdbClient = hdbClient;
     }
@@ -240,5 +241,3 @@ class HanaRepository {
         return json;
     }
 }
-
-module.exports = HanaRepository;

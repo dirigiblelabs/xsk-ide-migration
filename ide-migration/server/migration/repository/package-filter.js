@@ -4,7 +4,7 @@ let GENERIC_FILTER_PACKAGES = [".externalToolBuilders", ".settings"];
 
 let QUOTE_PATTERN = /\"([^\"]*)\"/;
 
-function PackageFilter() {
+export function PackageFilter() {
     this.splitName = function (name) {
         let n = name;
         let paths = [];
@@ -82,5 +82,3 @@ function PackageFilter() {
         return newPackageList;
     };
 }
-
-module.exports = new PackageFilter();

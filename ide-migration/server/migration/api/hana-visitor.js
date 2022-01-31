@@ -1,10 +1,10 @@
-let Parser = com.sap.xsk.parser.hana.core.HanaParser;
-let HanaLexer = com.sap.xsk.parser.hana.core.HanaLexer;
-let ByteArrayInputStream = java.io.ByteArrayInputStream;
-let ANTLRInputStream = org.antlr.v4.runtime.ANTLRInputStream;
-let CommonTokenStream = org.antlr.v4.runtime.CommonTokenStream;
+const Parser = com.sap.xsk.parser.hana.core.HanaParser;
+const HanaLexer = com.sap.xsk.parser.hana.core.HanaLexer;
+const ByteArrayInputStream = java.io.ByteArrayInputStream;
+const ANTLRInputStream = org.antlr.v4.runtime.ANTLRInputStream;
+const CommonTokenStream = org.antlr.v4.runtime.CommonTokenStream;
 
-class HanaVisitor {
+export class HanaVisitor {
     content;
     impl;
     parser;
@@ -83,8 +83,6 @@ class HanaVisitor {
     }
 }
 
-module.exports = HanaVisitor;
-
 //usage:
 
 // var workspaceManager = require("platform/v4/workspace");
@@ -92,7 +90,7 @@ module.exports = HanaVisitor;
 // let project = workspace.getProject('parser');
 // let file = project.getFile('func.hdbtablefunction');
 // var content = file.getText();
-// let HanaVisitor = require('./HanaVisitor');
+// let HanaVisitor = require('./hana-visitor');
 
 // let visitor = new HanaVisitor(content);
 // visitor.visit();
