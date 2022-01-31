@@ -1,4 +1,5 @@
 # folders
+.idea/
 dist/
 .settings/
 target/
