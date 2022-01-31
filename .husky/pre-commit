@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-## git-format-staged --formatter 'prettier --print-width 140 --tab-width 4 --stdin-filepath "{}"' '*.js' '*.ts'
+git-format-staged --formatter 'prettier --print-width 140 --tab-width 4 --stdin-filepath "{}"' '*.js' '*.ts'
