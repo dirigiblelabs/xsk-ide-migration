@@ -5,7 +5,7 @@ import {configurations as config} from "@dirigible/core";
 import {client as git } from "@dirigible/git";
 
 import { HanaRepository } from "../repository/hana-repository";
-import { HanaVisitor } from "./hana-visitor";
+import { HanaVisitor } from "./hana-visitor.mjs";
 import { getHdiFilePlugins as hdiFile } from "../repository/hdi-plugins";
 
 const HANA_USERNAME = "HANA_USERNAME";
@@ -23,7 +23,6 @@ const hdbDDModel = "com.sap.xsk.hdb.ds.model.hdbdd.XSKDataStructureCdsModel";
 const xskModificator = new XSKProjectMigrationInterceptor();
 
 export class MigrationService {
-    connection = null;
     repo = null;
     tableFunctionPaths = [];
 
@@ -40,8 +39,8 @@ export class MigrationService {
             null
         );
 
-        this.connection = database.getConnection("dynamic", databaseName);
-        this.repo = new HanaRepository(this.connection);
+        const connection = database.getConnection("dynamic", databaseName);
+        this.repo = new HanaRepository(connection);
     }
 
     getAllDeliveryUnits() {
@@ -96,7 +95,7 @@ export class MigrationService {
 
     createHdiFile(workspaceName, project, hdiConfigPath, deployables) {
         const projectName = project.getName();
-        const defaultHanaUser = this.getDefaultHanaUser();
+        const defaultHanaUser = config.get(HANA_USERNAME, "DBADMIN");
 
         const hdi = {
             configuration: `/${projectName}/${hdiConfigPath.relativePath}`,
@@ -123,10 +122,6 @@ export class MigrationService {
             relativePath: hdiPath,
             projectName: projectName,
         };
-    }
-
-    getDefaultHanaUser() {
-        return config.get(HANA_USERNAME, "DBADMIN");
     }
 
     copyFilesLocally(workspaceName, lists) {
@@ -172,12 +167,7 @@ export class MigrationService {
                 fileContent,
                 workspaceCollection.getPath() + "/"
             );
-            const synonymData = this._handleParsedData(
-                parsedData,
-                workspaceName,
-                projectName,
-                fileRunLocation
-            );
+            const synonymData = this._handleParsedData(parsedData);
             const hdbSynonyms = this._appendOrCreateSynonymsFile(
                 this.synonymFileName,
                 synonymData.hdbSynonyms,
@@ -215,7 +205,7 @@ export class MigrationService {
         return filePath + this._getFileNameWithExtension(file);
     }
 
-    _handleParsedData(parsedData, workspaceName, projectName, relativePath) {
+    _handleParsedData(parsedData) {
         if (!parsedData) {
             return [];
         }
