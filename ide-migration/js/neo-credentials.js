@@ -86,13 +86,12 @@ migrationLaunchView.controller("NeoCredentialsViewController", [
             if ($scope.regionSearch) {
                 let filtered = [];
                 let alreadyHaveUserEnteredRegion = false;
-                for (let i = 0; i < $scope.regions.length; i++) {
+                for (const region of $scope.regions) {
                     if (
-                        $scope.regions[i].name
+                        region.name
                             .toLowerCase()
                             .includes($scope.regionSearch.toLowerCase())
                     ) {
-                        const region = $scope.regions[i];
                         filtered.push(region);
 
                         if (region.region === $scope.regionSearch) {

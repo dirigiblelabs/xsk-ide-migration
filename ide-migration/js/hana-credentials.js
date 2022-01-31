@@ -139,13 +139,13 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
         $scope.filterDatabases = function () {
             if ($scope.databasesSearch) {
                 let filtered = [];
-                for (let i = 0; i < $scope.databases.length; i++) {
+                for (const database of $scope.databases) {
                     if (
-                        $scope.databases[i]
+                        database
                             .toLowerCase()
                             .includes($scope.databasesSearch.toLowerCase())
                     ) {
-                        filtered.push($scope.databases[i]);
+                        filtered.push(database);
                     }
                 }
                 $scope.databasesList = filtered;

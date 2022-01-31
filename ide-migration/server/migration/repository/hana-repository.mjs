@@ -44,19 +44,18 @@ export class HanaRepository {
         //This needs to be done because the repo-api names the package-name as "package" while halm refers to it as "packageName"
         let repositoryPackages = [];
 
-        for (let i = 0; i < packages.length; i++) {
-            let pkg = packages[i];
+        for (const pkg of packages) {
             let repositoryPackage = new RepositoryPackage(pkg);
             repositoryPackages.push(repositoryPackage);
         }
+
         return repositoryPackages;
     }
 
     _getAllObjectsForPackages(packages) {
         let done = 0;
         let result = [];
-        for (let i = 0; i < packages.length; i++) {
-            const pkg = packages[i];
+        for (const pkg of packages) {
             const objects = this._listObjects(pkg);
 
             done++;
@@ -84,8 +83,7 @@ export class HanaRepository {
     _convertObjectsToRepositoryObjects(objects) {
         let hanaRepositoryInstance = this;
         let repositoryObjects = [];
-        for (let i = 0; i < objects.length; i++) {
-            const object = objects[i];
+        for (const object of objects) {
             let repositoryObject = new RepositoryObject(object.name, object.package, object.suffix);
 
             const result = hanaRepositoryInstance._addLanguage(repositoryObject);
@@ -216,13 +214,13 @@ export class HanaRepository {
         let finalRequestArray = [];
         let byteCount = 0;
 
-        for (let i = 0; i < finalByteArray.length; i++) {
-            let byteArray = finalByteArray[i];
-            for (let u = 0; u < byteArray.length; u++) {
-                finalRequestArray.push(byteArray[u]);
+        for (const byteArray of finalByteArray) {
+            for (const innerByteArray of byteArray) {
+                finalRequestArray.push(innerByteArray);
                 byteCount += 1;
             }
         }
+        
         return finalRequestArray;
     }
 

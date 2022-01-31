@@ -136,13 +136,13 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
         $scope.filterDU = function () {
             if ($scope.duSearch) {
                 let filtered = [];
-                for (let i = 0; i < $scope.deliveryUnits.length; i++) {
+                for (const deliveryUnit of $scope.deliveryUnits) {
                     if (
-                        $scope.deliveryUnits[i].name
+                        deliveryUnit.name
                             .toLowerCase()
                             .includes($scope.duSearch.toLowerCase())
                     ) {
-                        filtered.push($scope.deliveryUnits[i]);
+                        filtered.push(deliveryUnit);
                     }
                 }
                 $scope.deliveryUnitList = filtered;
@@ -156,13 +156,13 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                 $scope.showCreateButton = true;
                 $scope.showSeparator = true;
                 let filtered = [];
-                for (let i = 0; i < $scope.workspaces.length; i++) {
+                for (const workspace of $scope.workspaces) {
                     if (
-                        $scope.workspaces[i]
+                        workspace
                             .toLowerCase()
                             .includes($scope.workspacesSearch.toLowerCase())
                     ) {
-                        filtered.push($scope.workspaces[i]);
+                        filtered.push(workspace);
                     } else {
                         $scope.showSeparator = false;
                     }
@@ -195,9 +195,11 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
         $scope.toggleSelectAllDU = () => {
             let compare_value =
                 migrationDataState.selectedDeliveryUnits.length != $scope.deliveryUnitList.length;
-            for (let i = 0; i < $scope.deliveryUnitList.length; i++)
-                if (Boolean($scope.isDUSelected($scope.deliveryUnitList[i])) !== compare_value)
-                    $scope.duSelected($scope.deliveryUnitList[i]);
+            for (const deliveryUnit of $scope.deliveryUnitList) {
+                if (Boolean($scope.isDUSelected(deliveryUnit)) !== compare_value)
+                $scope.duSelected(deliveryUnit);
+            }
+                
         };
 
         $scope.duSelected = function (deliveryUnit) {
