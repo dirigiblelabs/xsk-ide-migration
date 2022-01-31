@@ -1,66 +1,57 @@
-const process = require('bpm/v4/process');
+const process = require("bpm/v4/process");
 const execution = process.getExecutionContext();
-const MigrationService = require('ide-migration/server/migration/api/migration-service');
-const git = require('git/v4/client');
+const MigrationService = require("ide-migration/server/migration/api/migration-service");
 
-const TrackService = require('ide-migration/server/migration/api/track-service');
+const TrackService = require("ide-migration/server/migration/api/track-service");
 const trackService = new TrackService();
-const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor")
 
 try {
-    process.setVariable(execution.getId(), 'migrationState', 'POPULATING_PROJECTS');
-    trackService.updateMigrationStatus('POPULATING PROJECTS');
-    const userDataJson = process.getVariable(execution.getId(), 'userData');
-    const userData = JSON.parse(userDataJson);
+  process.setVariable(
+    execution.getId(),
+    "migrationState",
+    "POPULATING_PROJECTS"
+  );
+  trackService.updateMigrationStatus("POPULATING PROJECTS");
+  const userDataJson = process.getVariable(execution.getId(), "userData");
+  const userData = JSON.parse(userDataJson);
 
-    const migrationService = new MigrationService();
-    const workspace = userData.workspace;
-    const modificator = new XSKProjectMigrationInterceptor();
+  const migrationService = new MigrationService();
+  const workspace = userData.workspace;
 
-    for (const deliveryUnit of userData.du) {
-        const locals = deliveryUnit.locals;
-        if (!(locals && locals.length > 0)) {
-            throw ("Delivery unit is empty");
-        }
-        for (const local of locals) {
-            migrationService.addFileToWorkspace(workspace, local.repositoryPath, local.relativePath, local.projectName);
-        }
-        const projectName = locals[0].projectName;
-        modificator.interceptXSKProject(workspace, projectName);
-        let repositoryName = locals[0].projectName;
-        modificator.interceptXSKProject(workspace, projectName);
-        let repos = git.getGitRepositories(workspace);
-        let repoExists = false;
-        for (let i = 0; i < repos.size(); i++) {
-            if (repos.get(i).getName() === repositoryName) {
-                repoExists = true;
-                break;
-            }
-        }
-        if (repoExists) {
-            git.commit('migration', '', userData.workspace, repositoryName, 'Overwrite existing project', true);
-        } else {
-            console.log("Initializing repository...")
-            git.initRepository('migration', '', workspace, projectName, projectName, "Migration initial commit");
-        }
-
-        const generated = deliveryUnit['deployableArtifactsResult']['generated'];
-        for (const gen of generated) {
-            migrationService.addFileToWorkspace(workspace, gen.repositoryPath, gen.relativePath, gen.projectName);
-        }
-        git.commit('migration', '', userData.workspace, repositoryName, 'Artifacts handled', true);
-        migrationService.handleHDBTableFunctions(workspace, projectName);
-        git.commit('migration', '', userData.workspace, repositoryName, 'HDB Functions handled', true);
-
-
+  for (const deliveryUnit of userData.du) {
+    const localFiles = deliveryUnit.locals;
+    if (!(localFiles && localFiles.length > 0)) {
+      throw "Delivery unit is empty";
     }
-    process.setVariable(execution.getId(), 'migrationState', 'MIGRATION_EXECUTED');
-    trackService.updateMigrationStatus('MIGRATION EXECUTED');
+
+    migrationService.addFilesWithoutGenerated(userData, workspace, localFiles);
+    migrationService.addGeneratedFiles(
+      userData,
+      deliveryUnit,
+      workspace,
+      localFiles
+    );
+    migrationService.modifyFiles(workspace, localFiles);
+  }
+  process.setVariable(
+    execution.getId(),
+    "migrationState",
+    "MIGRATION_EXECUTED"
+  );
+  trackService.updateMigrationStatus("MIGRATION EXECUTED");
 } catch (e) {
-    console.log('POPULATING_PROJECTS failed with error:');
-    console.log(e.message);
-    console.log(e.stack);
-    process.setVariable(execution.getId(), 'migrationState', 'POPULATING_PROJECTS_FAILED');
-    trackService.updateMigrationStatus('POPULATING PROJECTS FAILED');
-    process.setVariable(execution.getId(), 'POPULATING_PROJECTS_FAILED_REASON', e.toString());
+  console.log("POPULATING_PROJECTS failed with error:");
+  console.log(e.message);
+  console.log(e.stack);
+  process.setVariable(
+    execution.getId(),
+    "migrationState",
+    "POPULATING_PROJECTS_FAILED"
+  );
+  trackService.updateMigrationStatus("POPULATING PROJECTS FAILED");
+  process.setVariable(
+    execution.getId(),
+    "POPULATING_PROJECTS_FAILED_REASON",
+    e.toString()
+  );
 }
