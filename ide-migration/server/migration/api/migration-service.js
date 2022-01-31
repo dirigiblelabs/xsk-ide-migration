@@ -1,9 +1,13 @@
-const HanaRepository = require("ide-migration/server/migration/repository/hana-repository");
-const workspaceManager = require("platform/v4/workspace");
-const repositoryManager = require("platform/v4/repository");
-const bytes = require("io/v4/bytes");
-const database = require("db/v4/database");
-const config = require("core/v4/configurations");
+import { workspace as workspaceManager, repository as repositoryManager} from "@dirigible/platform";
+import {bytes} from "@dirigible/io";
+import {database } from "@dirigible/database";
+import {configurations as config} from "@dirigible/core";
+import {client as git } from "@dirigible/git";
+
+import { HanaRepository } from "../repository/hana-repository";
+import { HanaVisitor } from "./hana-visitor";
+import { getHdiFilePlugins as hdiFile } from "../repository/hdi-plugins";
+
 const HANA_USERNAME = "HANA_USERNAME";
 const TransformerFactory = Java.type("javax.xml.transform.TransformerFactory");
 const StreamSource = Java.type("javax.xml.transform.stream.StreamSource");
@@ -15,11 +19,8 @@ const XSKProjectMigrationInterceptor = Java.type(
     "com.sap.xsk.modificators.XSKProjectMigrationInterceptor"
 );
 const XSKHDBCoreFacade = Java.type("com.sap.xsk.hdb.ds.facade.XSKHDBCoreFacade");
-const HanaVisitor = require("./hana-visitor");
 const hdbDDModel = "com.sap.xsk.hdb.ds.model.hdbdd.XSKDataStructureCdsModel";
-const hdiFile = require("ide-migration/server/migration/repository/hdi-plugins");
 const xskModificator = new XSKProjectMigrationInterceptor();
-const git = require("git/v4/client");
 
 export class MigrationService {
     connection = null;

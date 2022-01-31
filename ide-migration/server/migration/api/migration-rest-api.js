@@ -1,9 +1,7 @@
-const tasksService = require("bpm/v4/tasks");
-const processService = require("bpm/v4/process");
-const httpClient = require("http/v4/client");
-const database = require("db/v4/database");
+import { tasks as tasksService, process as processService } from "@dirigible/bpm";
+import {client as httpClient, rs} from "@dirigible/http";
+import { database } from "@dirigible/db";
 
-const rs = require("http/v4/rs");
 rs.service()
     .resource("start-process")
     .post(startProcess)

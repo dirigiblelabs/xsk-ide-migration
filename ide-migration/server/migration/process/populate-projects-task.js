@@ -1,8 +1,8 @@
-const process = require("bpm/v4/process");
-const execution = process.getExecutionContext();
-const MigrationService = require("ide-migration/server/migration/api/migration-service");
+import {process} from "@dirigible/bpm";
+import { MigrationService } from "../api/migration-service";
+import { TrackService } from "../api/track-service";
 
-const TrackService = require("ide-migration/server/migration/api/track-service");
+const execution = process.getExecutionContext();
 const trackService = new TrackService();
 
 try {

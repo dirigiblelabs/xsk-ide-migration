@@ -9,10 +9,11 @@
  * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-const process = require("bpm/v4/process");
+import {process} from "@dirigible/bpm";
+import { MigrationService } from "../api/migration-service";
+import { TrackService } from "../api/track-service";
+
 const execution = process.getExecutionContext();
-const MigrationService = require("ide-migration/server/migration/api/migration-service");
-const TrackService = require("ide-migration/server/migration/api/track-service");
 const trackService = new TrackService();
 
 try {

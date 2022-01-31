@@ -85,12 +85,12 @@ export class HanaVisitor {
 
 //usage:
 
-// var workspaceManager = require("platform/v4/workspace");
+// import { workspace as workspaceManager } from "@dirigible/platform";
 // var workspace = workspaceManager.getWorkspace('workspace');
 // let project = workspace.getProject('parser');
 // let file = project.getFile('func.hdbtablefunction');
 // var content = file.getText();
-// let HanaVisitor = require('./hana-visitor');
+// import { HanaVisitor } from './hana-visitor';
 
 // let visitor = new HanaVisitor(content);
 // visitor.visit();

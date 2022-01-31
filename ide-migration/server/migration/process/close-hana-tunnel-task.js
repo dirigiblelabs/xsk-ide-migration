@@ -1,6 +1,8 @@
-const process = require("bpm/v4/process");
+import {process} from "@dirigible/bpm";
+import { TrackService } from "../api/track-service";
+import { NeoTunnelService } from "../api/neo-tunnel-service";
+
 const execution = process.getExecutionContext();
-const TrackService = require("ide-migration/server/migration/api/track-service");
 const trackService = new TrackService();
 
 try {
@@ -10,7 +12,6 @@ try {
     const userDataJson = process.getVariable(execution.getId(), "userData");
     const userData = JSON.parse(userDataJson);
 
-    const NeoTunnelService = require("ide-migration/server/migration/api/neo-tunnel-service");
     const neoTunnelService = new NeoTunnelService();
     neoTunnelService.closeTunnel(userData.connectionId);
 

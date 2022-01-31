@@ -1,8 +1,10 @@
-const process = require("bpm/v4/process");
+import {process} from "@dirigible/bpm";
+import {workspace as workspaceManager} from "@dirigible/platform";
+import { TrackService } from "../api/track-service";
+
 const execution = process.getExecutionContext();
-const workspaceManager = require("platform/v4/workspace");
-const TrackService = require("ide-migration/server/migration/api/track-service");
 const trackService = new TrackService();
+
 try {
     process.setVariable(execution.getId(), "migrationState", "WORKSPACES_LISTING");
     trackService.updateMigrationStatus("WORKSPACES LISTING");
