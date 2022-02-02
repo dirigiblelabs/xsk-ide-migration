@@ -1,4 +1,4 @@
-import {process} from "@dirigible/bpm";
+import { process } from "@dirigible/bpm";
 import { TrackService } from "../api/track-service";
 import { NeoDatabasesService } from "../api/neo-databases-service";
 
@@ -12,11 +12,7 @@ try {
 
     process.setVariable(execution.getId(), "migrationState", "DATABASES_LISTING");
     trackService.addEntry("DATABASES_LISTING");
-    process.setVariable(
-        execution.getId(),
-        "migrationIndex",
-        trackService.getCurrentMigrationIndex()
-    );
+    process.setVariable(execution.getId(), "migrationIndex", trackService.getCurrentMigrationIndex());
     const account = userData.neo.subaccount;
     const host = userData.neo.hostName;
 

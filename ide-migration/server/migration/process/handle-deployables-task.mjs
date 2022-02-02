@@ -9,7 +9,7 @@
  * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-import {process} from "@dirigible/bpm";
+import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service";
 import { TrackService } from "../api/track-service";
 
@@ -41,19 +41,15 @@ try {
         if (projectsWithSynonyms) {
             for (const projectName of projectsWithSynonyms) {
                 const hdbSynonymFilePath = migrationService.getSynonymFilePath(projectName);
-                const hdbPublicSynonymFilePath =
-                    migrationService.getPublicSynonymFilePath(projectName);
-                const projectDeployables = deployables.find(
-                    (x) => x.projectName === projectName
-                ).artifacts;
+                const hdbPublicSynonymFilePath = migrationService.getPublicSynonymFilePath(projectName);
+                const projectDeployables = deployables.find((x) => x.projectName === projectName).artifacts;
 
                 projectDeployables.push(hdbSynonymFilePath);
                 projectDeployables.push(hdbPublicSynonymFilePath);
             }
         }
 
-        deliveryUnit["deployableArtifactsResult"] =
-            migrationService.handlePossibleDeployableArtifacts(userData.workspace, deployables);
+        deliveryUnit["deployableArtifactsResult"] = migrationService.handlePossibleDeployableArtifacts(userData.workspace, deployables);
     }
     process.setVariable(execution.getId(), "userData", JSON.stringify(userData));
     process.setVariable(execution.getId(), "migrationState", "HANDLE_DEPLOYABLES_EXECUTED");

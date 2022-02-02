@@ -30,14 +30,10 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
         $scope.dataLoaded = false;
         $scope.selectAllText = "Select all";
         $scope.duSelectedUItext = [];
-        let descriptionList = [
-            "Please wait while we get all delivery unit(s)...",
-            "Select the target workspace and delivery unit(s)",
-        ];
+        let descriptionList = ["Please wait while we get all delivery unit(s)...", "Select the target workspace and delivery unit(s)"];
         $scope.descriptionText = descriptionList[0];
         let defaultErrorTitle = "Error loading delivery units";
-        let defaultErrorDesc =
-            "Please check if the information you provided is correct and try again.";
+        let defaultErrorDesc = "Please check if the information you provided is correct and try again.";
 
         $(".multi-selectable").on("click", function (e) {
             e.stopPropagation();
@@ -58,11 +54,9 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
             };
 
             $http
-                .post(
-                    "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/continue-process",
-                    JSON.stringify(body),
-                    { headers: { "Content-Type": "application/json" } }
-                )
+                .post("/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/continue-process", JSON.stringify(body), {
+                    headers: { "Content-Type": "application/json" },
+                })
                 .then(
                     function (response) {
                         const timer = setInterval(function () {
@@ -76,19 +70,11 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                                     function (response) {
                                         if (response.data && response.data.failed) {
                                             clearInterval(timer);
-                                            $messageHub.announceAlertError(
-                                                defaultErrorTitle,
-                                                defaultErrorDesc
-                                            );
+                                            $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
                                             errorOccurred();
-                                        } else if (
-                                            response.data.workspaces &&
-                                            response.data.deliveryUnits &&
-                                            response.data.connectionId
-                                        ) {
+                                        } else if (response.data.workspaces && response.data.deliveryUnits && response.data.connectionId) {
                                             clearInterval(timer);
-                                            migrationDataState.connectionId =
-                                                response.data.connectionId;
+                                            migrationDataState.connectionId = response.data.connectionId;
                                             $scope.workspaces = response.data.workspaces;
                                             $scope.workspacesList = $scope.workspaces;
                                             $scope.deliveryUnits = response.data.deliveryUnits;
@@ -106,15 +92,9 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                         if (response.data) {
                             if ("error" in response.data) {
                                 if ("message" in response.data.error) {
-                                    $messageHub.announceAlertError(
-                                        defaultErrorTitle,
-                                        response.data.error.message
-                                    );
+                                    $messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
                                 } else {
-                                    $messageHub.announceAlertError(
-                                        defaultErrorTitle,
-                                        defaultErrorDesc
-                                    );
+                                    $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
                                 }
                                 console.error(`HTTP $response.status`, response.data.error);
                             } else {
@@ -137,11 +117,7 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
             if ($scope.duSearch) {
                 let filtered = [];
                 for (const deliveryUnit of $scope.deliveryUnits) {
-                    if (
-                        deliveryUnit.name
-                            .toLowerCase()
-                            .includes($scope.duSearch.toLowerCase())
-                    ) {
+                    if (deliveryUnit.name.toLowerCase().includes($scope.duSearch.toLowerCase())) {
                         filtered.push(deliveryUnit);
                     }
                 }
@@ -157,11 +133,7 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                 $scope.showSeparator = true;
                 let filtered = [];
                 for (const workspace of $scope.workspaces) {
-                    if (
-                        workspace
-                            .toLowerCase()
-                            .includes($scope.workspacesSearch.toLowerCase())
-                    ) {
+                    if (workspace.toLowerCase().includes($scope.workspacesSearch.toLowerCase())) {
                         filtered.push(workspace);
                     } else {
                         $scope.showSeparator = false;
@@ -187,40 +159,28 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
         };
 
         $scope.allDUSelectable = () => {
-            return migrationDataState.selectedDeliveryUnits.length < $scope.deliveryUnitList.length
-                ? "selected"
-                : "";
+            return migrationDataState.selectedDeliveryUnits.length < $scope.deliveryUnitList.length ? "selected" : "";
         };
 
         $scope.toggleSelectAllDU = () => {
-            let compare_value =
-                migrationDataState.selectedDeliveryUnits.length != $scope.deliveryUnitList.length;
+            let compare_value = migrationDataState.selectedDeliveryUnits.length != $scope.deliveryUnitList.length;
             for (const deliveryUnit of $scope.deliveryUnitList) {
-                if (Boolean($scope.isDUSelected(deliveryUnit)) !== compare_value)
-                $scope.duSelected(deliveryUnit);
+                if (Boolean($scope.isDUSelected(deliveryUnit)) !== compare_value) $scope.duSelected(deliveryUnit);
             }
-                
         };
 
         $scope.duSelected = function (deliveryUnit) {
             if (migrationDataState.selectedDeliveryUnits.includes(deliveryUnit)) {
-                migrationDataState.selectedDeliveryUnits =
-                    migrationDataState.selectedDeliveryUnits.filter((elem) => elem != deliveryUnit);
-                $scope.duSelectedUItext = $scope.duSelectedUItext.filter(
-                    (elem) => elem != deliveryUnit.name
-                );
+                migrationDataState.selectedDeliveryUnits = migrationDataState.selectedDeliveryUnits.filter((elem) => elem != deliveryUnit);
+                $scope.duSelectedUItext = $scope.duSelectedUItext.filter((elem) => elem != deliveryUnit.name);
             } else {
                 migrationDataState.selectedDeliveryUnits.push(deliveryUnit);
                 $scope.duSelectedUItext.push(deliveryUnit.name);
             }
 
-            $scope.duDropdownText = $scope.duSelectedUItext.length
-                ? $scope.duSelectedUItext.join(", ")
-                : $scope.duDropdownInitText;
+            $scope.duDropdownText = $scope.duSelectedUItext.length ? $scope.duSelectedUItext.join(", ") : $scope.duDropdownInitText;
             $scope.selectAllText =
-                migrationDataState.selectedDeliveryUnits.length == $scope.deliveryUnitList.length
-                    ? "Unselect all"
-                    : "Select all";
+                migrationDataState.selectedDeliveryUnits.length == $scope.deliveryUnitList.length ? "Unselect all" : "Select all";
             $scope.$parent.setFinishEnabled(true);
         };
 

@@ -1,4 +1,4 @@
-import {process} from "@dirigible/bpm";
+import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service";
 import { TrackService } from "../api/track-service";
 

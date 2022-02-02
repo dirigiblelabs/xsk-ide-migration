@@ -22,9 +22,7 @@ export class HanaVisitor {
 
         this.parser = new Parser(tokenStream);
 
-        var HanaBaseVisitor = Java.extend(
-            Java.type("com.sap.xsk.parser.hana.core.HanaBaseVisitor")
-        );
+        var HanaBaseVisitor = Java.extend(Java.type("com.sap.xsk.parser.hana.core.HanaBaseVisitor"));
         var that = this;
         this.impl = new HanaBaseVisitor({
             visitProc_name: function (ctx) {
