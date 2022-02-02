@@ -1,6 +1,6 @@
 import { workspace as workspaceManager, repository as repositoryManager } from "@dirigible/platform";
 import { bytes } from "@dirigible/io";
-import { database } from "@dirigible/database";
+import { database } from "@dirigible/db";
 import { configurations as config } from "@dirigible/core";
 import { client as git } from "@dirigible/git";
 
