@@ -40,70 +40,42 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
                 },
             };
 
-            $http
-                .post("/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/start-process", JSON.stringify(body), {
-                    headers: { "Content-Type": "application/json" },
-                })
-                .then(
-                    function (response) {
-                        migrationDataState.processInstanceId = body.processInstanceId = response.data.processInstanceId;
-                        if (!migrationDataState.processInstanceId) {
-                            $messageHub.announceAlertError(noProcessErrorTitle, noProcessErrorDescription);
-                            errorOccurred();
-                        } else {
-                            const timer = setInterval(function () {
-                                $http
-                                    .post(
-                                        "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/get-process",
-                                        JSON.stringify(body),
-                                        { headers: { "Content-Type": "application/json" } }
-                                    )
-                                    .then(
-                                        function (response) {
-                                            if (response.data && response.data.failed) {
-                                                clearInterval(timer);
-                                                $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                                                errorOccurred();
-                                            } else if (response.data.databases) {
-                                                clearInterval(timer);
-                                                $scope.areDatabasesLoaded = true;
-                                                $scope.descriptionText = descriptionList[1];
-                                                $scope.userInput();
-                                                $scope.$parent.setPreviousVisible(true);
-                                                $scope.$parent.setPreviousEnabled(true);
-                                                $scope.$parent.setNextVisible(true);
-                                                $scope.$parent.setNextEnabled(true);
-                                                $scope.$parent.setFinishVisible(false);
+            $http.post(
+                "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/list-databases",
+                JSON.stringify(body),
+                { headers: { 'Content-Type': 'application/json' } }
+    
+            ).then(function (response) {
+                if (response.data && response.data.failed) {
+                    $messageHub.announceAlertError(
+                        defaultErrorTitle,
+                        defaultErrorDesc
+                    );
+                    errorOccurred();
+                } else if (response.data.databases && response.data.userJwtToken) {
 
-                                                $scope.databasesDropdownText = "---Please select---";
-                                                $scope.databases = response.data.databases;
-                                                $scope.databasesList = $scope.databases;
-                                            }
-                                        },
-                                        function (response) { }
-                                    );
-                            }, 1000);
-                        }
-                    },
-                    function (response) {
-                        if (response.data) {
-                            if ("error" in response.data) {
-                                if ("message" in response.data.error) {
-                                    $messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
-                                } else {
-                                    $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                                }
-                                console.error(`HTTP $response.status`, response.data.error);
-                            } else {
-                                $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                            }
-                        } else {
-                            $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                        }
-                        errorOccurred();
-                    }
-                );
+                    body.databases = response.data.databases;
+                    migrationDataState['userJwtToken'] = response.data.userJwtToken;
+
+                    $scope.areDatabasesLoaded = true;
+                    $scope.descriptionText = descriptionList[1];
+                    $scope.userInput();
+                    $scope.$parent.setPreviousVisible(true);
+                    $scope.$parent.setPreviousEnabled(true);
+                    $scope.$parent.setNextVisible(true);
+                    $scope.$parent.setNextEnabled(true);
+                    $scope.$parent.setFinishVisible(false);
+
+                    $scope.databasesDropdownText = "---Please select---";
+                    $scope.databases = response.data.databases;
+                    $scope.databasesList = $scope.databases;
+                }
+
+            }).catch(function (err) {
+                console.log(err);
+            })
         }
+
 
         function errorOccurred() {
             $scope.$parent.previousClicked();

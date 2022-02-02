@@ -13,7 +13,9 @@ rs.service()
     .post(continueProcess)
     .resource('get-process')
     .post(getProcessState)
-    .resource('migrationsTrack')
+    .resource("migrationsTrack")
+	.resouce('list-databases')
+	.post(listDatabases)
     .post(getMigrations)
     .execute();
 
@@ -53,9 +55,8 @@ function startProcess(ctx, req, res) {
     }
 
     const processInstanceId = processService.start("migrationProcess", {
-        userData: JSON.stringify(userDataJson),
-        userJwtToken: tokenResponse.access_token,
         migrationType: "FROM_HANA",
+        userData: JSON.stringify(userDataJson)
     });
 
     const response = {
@@ -140,4 +141,33 @@ function getMigrations(ctx, request, response) {
         connection.close();
     }
     response.print(migrationsData.migrations);
+}
+
+function listDatabases(ctx, request, response) {
+	const userDataJson = request.getJSON();
+	const neoData = userDataJson.neo;
+	const subaccount = neoData.subaccount;
+	const hostName = neoData.hostName;
+	const username = neoData.username;
+	const password = neoData.password;
+
+	const tokenResponse = getJwtToken(hostName, username, password);
+	if (tokenResponse.error) {
+		response.setStatus(403);
+		response.print(
+			JSON.stringify({
+				error: {
+					message: tokenResponse.error_description
+				}
+			})
+		);
+		return;
+	}
+
+	const userJwtToken = tokenResponse.access_token;
+
+	const NeoDatabasesService = require('ide-migration/server/migration/api/neo-databases-service');
+	const neoDatabasesService = new NeoDatabasesService();
+	const databases = neoDatabasesService.getAvailableDatabases(subaccount, hostName, userJwtToken);
+	response.print(databases);
 }
