@@ -42,7 +42,38 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
                 },
             };
 
-            $http
+            $http.post(
+                "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/list-databases",
+                JSON.stringify(body),
+                { headers: { 'Content-Type': 'application/json' } }
+    
+            ).then(function (response) {
+                if (response.data && response.data.failed) {
+               
+                    $messageHub.announceAlertError(
+                        defaultErrorTitle,
+                        defaultErrorDesc
+                    );
+                    errorOccurred();
+                } else if (response.data.databases) {
+
+                    body.databases = response.data.databases;
+                    
+                    $scope.areDatabasesLoaded = true;
+                    $scope.descriptionText = descriptionList[1];
+                    $scope.userInput();
+                    $scope.$parent.setPreviousVisible(true);
+                    $scope.$parent.setPreviousEnabled(true);
+                    $scope.$parent.setNextVisible(true);
+                    $scope.$parent.setNextEnabled(true);
+                    $scope.$parent.setFinishVisible(false);
+
+                    $scope.databasesDropdownText = "---Please select---";
+                    $scope.databases = response.data.databases;
+                    $scope.databasesList = $scope.databases;
+                }
+
+                $http
                 .post(
                     "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process",
                     JSON.stringify(body),
@@ -52,41 +83,6 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
                     function (response) {
                         migrationDataState.processInstanceId = body.processInstanceId =
                             response.data.processInstanceId;
-                        const timer = setInterval(function () {
-                            $http
-                                .post(
-                                    "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/get-process",
-                                    JSON.stringify(body),
-                                    { headers: { "Content-Type": "application/json" } }
-                                )
-                                .then(
-                                    function (response) {
-                                        if (response.data && response.data.failed) {
-                                            clearInterval(timer);
-                                            $messageHub.announceAlertError(
-                                                defaultErrorTitle,
-                                                defaultErrorDesc
-                                            );
-                                            errorOccurred();
-                                        } else if (response.data.databases) {
-                                            clearInterval(timer);
-                                            $scope.areDatabasesLoaded = true;
-                                            $scope.descriptionText = descriptionList[1];
-                                            $scope.userInput();
-                                            $scope.$parent.setPreviousVisible(true);
-                                            $scope.$parent.setPreviousEnabled(true);
-                                            $scope.$parent.setNextVisible(true);
-                                            $scope.$parent.setNextEnabled(true);
-                                            $scope.$parent.setFinishVisible(false);
-
-                                            $scope.databasesDropdownText = "---Please select---";
-                                            $scope.databases = response.data.databases;
-                                            $scope.databasesList = $scope.databases;
-                                        }
-                                    },
-                                    function (response) {}
-                                );
-                        }, 1000);
                     },
                     function (response) {
                         if (response.data) {
@@ -112,7 +108,10 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
                         errorOccurred();
                     }
                 );
+
+            });
         }
+
 
         function errorOccurred() {
             $scope.$parent.previousClicked();
