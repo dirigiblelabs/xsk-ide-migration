@@ -3,7 +3,7 @@ import { TrackService } from "../api/track-service";
 import { NeoTunnelService } from "../api/neo-tunnel-service";
 
 export class CloseHanaTunnelTask {
-    execution = process.getthis.executionContext();
+    execution = process.getExecutionContext();
     trackService = new TrackService();
 
     run() {
