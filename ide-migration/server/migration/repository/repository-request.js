@@ -1,5 +1,4 @@
 class RepositoryRequest {
-
     constructor(attachmentCount, requestMethod) {
         this._attachmentCount = attachmentCount;
         this._requestMethod = requestMethod;
@@ -8,7 +7,6 @@ class RepositoryRequest {
     get contentLength() {
         return Buffer.from(JSON.stringify(this._requestMethod)).length;
     }
-
 }
 
 module.exports = RepositoryRequest;
