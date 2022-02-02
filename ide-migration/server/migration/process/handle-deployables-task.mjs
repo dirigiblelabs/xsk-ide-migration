@@ -13,28 +13,34 @@ import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service";
 import { TrackService } from "../api/track-service";
 
-const execution = process.getExecutionContext();
-const trackService = new TrackService();
+export class HandleDeployablesTask {
+    execution = process.getExecutionContext();
+    trackService = new TrackService();
 
-try {
-    process.setVariable(execution.getId(), "migrationState", "HANDLE_DEPLOYABLES_EXECUTING");
-    trackService.updateMigrationStatus("HANDLE DEPLOYABLES EXECUTING");
-    const userDataJson = process.getVariable(execution.getId(), "userData");
-    const userData = JSON.parse(userDataJson);
-
-    const migrationService = new MigrationService();
-    for (const deliveryUnit of userData.du) {
-        const locals = deliveryUnit.locals;
-        let deployables = [];
-        for (const local of locals) {
-            deployables = migrationService.collectDeployables(
-                userData.workspace,
-                local.repositoryPath,
-                local.runLocation,
-                local.projectName,
-                deployables
+    run() {
+        try {
+            process.setVariable(
+                execution.getId(),
+                "migrationState",
+                "HANDLE_DEPLOYABLES_EXECUTING"
             );
-        }
+            trackService.updateMigrationStatus("HANDLE DEPLOYABLES EXECUTING");
+            const userDataJson = process.getVariable(execution.getId(), "userData");
+            const userData = JSON.parse(userDataJson);
+
+            const migrationService = new MigrationService();
+            for (const deliveryUnit of userData.du) {
+                const locals = deliveryUnit.locals;
+                let deployables = [];
+                for (const local of locals) {
+                    deployables = migrationService.collectDeployables(
+                        userData.workspace,
+                        local.repositoryPath,
+                        local.runLocation,
+                        local.projectName,
+                        deployables
+                    );
+                }
 
         // Get names of projects with generated synonyms and add them to deployables
         const projectsWithSynonyms = migrationService.getProjectsWithSynonyms(locals);
@@ -44,20 +50,30 @@ try {
                 const hdbPublicSynonymFilePath = migrationService.getPublicSynonymFilePath(projectName);
                 const projectDeployables = deployables.find((x) => x.projectName === projectName).artifacts;
 
-                projectDeployables.push(hdbSynonymFilePath);
-                projectDeployables.push(hdbPublicSynonymFilePath);
-            }
-        }
+                        projectDeployables.push(hdbSynonymFilePath);
+                        projectDeployables.push(hdbPublicSynonymFilePath);
+                    }
+                }
 
-        deliveryUnit["deployableArtifactsResult"] = migrationService.handlePossibleDeployableArtifacts(userData.workspace, deployables);
+                deliveryUnit["deployableArtifactsResult"] =
+                    migrationService.handlePossibleDeployableArtifacts(
+                        userData.workspace,
+                        deployables
+                    );
+            }
+            process.setVariable(execution.getId(), "userData", JSON.stringify(userData));
+            process.setVariable(execution.getId(), "migrationState", "HANDLE_DEPLOYABLES_EXECUTED");
+            trackService.updateMigrationStatus("HANDLE DEPLOYABLES EXECUTED");
+        } catch (e) {
+            console.log("HANDLE_DEPLOYABLES failed with error:");
+            console.log(e.message);
+            process.setVariable(execution.getId(), "migrationState", "HANDLE_DEPLOYABLES_FAILED");
+            trackService.updateMigrationStatus("HANDLE DEPLOYABLES FAILED");
+            process.setVariable(
+                execution.getId(),
+                "HANDLE_DEPLOYABLES_FAILED_REASON",
+                e.toString()
+            );
+        }
     }
-    process.setVariable(execution.getId(), "userData", JSON.stringify(userData));
-    process.setVariable(execution.getId(), "migrationState", "HANDLE_DEPLOYABLES_EXECUTED");
-    trackService.updateMigrationStatus("HANDLE DEPLOYABLES EXECUTED");
-} catch (e) {
-    console.log("HANDLE_DEPLOYABLES failed with error:");
-    console.log(e.message);
-    process.setVariable(execution.getId(), "migrationState", "HANDLE_DEPLOYABLES_FAILED");
-    trackService.updateMigrationStatus("HANDLE DEPLOYABLES FAILED");
-    process.setVariable(execution.getId(), "HANDLE_DEPLOYABLES_FAILED_REASON", e.toString());
 }
