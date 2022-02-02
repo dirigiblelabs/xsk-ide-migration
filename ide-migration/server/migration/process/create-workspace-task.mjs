@@ -1,4 +1,4 @@
-import {process} from "@dirigible/bpm";
+import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service";
 import { TrackService } from "../api/track-service";
 
@@ -16,7 +16,7 @@ try {
     for (const deliveryUnit of userData.du) {
         migrationService.createMigratedWorkspace(userData.workspace, deliveryUnit);
     }
-    
+
     process.setVariable(execution.getId(), "userData", JSON.stringify(userData));
     process.setVariable(execution.getId(), "migrationState", "WORKSPACE_CREATE_EXECUTED");
     trackService.updateMigrationStatus("CREATING WORKSPACE EXECUTED");

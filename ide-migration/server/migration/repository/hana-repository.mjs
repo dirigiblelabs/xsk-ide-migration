@@ -1,4 +1,4 @@
-import {bytes as bytesUtils} from "@dirigible/io";
+import { bytes as bytesUtils } from "@dirigible/io";
 import { RepositoryResponse } from "./repository-response";
 import { RepositoryObject } from "./repository-object";
 import { RepositoryPackage } from "./repository-package";
@@ -96,9 +96,7 @@ export class HanaRepository {
     }
 
     _addLanguage(repositoryObject) {
-        const originalLanguage = this._getOriginalLanguage(
-            repositoryObject.PackageName.packageName
-        );
+        const originalLanguage = this._getOriginalLanguage(repositoryObject.PackageName.packageName);
         repositoryObject.originalLanguage = originalLanguage;
         return repositoryObject;
     }
@@ -159,10 +157,7 @@ export class HanaRepository {
         const packages = this._getAllPackagesForDu(deliveryUnit);
         let filteredPackages = packageFilter.filterPackages(globalContext, packages) || [];
         const packagesAndFilesListObject = this._getAllObjectsForPackages(filteredPackages);
-        return this._packagesCollected(
-            packagesAndFilesListObject.packages,
-            packagesAndFilesListObject.fileList
-        );
+        return this._packagesCollected(packagesAndFilesListObject.packages, packagesAndFilesListObject.fileList);
     }
 
     getContentForObject(name, packageName, suffix) {
@@ -182,12 +177,7 @@ export class HanaRepository {
 
         if (response.content["error-code"] && response.content["error-code"] != 0) {
             throw new Error(
-                "" +
-                    response.content["error-code"] +
-                    " " +
-                    response.content["error-msg"] +
-                    " " +
-                    response.content["error-arg"]
+                "" + response.content["error-code"] + " " + response.content["error-msg"] + " " + response.content["error-arg"]
             );
         }
         return response;
@@ -220,7 +210,7 @@ export class HanaRepository {
                 byteCount += 1;
             }
         }
-        
+
         return finalRequestArray;
     }
 

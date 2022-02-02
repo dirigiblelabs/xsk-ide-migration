@@ -1,4 +1,4 @@
-import {process} from "@dirigible/bpm";
+import { process } from "@dirigible/bpm";
 import { TrackService } from "../api/track-service";
 import { NeoTunnelService } from "../api/neo-tunnel-service";
 

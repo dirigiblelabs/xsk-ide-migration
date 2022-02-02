@@ -1,5 +1,5 @@
 import { tasks as tasksService, process as processService } from "@dirigible/bpm";
-import {client as httpClient, rs} from "@dirigible/http";
+import { client as httpClient, rs } from "@dirigible/http";
 import { database } from "@dirigible/db";
 import { url } from "@dirigible/utils";
 
@@ -85,10 +85,7 @@ function getProcessState(ctx, req, res) {
 
     if (migrationState.endsWith("_FAILED")) {
         response.failed = true;
-        const failureReason = processService.getVariable(
-            processInstanceIdString,
-            migrationState + "_REASON"
-        );
+        const failureReason = processService.getVariable(processInstanceIdString, migrationState + "_REASON");
         if (failureReason) {
             response.failureReason = failureReason;
         }
@@ -97,10 +94,7 @@ function getProcessState(ctx, req, res) {
         response.databases = JSON.parse(databasesJson);
     } else if (migrationState === "WORKSPACES_LISTED") {
         const workspacesJson = processService.getVariable(processInstanceIdString, "workspaces");
-        const deliveryUnitsJson = processService.getVariable(
-            processInstanceIdString,
-            "deliveryUnits"
-        );
+        const deliveryUnitsJson = processService.getVariable(processInstanceIdString, "deliveryUnits");
         const connectionId = processService.getVariable(processInstanceIdString, "connectionId");
         response.workspaces = JSON.parse(workspacesJson);
         response.deliveryUnits = JSON.parse(deliveryUnitsJson);

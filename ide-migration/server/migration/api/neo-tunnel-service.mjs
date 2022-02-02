@@ -9,7 +9,7 @@
  * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-import {configurations as config } from "@dirigible/core";
+import { configurations as config } from "@dirigible/core";
 import { MigrationToolExecutor } from "./migration-tool-executor";
 
 const neoClientPath = config.get("user.dir") + "/target/dirigible/resources-neo-sdk/tools/neo.sh";
@@ -33,7 +33,7 @@ export class NeoTunnelService {
     }
 
     closeTunnel(sessionId) {
-      const script = `${neoClientPath} close-db-tunnel --session-id ${sessionId}`;
-      this.migrationToolExecutor.execute(script);
+        const script = `${neoClientPath} close-db-tunnel --session-id ${sessionId}`;
+        this.migrationToolExecutor.execute(script);
     }
 }

@@ -1,5 +1,5 @@
-import {process} from "@dirigible/bpm";
-import {workspace as workspaceManager} from "@dirigible/platform";
+import { process } from "@dirigible/bpm";
+import { workspace as workspaceManager } from "@dirigible/platform";
 import { TrackService } from "../api/track-service";
 
 const execution = process.getExecutionContext();

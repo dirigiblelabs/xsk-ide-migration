@@ -1,5 +1,5 @@
 import { RepositoryHeader } from "./repository-header";
-import { ResponseAttachmentParser} from "./response-attachment-parser"
+import { ResponseAttachmentParser } from "./response-attachment-parser";
 
 let utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 
@@ -13,10 +13,7 @@ export class RepositoryResponse {
         this._attachments = [];
         if (this._header.attachmentCount > 1) {
             let attachmentBuffer = responseBuffer.slice(contentEnd, responseBuffer.length);
-            this._attachments = ResponseAttachmentParser.parse(
-                attachmentBuffer,
-                this._header.attachmentCount
-            );
+            this._attachments = ResponseAttachmentParser.parse(attachmentBuffer, this._header.attachmentCount);
         }
     }
 
