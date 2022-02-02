@@ -1,5 +1,5 @@
 import { tasks as tasksService, process as processService } from "@dirigible/bpm";
-import {client as httpClient, rs} from "@dirigible/http";
+import { client as httpClient, rs } from "@dirigible/http";
 import { database } from "@dirigible/db";
 
 rs.service()

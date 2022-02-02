@@ -1,8 +1,11 @@
-import { workspace as workspaceManager, repository as repositoryManager} from "@dirigible/platform";
-import {bytes} from "@dirigible/io";
-import {database } from "@dirigible/database";
-import {configurations as config} from "@dirigible/core";
-import {client as git } from "@dirigible/git";
+import {
+    workspace as workspaceManager,
+    repository as repositoryManager,
+} from "@dirigible/platform";
+import { bytes } from "@dirigible/io";
+import { database } from "@dirigible/database";
+import { configurations as config } from "@dirigible/core";
+import { client as git } from "@dirigible/git";
 
 import { HanaRepository } from "../repository/hana-repository";
 import { HanaVisitor } from "./hana-visitor.mjs";

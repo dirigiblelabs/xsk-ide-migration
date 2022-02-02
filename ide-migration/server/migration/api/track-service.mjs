@@ -10,9 +10,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {dao} from "@dirigible/db";
-import {user} from "@dirigible/security";
-import {process} from "@dirigible/bpm";
+import { dao } from "@dirigible/db";
+import { user } from "@dirigible/security";
+import { process } from "@dirigible/bpm";
 
 const execution = process.getExecutionContext();
 const userName = user.getName();

@@ -15,8 +15,7 @@ migrationLaunchView.controller("NeoCredentialsViewController", [
     "migrationDataState",
     function ($scope, $messageHub, migrationDataState) {
         $scope.migrationDataState = migrationDataState;
-        $scope.passwordHintMessage =
-            "If you have enabled 2FA for your account, append your 2FA code after the password";
+        $scope.passwordHintMessage = "If you have enabled 2FA for your account, append your 2FA code after the password";
         $scope.isVisible = true;
         $scope.passwordVisible = false;
         $scope.regionDropdownInitText = "---Please select---";
@@ -87,11 +86,7 @@ migrationLaunchView.controller("NeoCredentialsViewController", [
                 let filtered = [];
                 let alreadyHaveUserEnteredRegion = false;
                 for (const region of $scope.regions) {
-                    if (
-                        region.name
-                            .toLowerCase()
-                            .includes($scope.regionSearch.toLowerCase())
-                    ) {
+                    if (region.name.toLowerCase().includes($scope.regionSearch.toLowerCase())) {
                         filtered.push(region);
 
                         if (region.region === $scope.regionSearch) {

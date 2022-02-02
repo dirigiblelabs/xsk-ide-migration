@@ -1,4 +1,4 @@
-import {bytes as bytesUtils} from "@dirigible/io";
+import { bytes as bytesUtils } from "@dirigible/io";
 import { RepositoryResponse } from "./repository-response";
 import { RepositoryObject } from "./repository-object";
 import { RepositoryPackage } from "./repository-package";
@@ -220,7 +220,7 @@ export class HanaRepository {
                 byteCount += 1;
             }
         }
-        
+
         return finalRequestArray;
     }
 
