@@ -47,7 +47,7 @@ migrationLaunchView.controller("StartMigrationViewController", [
                 selectedDeliveryUnitsCount > 1 ? `Migrating ${selectedDeliveryUnitsCount} projects` : `Migrating project`;
 
             $http
-                .post("/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/continue-process", JSON.stringify(body), {
+                .post("/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/continue-process", JSON.stringify(body), {
                     headers: { "Content-Type": "application/json" },
                 })
                 .then(
