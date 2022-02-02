@@ -3,7 +3,7 @@ import { MigrationService } from "../api/migration-service";
 import { TrackService } from "../api/track-service";
 
 export class CopyFilesTask {
-    execution = process.getthis.executionContext();
+    execution = process.getExecutionContext();
     trackService = new TrackService();
 
     run() {
