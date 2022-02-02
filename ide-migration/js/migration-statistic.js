@@ -16,7 +16,7 @@ migrationLaunchView.controller("MigrationStatisticsController", [
         let body = { migrations: "empty" };
         let defaultErrorTitle = "Error loading migrations information.";
         $http
-            .post("/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/migrationsTrack", JSON.stringify(body), {
+            .post("/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/migrationsTrack", JSON.stringify(body), {
                 headers: { "Content-Type": "application/json" },
             })
             .then(

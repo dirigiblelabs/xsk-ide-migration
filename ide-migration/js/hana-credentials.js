@@ -39,7 +39,7 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
             };
 
             $http
-                .post("/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process", JSON.stringify(body), {
+                .post("/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/start-process", JSON.stringify(body), {
                     headers: { "Content-Type": "application/json" },
                 })
                 .then(
@@ -48,7 +48,7 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
                         const timer = setInterval(function () {
                             $http
                                 .post(
-                                    "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/get-process",
+                                    "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/get-process",
                                     JSON.stringify(body),
                                     { headers: { "Content-Type": "application/json" } }
                                 )
