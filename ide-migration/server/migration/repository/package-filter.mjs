@@ -4,6 +4,7 @@ export class PackageFilter {
 
     splitName(name){
         let n = name;
+        let m;
         let paths = [];
         while (n.length > 0 && (m = n.match(this.QUOTE_PATTERN)) != null) {
             let pre = n.substring(0, m.index);
@@ -27,7 +28,7 @@ export class PackageFilter {
 
     filterGenericPackages(packageList) {
         let filteredPackages = [];
-        packageList.forEach(function (pkg) {
+        packageList.forEach((pkg) => {
             let name = pkg.packageName;
             let paths = this.splitName(name);
             let filtered = false;
