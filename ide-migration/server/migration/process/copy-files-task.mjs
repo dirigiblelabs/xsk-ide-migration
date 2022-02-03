@@ -27,8 +27,10 @@ export class CopyFilesTask {
                     connectionUrl
                 );
                 const files = migrationService.getAllFilesForDU(deliveryUnit);
-                const locals = migrationService.copyFilesLocally(userData.workspace, files);
-                deliveryUnit.locals = locals;
+                if (files) {
+                    const locals = migrationService.copyFilesLocally(userData.workspace, files);
+                    deliveryUnit.locals = locals;
+                }
             }
 
             process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));

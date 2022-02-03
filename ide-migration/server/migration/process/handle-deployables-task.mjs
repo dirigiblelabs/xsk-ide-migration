@@ -31,6 +31,9 @@ export class HandleDeployablesTask {
             const migrationService = new MigrationService();
             for (const deliveryUnit of userData.du) {
                 const locals = deliveryUnit.locals;
+                if (!(locals && locals.length > 0)) {
+                    continue;
+                }
                 let deployables = [];
                 for (const local of locals) {
                     deployables = migrationService.collectDeployables(
