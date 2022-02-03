@@ -61,7 +61,7 @@ function migrationDataState() {
     };
 
     return state;
-}
+};
 
 
 migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
@@ -104,44 +104,44 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         $scope.finishVisible = visible;
     };
 
-        $scope.setFinishVisible = function (visible) {
-            $scope.finishVisible = visible;
-        };
+    $scope.setFinishVisible = function (visible) {
+        $scope.finishVisible = visible;
+    };
 
-        $scope.setFinishEnabled = function (enabled) {
-            $scope.finishDisabled = !enabled;
-        };
+    $scope.setFinishEnabled = function (enabled) {
+        $scope.finishDisabled = !enabled;
+    };
 
-        $scope.setNextVisible = function (visible) {
-            $scope.nextVisible = visible;
-        };
+    $scope.setNextVisible = function (visible) {
+        $scope.nextVisible = visible;
+    };
 
-        $scope.setNextEnabled = function (enabled) {
-            $scope.nextDisabled = !enabled;
-        };
+    $scope.setNextEnabled = function (enabled) {
+        $scope.nextDisabled = !enabled;
+    };
 
-        $scope.setPreviousVisible = function (visible) {
-            $scope.previousVisible = visible;
-        };
+    $scope.setPreviousVisible = function (visible) {
+        $scope.previousVisible = visible;
+    };
 
-        $scope.setPreviousEnabled = function (enabled) {
-            $scope.previousDisabled = !enabled;
-        };
+    $scope.setPreviousEnabled = function (enabled) {
+        $scope.previousDisabled = !enabled;
+    };
 
-        $scope.setBottomNavEnabled = function (enabled) {
-            $scope.bottomNavHidden = !enabled;
-        };
+    $scope.setBottomNavEnabled = function (enabled) {
+        $scope.bottomNavHidden = !enabled;
+    };
 
-        $scope.nextClicked = function () {
-            $messageHub.message($scope.currentStep.topicId, { isVisible: false });
-            for (let i = 0; i < $scope.steps.length; i++) {
-                if ($scope.steps[i].id > $scope.currentStep.id) {
-                    $scope.currentStep = $scope.steps[i];
-                    break;
-                }
+    $scope.nextClicked = function () {
+        $messageHub.message($scope.currentStep.topicId, { isVisible: false });
+        for (let i = 0; i < $scope.steps.length; i++) {
+            if ($scope.steps[i].id > $scope.currentStep.id) {
+                $scope.currentStep = $scope.steps[i];
+                break;
             }
-            $messageHub.message($scope.currentStep.topicId, { isVisible: true });
-        };
+        }
+        $messageHub.message($scope.currentStep.topicId, { isVisible: true });
+    };
 
 
     $scope.backToChoice = function () {
@@ -173,20 +173,21 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
                 $scope.currentStep = $scope.steps[i];
                 break;
             }
-        };
+        }
+    };
 
-        $scope.finishClicked = function () {
-            $messageHub.message($scope.currentStep.topicId, { isVisible: false });
-            $scope.currentStep = $scope.steps[$scope.steps.length - 1];
-            $messageHub.message($scope.currentStep.topicId, { isVisible: true });
-            $scope.bottomNavHidden = true;
-        };
+    $scope.finishClicked = function () {
+        $messageHub.message($scope.currentStep.topicId, { isVisible: false });
+        $scope.currentStep = $scope.steps[$scope.steps.length - 1];
+        $messageHub.message($scope.currentStep.topicId, { isVisible: true });
+        $scope.bottomNavHidden = true;
+    };
 
-        $scope.isStepActive = function (stepId) {
-            if (stepId == $scope.currentStep.id) return "active";
-            else if (stepId < $scope.currentStep.id) return "done";
-            else return "inactive";
-        };
+    $scope.isStepActive = function (stepId) {
+        if (stepId == $scope.currentStep.id) return "active";
+        else if (stepId < $scope.currentStep.id) return "done";
+        else return "inactive";
+    };
     $scope.isStepActive = function (stepId) {
         if (stepId == $scope.currentStep.id)
             return "active";
@@ -194,7 +195,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
             return "done";
         else
             return "inactive";
-    }
+    };
 
     $scope.isZipStepActive = function (stepId) {
         if (stepId == $scope.currentZipStep.id)
@@ -203,7 +204,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
             return "done";
         else
             return "inactive";
-    }
+    };
 
 
     $messageHub.on('migration.launch', function (msg) {
