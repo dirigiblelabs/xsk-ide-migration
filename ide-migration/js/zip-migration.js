@@ -1,14 +1,3 @@
-/*
- * Copyright (c) 2022 SAP SE or an SAP affiliate company and XSK contributors
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Apache License, v2.0
- * which accompanies this distribution, and is available at
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and XSK contributors
- * SPDX-License-Identifier: Apache-2.0
- */
 
 let uploader = null;
 
@@ -16,8 +5,11 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
 
     $scope.TRANSPORT_PROJECT_URL = "/services/v4/transport/project";
     $scope.WORKSPACES_URL = "/services/v4/ide/workspaces";
+    $scope.TEMP_MIGRATION_ROOT = "temp/migrations/";
+    $scope.zipPaths = [];
 
     let url = $scope.WORKSPACES_URL;
+
     $http.get(url)
         .then(function (response) {
             let workspaceNames = response.data;
@@ -26,7 +18,9 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
                 $scope.selectedWs = $scope.workspaces[0];
             }
         });
-
+    $scope.projectFromZipPath = function (zipname = '') {
+        return $scope.TEMP_MIGRATION_ROOT + $scope.selectedWs + "/" + zipname.split('.').slice(0, -1).join('.');
+    }
 
     // FILE UPLOADER
 
@@ -55,29 +49,10 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
     $scope.uploader.onAfterAddingAll = function (addedFileItems) {
         //        console.info('onAfterAddingAll', addedFileItems);
     };
-   $scope.uploader.onBeforeUploadItem = function (item) {
+    $scope.uploader.onBeforeUploadItem = function (item) {
         console.info('onBeforeUploadItem', item);
-
-        // item.url = $scope.TRANSPORT_PROJECT_URL + "/" + $scope.selectedWs + '/' + item.file.name.split('.').slice(0, -1).join('-');
-        $scope.selectedProject = item.file.name.split('.').slice(0, -1).join('-')
-        item.url = $scope.TRANSPORT_PROJECT_URL + "?path=" + encodeURI('temp/migrations/' + $scope.selectedWs + '/' + $scope.selectedProject);
-
-        body = {
-            selectedWorkspace: $scope.selectedWs,
-            zipPath: [item.url.split('=')[1]] 
-        }
-
-        console.log(JSON.stringify(body));
-        $http.post(
-            "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process-from-zip",
-            body,
-            { headers: { 'Content-Type': 'application/json' } }
-        ).then(function (response) {
-            console.log("RESPONsE"+ response);
-        })
-
+        item.url = $scope.TRANSPORT_PROJECT_URL + "?path=" + encodeURI($scope.projectFromZipPath(item.file.name));
     };
-
     $scope.uploader.onProgressItem = function (fileItem, progress) {
         //        console.info('onProgressItem', fileItem, progress);
     };
@@ -91,16 +66,52 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
         //        console.info('onErrorItem', fileItem, response, status, headers);
         alert(response.err.message);
     };
+
     $scope.uploader.onCancelItem = function (fileItem, response, status, headers) {
         //        console.info('onCancelItem', fileItem, response, status, headers);
     };
     $scope.uploader.onCompleteItem = function (fileItem, response, status, headers) {
-        $scope.setFinishEnabled(true);
-        //refreshFolder();
-        //        console.info('onCompleteItem', fileItem, response, status, headers);
+        $scope.zipPaths.push($scope.projectFromZipPath(fileItem.file.name));
+        // console.info('onCompleteItem', fileItem, response, status, headers);
     };
+
+    $scope.startZipMigration = function (ws, uploader) {
+        if (!uploader.queue || !uploader.queue.length) return false;
+        let zipPaths = [];
+
+        for (let i = 0; i < uploader.queue.length; i++)
+            zipPaths.push($scope.projectFromZipPath(uploader.queue[i].file.name));
+
+        let body = {
+            selectedWorkspace: ws,
+            zipPath: zipPaths
+        };
+        $messageHub.message($scope.currentZipStep.topicId, { isVisible: false });
+        $scope.currentZipStep = $scope.zipsteps[$scope.zipsteps.length - 1];
+        $messageHub.message($scope.currentZipStep.topicId, { isVisible: true });
+
+        $http.post(
+            "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process-from-zip",
+            body,
+            { headers: { 'Content-Type': 'application/json' } }
+        ).then(function (response) {
+            console.log("RESPONSE" + response);
+        }, function (response) {
+            console.log('ERROR', response);
+        });
+
+    };
+
     $scope.uploader.onCompleteAll = function () {
-        $messageHub.message('workspace.refresh');
+        $scope.setFinishEnabled(true);
+        $scope.startZipMigration($scope.selectedWs, $scope.uploader);
     };
+    $scope.removeAll = function (uploader) {
+        uploader.clearQueue();
+        $scope.zipPaths = [];
+    };
+    $scope.uploadAndMigrate = function (uploader) {
+        uploader.uploadAll();
+    }
 
 }]);

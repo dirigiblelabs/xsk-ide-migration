@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2022 SAP SE or an SAP affiliate company and XSK contributors
+ * Copyright (c) 2021 SAP SE or an SAP affiliate company and XSK contributors
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Apache License, v2.0
  * which accompanies this distribution, and is available at
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and XSK contributors
+ * SPDX-FileCopyrightText: 2021 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 var migrationLaunchView = angular.module('migration-launch', ['angularFileUpload']);
@@ -22,6 +22,7 @@ migrationLaunchView.factory('$messageHub', [function () {
             }
         }, 'ide.alert');
     };
+
     var announceAlertError = function (title, message) {
         announceAlert(title, message, "error");
     };
@@ -39,10 +40,9 @@ migrationLaunchView.factory('$messageHub', [function () {
     };
 }]);
 
-migrationLaunchView.factory('migrationDataState', migrationDataState);
+migrationLaunchView.factory("migrationDataState", migrationDataState);
 
 function migrationDataState() {
-
     let state = {
         schemaName: null,
         dbUsername: null,
@@ -61,7 +61,8 @@ function migrationDataState() {
     };
 
     return state;
-}
+};
+
 
 migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
     $scope.steps = [
@@ -72,7 +73,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     ];
     $scope.zipsteps = [
         { id: 1, name: "Upload ZIP file", topicId: "migration.delivery-unit" },
-        { id: 2, name: "Migration", topicId: "migration.start-migration" },
+        { id: 2, name: "Migration", topicId: "migration.start-zip-migration" },
     ];
     $scope.onStatisticsPage = true;
     $scope.migrationFromZip = false;
@@ -84,6 +85,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     $scope.finishVisible = false;
     $scope.finishDisabled = true;
     $scope.currentStep = $scope.steps[0];
+    $scope.currentZipStep = $scope.zipsteps[0];
 
     $scope.showMigrationScreen = function () {
         $scope.onStatisticsPage = false;
@@ -94,7 +96,13 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         $scope.migrationFromZip = true;
         $scope.setNextVisible(false);
         $scope.setFinishVisible(true);
+        $scope.setBottomNavEnabled(false);
+        $scope.currentStep = $scope.zipsteps[0];
     }
+
+    $scope.setFinishVisible = function (visible) {
+        $scope.finishVisible = visible;
+    };
 
     $scope.setFinishVisible = function (visible) {
         $scope.finishVisible = visible;
@@ -131,9 +139,10 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
                 $scope.currentStep = $scope.steps[i];
                 break;
             }
-        };
+        }
         $messageHub.message($scope.currentStep.topicId, { isVisible: true });
     };
+
 
     $scope.backToChoice = function () {
         $scope.setPreviousVisible(false);
@@ -148,6 +157,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         $scope.finishVisible = false;
         $scope.finishDisabled = true;
         $scope.currentStep = $scope.steps[0];
+        $scope.currentZipStep = $scope.zipsteps[0];
     }
 
     $scope.previousClicked = function () {
@@ -163,7 +173,7 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
                 $scope.currentStep = $scope.steps[i];
                 break;
             }
-        };
+        }
     };
 
     $scope.finishClicked = function () {
@@ -174,13 +184,28 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
     };
 
     $scope.isStepActive = function (stepId) {
+        if (stepId == $scope.currentStep.id) return "active";
+        else if (stepId < $scope.currentStep.id) return "done";
+        else return "inactive";
+    };
+    $scope.isStepActive = function (stepId) {
         if (stepId == $scope.currentStep.id)
             return "active";
         else if (stepId < $scope.currentStep.id)
             return "done";
         else
             return "inactive";
-    }
+    };
+
+    $scope.isZipStepActive = function (stepId) {
+        if (stepId == $scope.currentZipStep.id)
+            return "active";
+        else if (stepId < $scope.currentZipStep.id)
+            return "done";
+        else
+            return "inactive";
+    };
+
 
     $messageHub.on('migration.launch', function (msg) {
     }.bind(this));
