@@ -14,9 +14,9 @@ rs.service()
     .resource('get-process')
     .post(getProcessState)
     .resource("migrationsTrack")
-	.resouce('list-databases')
-	.post(listDatabases)
     .post(getMigrations)
+    .resource('list-databases')
+    .post(listDatabases)
     .execute();
 
 function startProcessFromZip(ctx, req, res) {
@@ -39,30 +39,16 @@ function startProcessFromZip(ctx, req, res) {
 
 function startProcess(ctx, req, res) {
     const userDataJson = req.getJSON();
-    const neoData = userDataJson.neo;
-
-    const tokenResponse = getJwtToken(neoData.hostName, neoData.username, neoData.password);
-    if (tokenResponse.error) {
-        res.setStatus(403);
-        res.print(
-            JSON.stringify({
-                error: {
-                    message: tokenResponse.error_description,
-                },
-            })
-        );
-        return;
-    }
 
     const processInstanceId = processService.start("migrationProcess", {
         migrationType: "FROM_HANA",
-        userData: JSON.stringify(userDataJson)
+        userData: JSON.stringify(userDataJson),
+        userJwtToken: userDataJson.userJwtToken
     });
 
     const response = {
         processInstanceId: processInstanceId,
     };
-
     res.print(JSON.stringify(response));
 }
 
@@ -144,30 +130,30 @@ function getMigrations(ctx, request, response) {
 }
 
 function listDatabases(ctx, request, response) {
-	const userDataJson = request.getJSON();
-	const neoData = userDataJson.neo;
-	const subaccount = neoData.subaccount;
-	const hostName = neoData.hostName;
-	const username = neoData.username;
-	const password = neoData.password;
+    const userDataJson = request.getJSON();
+    const neoData = userDataJson.neo;
+    const subaccount = neoData.subaccount;
+    const hostName = neoData.hostName;
+    const username = neoData.username;
+    const password = neoData.password;
 
-	const tokenResponse = getJwtToken(hostName, username, password);
-	if (tokenResponse.error) {
-		response.setStatus(403);
-		response.print(
-			JSON.stringify({
-				error: {
-					message: tokenResponse.error_description
-				}
-			})
-		);
-		return;
-	}
+    const tokenResponse = getJwtToken(hostName, username, password);
+    if (tokenResponse.error) {
+        response.setStatus(403);
+        response.print(
+            JSON.stringify({
+                error: {
+                    message: tokenResponse.error_description
+                }
+            })
+        );
+        return;
+    }
 
-	const userJwtToken = tokenResponse.access_token;
+    const userJwtToken = tokenResponse.access_token;
 
-	const NeoDatabasesService = require('ide-migration/server/migration/api/neo-databases-service');
-	const neoDatabasesService = new NeoDatabasesService();
-	const databases = neoDatabasesService.getAvailableDatabases(subaccount, hostName, userJwtToken);
-	response.print(databases);
+    const NeoDatabasesService = require('ide-migration/server/migration/api/neo-databases-service');
+    const neoDatabasesService = new NeoDatabasesService();
+    const databases = neoDatabasesService.getAvailableDatabases(subaccount, hostName, userJwtToken);
+    response.print(JSON.stringify({ databases, userJwtToken }));
 }

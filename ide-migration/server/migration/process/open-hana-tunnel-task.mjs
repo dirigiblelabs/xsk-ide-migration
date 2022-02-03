@@ -13,7 +13,12 @@ export class OpenHanaTunnelTask {
             const userData = JSON.parse(userDataJson);
 
             process.setVariable(this.execution.getId(), "migrationState", "TUNNEL_OPENING");
-            this.trackService.updateMigrationStatus("TUNNEL OPENING");
+            this.trackService.addEntry("OPENING TUNEL");
+            process.setVariable(
+                execution.getId(),
+                "migrationIndex",
+                trackService.getCurrentMigrationIndex()
+            );
             const account = userData.neo.subaccount;
             const host = userData.neo.hostName;
             const databaseId = userData.hana.databaseSchema;
