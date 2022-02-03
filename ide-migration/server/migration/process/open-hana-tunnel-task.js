@@ -8,12 +8,17 @@ try {
     const userJwtToken = process.getVariable(execution.getId(), "userJwtToken");
     const userData = JSON.parse(userDataJson);
 
-    process.setVariable(execution.getId(), "migrationState", "TUNNEL_OPENING");
-    trackService.updateMigrationStatus("TUNNEL OPENING");
+    process.setVariable(execution.getId(), "migrationState", "OPENING TUNNEL");
+    trackService.addEntry("OPENING TUNEL");
+    process.setVariable(
+        execution.getId(),
+        "migrationIndex",
+        trackService.getCurrentMigrationIndex()
+    );
+
     const account = userData.neo.subaccount;
     const host = userData.neo.hostName;
     const databaseId = userData.hana.databaseSchema;
-
     const NeoTunnelService = require("ide-migration/server/migration/api/neo-tunnel-service");
     const neoTunnelService = new NeoTunnelService();
     const openedTunnelData = neoTunnelService.openTunnel(account, host, userJwtToken, databaseId);

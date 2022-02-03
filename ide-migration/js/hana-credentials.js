@@ -55,10 +55,11 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
                         defaultErrorDesc
                     );
                     errorOccurred();
-                } else if (response.data.databases) {
+                } else if (response.data.databases && response.data.userJwtToken) {
 
                     body.databases = response.data.databases;
-                    
+                    migrationDataState['userJwtToken'] = response.data.userJwtToken;
+
                     $scope.areDatabasesLoaded = true;
                     $scope.descriptionText = descriptionList[1];
                     $scope.userInput();
@@ -73,43 +74,9 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
                     $scope.databasesList = $scope.databases;
                 }
 
-                $http
-                .post(
-                    "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process",
-                    JSON.stringify(body),
-                    { headers: { "Content-Type": "application/json" } }
-                )
-                .then(
-                    function (response) {
-                        migrationDataState.processInstanceId = body.processInstanceId =
-                            response.data.processInstanceId;
-                    },
-                    function (response) {
-                        if (response.data) {
-                            if ("error" in response.data) {
-                                if ("message" in response.data.error) {
-                                    $messageHub.announceAlertError(
-                                        defaultErrorTitle,
-                                        response.data.error.message
-                                    );
-                                } else {
-                                    $messageHub.announceAlertError(
-                                        defaultErrorTitle,
-                                        defaultErrorDesc
-                                    );
-                                }
-                                console.error(`HTTP $response.status`, response.data.error);
-                            } else {
-                                $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                            }
-                        } else {
-                            $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                        }
-                        errorOccurred();
-                    }
-                );
-
-            });
+            }).catch(function (err) {
+                console.log(err);
+            })
         }
 
 

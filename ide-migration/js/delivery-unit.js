@@ -55,16 +55,19 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                     password: migrationDataState.dbPassword,
                 },
                 processInstanceId: migrationDataState.processInstanceId,
+                userJwtToken: migrationDataState.userJwtToken
             };
 
             $http
                 .post(
-                    "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/continue-process",
+                    "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process",
                     JSON.stringify(body),
                     { headers: { "Content-Type": "application/json" } }
                 )
                 .then(
                     function (response) {
+                        migrationDataState.processInstanceId = body.processInstanceId =
+                            response.data.processInstanceId;
                         const timer = setInterval(function () {
                             $http
                                 .post(

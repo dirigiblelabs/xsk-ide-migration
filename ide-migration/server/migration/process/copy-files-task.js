@@ -35,6 +35,6 @@ try {
     console.log("COPY_FILES failed with error:");
     console.log(e.message);
     process.setVariable(execution.getId(), "migrationState", "COPY_FILES_FAILED");
-    trackService.updateMigrationStatus("COPYING FILES DONE");
+    trackService.updateMigrationStatus("COPYING FILES FAILED");
     process.setVariable(execution.getId(), "COPY_FILES_FAILED_REASON", e.toString());
 }
