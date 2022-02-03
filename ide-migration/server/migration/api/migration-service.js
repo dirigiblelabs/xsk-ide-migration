@@ -500,6 +500,9 @@ class MigrationService {
     getAllFilesForDU(du) {
         let context = {};
         const filesAndPackagesObject = this.repo.getAllFilesForDu(context, du);
+        if (!filesAndPackagesObject) {
+            return null;
+        }
         return filesAndPackagesObject.files;
     }
 

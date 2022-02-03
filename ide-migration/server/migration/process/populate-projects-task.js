@@ -17,7 +17,8 @@ try {
     for (const deliveryUnit of userData.du) {
         const localFiles = deliveryUnit.locals;
         if (!(localFiles && localFiles.length > 0)) {
-            throw "Delivery unit is empty";
+            console.warn("Delivery unit is empty.");
+            continue;
         }
 
         migrationService.addFilesWithoutGenerated(userData, workspace, localFiles);

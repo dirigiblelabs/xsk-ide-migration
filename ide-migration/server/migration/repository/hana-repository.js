@@ -158,6 +158,9 @@ class HanaRepository {
 
     getAllFilesForDu(globalContext, deliveryUnit) {
         const packages = this._getAllPackagesForDu(deliveryUnit);
+        if (packages.length === 0) {
+            return null;
+        }
         let filteredPackages = packageFilter.filterPackages(globalContext, packages) || [];
         const packagesAndFilesListObject = this._getAllObjectsForPackages(filteredPackages);
         return this._packagesCollected(
