@@ -40,10 +40,9 @@ migrationLaunchView.factory('$messageHub', [function () {
     };
 }]);
 
-migrationLaunchView.factory('migrationDataState', migrationDataState);
+migrationLaunchView.factory("migrationDataState", migrationDataState);
 
 function migrationDataState() {
-
     let state = {
         schemaName: null,
         dbUsername: null,
@@ -63,6 +62,7 @@ function migrationDataState() {
 
     return state;
 }
+
 
 migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$messageHub', function ($scope, $messageHub) {
     $scope.steps = [
@@ -104,40 +104,45 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
         $scope.finishVisible = visible;
     };
 
-    $scope.setFinishEnabled = function (enabled) {
-        $scope.finishDisabled = !enabled;
-    };
-
-    $scope.setNextVisible = function (visible) {
-        $scope.nextVisible = visible;
-    };
-
-    $scope.setNextEnabled = function (enabled) {
-        $scope.nextDisabled = !enabled;
-    };
-
-    $scope.setPreviousVisible = function (visible) {
-        $scope.previousVisible = visible;
-    };
-
-    $scope.setPreviousEnabled = function (enabled) {
-        $scope.previousDisabled = !enabled;
-    };
-
-    $scope.setBottomNavEnabled = function (enabled) {
-        $scope.bottomNavHidden = !enabled;
-    };
-
-    $scope.nextClicked = function () {
-        $messageHub.message($scope.currentStep.topicId, { isVisible: false });
-        for (let i = 0; i < $scope.steps.length; i++) {
-            if ($scope.steps[i].id > $scope.currentStep.id) {
-                $scope.currentStep = $scope.steps[i];
-                break;
-            }
+        $scope.setFinishVisible = function (visible) {
+            $scope.finishVisible = visible;
         };
-        $messageHub.message($scope.currentStep.topicId, { isVisible: true });
-    };
+
+        $scope.setFinishEnabled = function (enabled) {
+            $scope.finishDisabled = !enabled;
+        };
+
+        $scope.setNextVisible = function (visible) {
+            $scope.nextVisible = visible;
+        };
+
+        $scope.setNextEnabled = function (enabled) {
+            $scope.nextDisabled = !enabled;
+        };
+
+        $scope.setPreviousVisible = function (visible) {
+            $scope.previousVisible = visible;
+        };
+
+        $scope.setPreviousEnabled = function (enabled) {
+            $scope.previousDisabled = !enabled;
+        };
+
+        $scope.setBottomNavEnabled = function (enabled) {
+            $scope.bottomNavHidden = !enabled;
+        };
+
+        $scope.nextClicked = function () {
+            $messageHub.message($scope.currentStep.topicId, { isVisible: false });
+            for (let i = 0; i < $scope.steps.length; i++) {
+                if ($scope.steps[i].id > $scope.currentStep.id) {
+                    $scope.currentStep = $scope.steps[i];
+                    break;
+                }
+            }
+            $messageHub.message($scope.currentStep.topicId, { isVisible: true });
+        };
+
 
     $scope.backToChoice = function () {
         $scope.setPreviousVisible(false);
@@ -169,15 +174,19 @@ migrationLaunchView.controller('MigrationLaunchViewController', ['$scope', '$mes
                 break;
             }
         };
-    };
 
-    $scope.finishClicked = function () {
-        $messageHub.message($scope.currentStep.topicId, { isVisible: false });
-        $scope.currentStep = $scope.steps[$scope.steps.length - 1];
-        $messageHub.message($scope.currentStep.topicId, { isVisible: true });
-        $scope.bottomNavHidden = true;
-    };
+        $scope.finishClicked = function () {
+            $messageHub.message($scope.currentStep.topicId, { isVisible: false });
+            $scope.currentStep = $scope.steps[$scope.steps.length - 1];
+            $messageHub.message($scope.currentStep.topicId, { isVisible: true });
+            $scope.bottomNavHidden = true;
+        };
 
+        $scope.isStepActive = function (stepId) {
+            if (stepId == $scope.currentStep.id) return "active";
+            else if (stepId < $scope.currentStep.id) return "done";
+            else return "inactive";
+        };
     $scope.isStepActive = function (stepId) {
         if (stepId == $scope.currentStep.id)
             return "active";

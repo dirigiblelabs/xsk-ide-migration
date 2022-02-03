@@ -1,5 +1,4 @@
 class RepositoryPackage {
-
     constructor(pkg) {
         this._pkg = pkg;
     }
@@ -9,11 +8,10 @@ class RepositoryPackage {
     }
 
     get packageFile() {
-        let path = this.packageName.replace(/\./g, '/');
+        let path = this.packageName.replace(/\./g, "/");
 
-        return '/' + path;
+        return "/" + path;
     }
-
 }
 
 module.exports = RepositoryPackage;
