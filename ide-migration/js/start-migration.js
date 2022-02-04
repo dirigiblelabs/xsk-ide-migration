@@ -125,4 +125,21 @@ migrationLaunchView.controller('StartMigrationViewController', ['$scope', '$http
         }
     }.bind(this));
 
+    $messageHub.on('migration.start-zip-migration', function (msg) {
+        if ("migrationFinished" in msg.data) {
+            $scope.$apply(function () {
+                $scope.migrationFinished = msg.data.migrationFinished;
+                if (!msg.data.error) {
+                    $scope.progressTitle = titleList[1];
+                    migrationDataState.selectedWorkspace = msg.data.workspace;
+                    $scope.statusMessage = `Successfully migrated Delivery Unit(s) uploaded. Go to workspace "${migrationDataState.selectedWorkspace}" and publish them.`;
+                } else {
+                    $scope.progressTitle = 'Error in migration';
+                    migrationDataState.selectedWorkspace = msg.data.workspace;
+                    $scope.statusMessage = msg.data.errorMessage;
+                }
+            });
+        }
+    }.bind(this));
+
 }]);
