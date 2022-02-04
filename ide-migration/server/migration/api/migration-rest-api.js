@@ -29,15 +29,12 @@ rs.service()
 	.execute();
 
 function startProcessFromZip(ctx, req, res) {
-
 	const userDataJson = req.getJSON();
-	console.log("RECIEVED A REQUEST" + JSON.stringify(userDataJson));
 
 	const processInstanceId = processService.start('migrationProcess', {
 		userData: JSON.stringify(userDataJson),
 		migrationType: 'FROM_LOCAL_ZIP'
 	});
-
 
 	const response = {
 		processInstanceId: processInstanceId,

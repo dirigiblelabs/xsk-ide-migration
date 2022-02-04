@@ -67,29 +67,20 @@ try {
 			const relativePath = runLocation
 				.substring(runLocation.indexOf("/") + 1, runLocation.length);
 
-
-			console.log("1" + repositoryPath)
-			console.log("2" + relativePath)
-			console.log("3" + runLocation)
-			console.log("4" + withoutMigrationsFolder)
-
 			temp = {
 				repositoryPath: repositoryPath,
 				relativePath: "/" + relativePath,
 				projectName: zipProjectName,
 				runLocation: "/" + runLocation
 			};
+
 			details.push(temp)
 		}
 
 		userData.du.push(composeJson(zipProjectName, details))
 	}
-
 	process.setVariable(execution.getId(), 'userData', JSON.stringify(userData));
-	console.log(JSON.stringify(userData))
 	trackService.updateMigrationStatus('PROCESSING ZIP DONE');
-
-
 } catch (e) {
 	console.log(e.message);
 	process.setVariable(execution.getId(), 'migrationState', 'PROCESSING ZIP FAILED');
