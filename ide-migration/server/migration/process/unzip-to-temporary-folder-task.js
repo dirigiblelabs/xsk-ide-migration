@@ -107,4 +107,3 @@ function getFormattedDate() {
 		("00" + date.getSeconds()).slice(-2);
 	return dateStr
 }
-

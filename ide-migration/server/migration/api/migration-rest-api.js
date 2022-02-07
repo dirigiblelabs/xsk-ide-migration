@@ -37,7 +37,8 @@ function startProcessFromZip(ctx, req, res) {
 	});
 
 	const response = {
-		processInstanceId: processInstanceId
+		processInstanceId: processInstanceId,
+		...userDataJson
 	};
 
 	res.print(JSON.stringify(response));
@@ -108,6 +109,7 @@ function getProcessState(ctx, req, res) {
 	const userDataJson = req.getJSON();
 	const processInstanceIdString = userDataJson.processInstanceId.toString();
 	const migrationState = processService.getVariable(processInstanceIdString, 'migrationState');
+	console.log('MIGRATION STATE', migrationState)
 	const response = {
 		migrationState: migrationState
 	};
