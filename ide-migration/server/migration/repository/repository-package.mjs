@@ -1,4 +1,4 @@
-class RepositoryPackage {
+export class RepositoryPackage {
     constructor(pkg) {
         this._pkg = pkg;
     }
@@ -13,5 +13,3 @@ class RepositoryPackage {
         return "/" + path;
     }
 }
-
-module.exports = RepositoryPackage;

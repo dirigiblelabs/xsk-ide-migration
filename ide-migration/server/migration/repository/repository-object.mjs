@@ -1,4 +1,4 @@
-class RepositoryObject {
+export class RepositoryObject {
     constructor(name, packageName, suffix) {
         this._name = name;
         this._packageName = packageName;
@@ -99,5 +99,3 @@ class RepositoryObject {
         return this._container;
     }
 }
-
-module.exports = RepositoryObject;

@@ -1,9 +1,9 @@
-let RepositoryHeader = require("ide-migration/server/migration/repository/repository-header");
-let ResponseAttachmentParser = require("ide-migration/server/migration/repository/response-attachment-parser");
+import { RepositoryHeader } from "./repository-header";
+import { ResponseAttachmentParser } from "./response-attachment-parser";
 
 let utf8 = org.eclipse.dirigible.api.v3.utils.UTF8Facade;
 
-class RepositoryResponse {
+export class RepositoryResponse {
     constructor(responseBuffer) {
         let headerBuffer = responseBuffer.slice(0, 14);
         this._header = RepositoryHeader.fromBuffer(headerBuffer);
@@ -13,10 +13,7 @@ class RepositoryResponse {
         this._attachments = [];
         if (this._header.attachmentCount > 1) {
             let attachmentBuffer = responseBuffer.slice(contentEnd, responseBuffer.length);
-            this._attachments = ResponseAttachmentParser.parse(
-                attachmentBuffer,
-                this._header.attachmentCount
-            );
+            this._attachments = ResponseAttachmentParser.parse(attachmentBuffer, this._header.attachmentCount);
         }
     }
 
@@ -33,5 +30,3 @@ class RepositoryResponse {
         return this._attachments;
     }
 }
-
-module.exports = RepositoryResponse;

@@ -10,15 +10,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-const dao = require("db/v4/dao");
-const user = require("security/v4/user");
-const process = require("bpm/v4/process");
+import { dao } from "@dirigible/db";
+import { user } from "@dirigible/security";
+import { process } from "@dirigible/bpm";
+
 const execution = process.getExecutionContext();
 const userName = user.getName();
 let migrationsTable;
 let entryInstance;
 
-class TrackService {
+export class TrackService {
     currentIndex = null;
 
     getCurrentMigrationIndex() {
@@ -75,9 +76,7 @@ class TrackService {
     updateMigrationStatus(status) {
         this.setupTable();
         try {
-            let entryToUpdate = migrationsTable.find(
-                process.getVariable(execution.getId(), "migrationIndex")
-            );
+            let entryToUpdate = migrationsTable.find(process.getVariable(execution.getId(), "migrationIndex"));
             console.log(JSON.parse(JSON.stringify(entryToUpdate)));
             let startedOn = entryToUpdate.startedOn;
             entryToUpdate.lastUpdated = Date.now();
@@ -106,5 +105,3 @@ class TrackService {
         }
     }
 }
-
-module.exports = TrackService;
