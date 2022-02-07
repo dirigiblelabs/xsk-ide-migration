@@ -12,28 +12,28 @@
 const process = require('bpm/v4/process');
 const repositoryManager = require("platform/v4/repository");
 const execution = process.getExecutionContext();
-const MigrationService = require('ide-migration/server/migration/api/migration-service');
 const TrackService = require('ide-migration/server/migration/api/track-service');
 const trackService = new TrackService();
 
 try {
-
 	trackService.addEntry("PROCESSING ZIP")
 	process.setVariable(execution.getId(), 'migrationState', 'FROM_LOCAL_ZIP');
 	process.setVariable(execution.getId(), 'migrationIndex', trackService.getCurrentMigrationIndex());
 	const userDataJson = process.getVariable(execution.getId(), 'userData');
 	const userData = JSON.parse(userDataJson);
-	userData["du"] = [];
 	let paths = userData.zipPath;
 	userData.workspace = userData.selectedWorkspace;
 
+	userData["du"] = [];
+
 
 	for (path of paths) {
-		let details = [];
-		let locals = []
+		let filesDetails = [];
+		let localFiles = []
 		console.log("Processing zip by path : " + path)
 		let resources = repositoryManager.getCollection(path);
-		var zipProjectName = resources.getName();
+		let zipProjectName = resources.getName();
+
 		getAllFiles(resources);
 
 		function getAllFiles(resources) {
@@ -44,40 +44,32 @@ try {
 		function getResourcesFromFOlder(dir) {
 			if (!dir.getResourcesNames().isEmpty()) {
 				for (nameRes of dir.getResourcesNames()) {
-					locals.push(dir.getResource(nameRes))
+					localFiles.push(dir.getResource(nameRes))
 				}
 			}
 			if (!dir.getCollectionsNames().isEmpty()) {
-				for (abs of dir.getCollectionsNames()) {
-					getResourcesFromFOlder(dir.getCollection(abs))
+				for (folderName of dir.getCollectionsNames()) {
+					getResourcesFromFOlder(dir.getCollection(folderName))
 				}
 			}
 		}
 
-		for (loc of locals) {
+		for (localFile of localFiles) {
 			const repositoryPath = loc.getPath();
-			const withoutRootFolder = repositoryPath
-				.substring(repositoryPath.indexOf("/") + 1, repositoryPath.length);
-			const withoutMigrationsFolder = withoutRootFolder
-				.substring(withoutRootFolder.indexOf("/") + 1, withoutRootFolder.length);
-			const withoutNestedFolder = withoutMigrationsFolder
-				.substring(withoutMigrationsFolder.indexOf("/") + 1, withoutMigrationsFolder.length);
-			const runLocation = withoutNestedFolder
-				.substring(withoutNestedFolder.indexOf("/") + 1, withoutNestedFolder.length);
-			const relativePath = runLocation
-				.substring(runLocation.indexOf("/") + 1, runLocation.length);
+			const runLocation = repositoryPath.split("/").slice(3).join("/");
+			const relativePath = repositoryPath.split("/").slice(4).join("/");
 
-			temp = {
+			fileDetails = {
 				repositoryPath: repositoryPath,
 				relativePath: "/" + relativePath,
 				projectName: zipProjectName,
 				runLocation: "/" + runLocation
 			};
 
-			details.push(temp)
+			filesDetails.push(fileDetails)
 		}
 
-		userData.du.push(composeJson(zipProjectName, details))
+		userData.du.push(composeJson(zipProjectName, filesDetails))
 	}
 	process.setVariable(execution.getId(), 'userData', JSON.stringify(userData));
 	trackService.updateMigrationStatus('PROCESSING ZIP DONE');
@@ -88,7 +80,7 @@ try {
 	process.setVariable(execution.getId(), 'PROCESSING ZIP FAILED', e.toString());
 }
 
-function composeJson(projectName, locals) {
+function composeJson(projectName, filesDetails) {
 	let duObject = {}
 	duObject.ach = "";
 	duObject.caption = "";
@@ -101,14 +93,13 @@ function composeJson(projectName, locals) {
 	duObject.version_patch = "";
 	duObject.version_sp = "";
 	duObject.name = projectName
-	duObject.locals = locals;
+	duObject.locals = filesDetails;
 	return duObject;
 }
 
 function getFormattedDate() {
-
-	var date = new Date();
-	var dateStr = date.getFullYear() + "-" +
+	let date = new Date();
+	let dateStr = date.getFullYear() + "-" +
 		("00" + (date.getMonth() + 1)).slice(-2) + "-" +
 		("00" + date.getDate()).slice(-2) + " " +
 		("00" + date.getHours()).slice(-2) + ":" +
@@ -116,3 +107,4 @@ function getFormattedDate() {
 		("00" + date.getSeconds()).slice(-2);
 	return dateStr
 }
+
