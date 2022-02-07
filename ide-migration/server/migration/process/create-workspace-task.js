@@ -20,13 +20,11 @@ try {
 	const userDataJson = process.getVariable(execution.getId(), 'userData');
 	const migrType = process.getVariable(execution.getId(), 'migrationType')
 	const userData = JSON.parse(userDataJson);
-	console.log(userData.zipPath.selectedWorkspace+migrType);
 
 	const migrationService = new MigrationService();
 
 	if (migrType == 'FROM_LOCAL_ZIP') {
-		migrationService.createMigratedWorkspace(userData.zipPath.selectedWorkspace);
-		console.log("CREATED WORKSPACE")
+		migrationService.createMigratedWorkspace(userData.selectedWorkspace);
 	} else {
 		for (let i = 0; i < userData.du.length; i++) {
 			migrationService.createMigratedWorkspace(userData.workspace, userData.du[i]);

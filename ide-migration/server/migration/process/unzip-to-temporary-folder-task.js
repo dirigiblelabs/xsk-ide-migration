@@ -56,8 +56,8 @@ try {
 
 		for (localFile of localFiles) {
 			const repositoryPath = localFile.getPath();
-			const runLocation = repositoryPath.split("/").slice(3).join("/");
-			const relativePath = repositoryPath.split("/").slice(4).join("/");
+			const runLocation = repositoryPath.split("/").slice(4).join("/");
+			const relativePath = repositoryPath.split("/").slice(5).join("/");
 
 			fileDetails = {
 				repositoryPath: repositoryPath,
