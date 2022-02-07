@@ -1,18 +1,10 @@
-/*
- * Copyright (c) 2022 SAP SE or an SAP affiliate company and XSK contributors
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Apache License, v2.0
- * which accompanies this distribution, and is available at
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and XSK contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-const tasksService = require('bpm/v4/tasks');
-const processService = require('bpm/v4/process');
-const httpClient = require('http/v4/client');
-const database = require('db/v4/database');
+
+const tasksService = require("bpm/v4/tasks");
+const processService = require("bpm/v4/process");
+const httpClient = require("http/v4/client");
+const database = require("db/v4/database");
+const url = require("utils/v4/url");
+
 
 const rs = require('http/v4/rs');
 rs.service()
@@ -76,18 +68,20 @@ function startProcess(ctx, req, res) {
 }
 
 function getJwtToken(host, username, password) {
-	const jwtTokenServiceUrl = `https://oauthasservices.${host}/oauth2/api/v1/token?grant_type=password&username=${username}&password=${password}`;
-	const jwtTokenResponse = httpClient.post(jwtTokenServiceUrl, {
-		headers: [
-			{
-				name: 'Content-Type',
-				value: 'application/x-www-form-urlencoded'
-			}
-		]
-	});
 
-	const jwtTokenResponseJson = JSON.parse(jwtTokenResponse.text);
-	return jwtTokenResponseJson;
+    const jwtTokenServiceUrl = `https://oauthasservices.${host}/oauth2/api/v1/token?grant_type=password&username=${url.encode(username)}&password=${url.encode(password)}`;
+    const jwtTokenResponse = httpClient.post(jwtTokenServiceUrl, {
+        headers: [
+            {
+                name: "Content-Type",
+                value: "application/x-www-form-urlencoded",
+            },
+        ],
+    });
+
+    const jwtTokenResponseJson = JSON.parse(jwtTokenResponse.text);
+    return jwtTokenResponseJson;
+
 }
 
 function continueProcess(ctx, req, res) {
