@@ -7,6 +7,7 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
     $scope.WORKSPACES_URL = "/services/v4/ide/workspaces";
     $scope.TEMP_MIGRATION_ROOT = "temp/migrations/";
     $scope.zipPaths = [];
+    $scope.migrationFinished = false;
 
     let url = $scope.WORKSPACES_URL;
 
@@ -95,17 +96,46 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
             body,
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
-            console.log("RESPONSE" + response);
-        }, function (response) {
-            console.log('ERROR', response);
-        });
 
+            if (response.data.processInstanceId) {
+                $scope.migrationFinished = true;
+                $messageHub.message(
+                    "migration.start-zip-migration",
+                    {
+                        migrationFinished: true,
+                        workspace: response.data.selectedWorkspace,
+                        error: false
+                    }
+                );
+            } else {
+                $messageHub.message(
+                    "migration.start-zip-migration",
+                    {
+                        migrationFinished: true,
+                        workspace: response.data.selectedWorkspace,
+                        error: true,
+                        errorMessage: 'Process ID is null!'
+                    }
+                );
+            }
+        }, function (response) {
+            $messageHub.message(
+                "migration.start-zip-migration",
+                {
+                    migrationFinished: true,
+                    workspace: response.data.selectedWorkspace,
+                    error: true,
+                    errorMessage: response.error.message
+                }
+            );
+        });
     };
 
     $scope.uploader.onCompleteAll = function () {
         $scope.setFinishEnabled(true);
         $scope.startZipMigration($scope.selectedWs, $scope.uploader);
     };
+
     $scope.removeAll = function (uploader) {
         uploader.clearQueue();
         $scope.zipPaths = [];
@@ -113,5 +143,4 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
     $scope.uploadAndMigrate = function (uploader) {
         uploader.uploadAll();
     }
-
 }]);
