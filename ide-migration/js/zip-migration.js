@@ -143,6 +143,4 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
     $scope.uploadAndMigrate = function (uploader) {
         uploader.uploadAll();
     }
-
-
 }]);
