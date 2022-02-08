@@ -92,7 +92,7 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
         $messageHub.message($scope.currentZipStep.topicId, { isVisible: true });
 
         $http.post(
-            "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process-from-zip",
+            "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/start-process-from-zip",
             body,
             { headers: { 'Content-Type': 'application/json' } }
         ).then(function (response) {
