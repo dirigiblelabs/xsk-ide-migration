@@ -1,22 +1,10 @@
-/*
- * Copyright (c) 2022 SAP SE or an SAP affiliate company and XSK contributors
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Apache License, v2.0
- * which accompanies this distribution, and is available at
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and XSK contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-let Parser = com.sap.xsk.parser.hana.core.HanaParser;
-let HanaLexer = com.sap.xsk.parser.hana.core.HanaLexer;
-let ByteArrayInputStream = java.io.ByteArrayInputStream;
-let ANTLRInputStream = org.antlr.v4.runtime.ANTLRInputStream
-let CommonTokenStream = org.antlr.v4.runtime.CommonTokenStream
+const Parser = com.sap.xsk.parser.hana.core.HanaParser;
+const HanaLexer = com.sap.xsk.parser.hana.core.HanaLexer;
+const ByteArrayInputStream = java.io.ByteArrayInputStream;
+const ANTLRInputStream = org.antlr.v4.runtime.ANTLRInputStream;
+const CommonTokenStream = org.antlr.v4.runtime.CommonTokenStream;
 
-class HanaVisitor {
-
+export class HanaVisitor {
     content;
     impl;
     parser;
@@ -33,7 +21,6 @@ class HanaVisitor {
         let tokenStream = new CommonTokenStream(hdbtiLexer);
 
         this.parser = new Parser(tokenStream);
-
 
         var HanaBaseVisitor = Java.extend(Java.type("com.sap.xsk.parser.hana.core.HanaBaseVisitor"));
         var that = this;
@@ -52,7 +39,7 @@ class HanaVisitor {
                 const text = ctx.getText();
                 that.addToViewRefsIfNeeded(text);
                 return that.fw_super.visitChildren(ctx);
-            }
+            },
         });
         this.fw_super = Java.super(this.impl);
     }
@@ -64,8 +51,8 @@ class HanaVisitor {
     }
 
     addToViewRefsIfNeeded(text) {
-        if (text.split('/').length > 1) {
-            this.viewRefs.push(text.replace(/['"]+/g, ''));
+        if (text.split("/").length > 1) {
+            this.viewRefs.push(text.replace(/['"]+/g, ""));
         }
     }
 
@@ -74,36 +61,32 @@ class HanaVisitor {
     }
 
     removeSchemaRefs() {
-        for (let i = 0; i < this.schemaRefs.length; i++) {
-            let str = this.schemaRefs[i];
-            let edited = str.split('"."')[1].replace(/['"]+/g, '');
-            this.content = this.replaceAll(this.content, str, edited);
+        for (const schemaRef of this.schemaRefs) {
+            let edited = schemaRef.split('"."')[1].replace(/['"]+/g, "");
+            this.content = this.replaceAll(this.content, schemaRef, edited);
         }
     }
 
     removeViewRefs() {
-        for (let i = 0; i < this.viewRefs.length; i++) {
-            let str = this.viewRefs[i];
-            let edited = str.split("/")[1].replace(/['"]+/g, '');
-            this.content = this.replaceAll(this.content, str, edited);
+        for (const viewRef of this.viewRefs) {
+            let edited = viewRef.split("/")[1].replace(/['"]+/g, "");
+            this.content = this.replaceAll(this.content, viewRef, edited);
         }
     }
 
     replaceAll(str, find, replace) {
-        return str.replace(new RegExp(find, 'g'), replace);
+        return str.replace(new RegExp(find, "g"), replace);
     }
 }
 
-module.exports = HanaVisitor;
-
 //usage:
 
-// var workspaceManager = require("platform/v4/workspace");
+// import { workspace as workspaceManager } from "@dirigible/platform";
 // var workspace = workspaceManager.getWorkspace('workspace');
 // let project = workspace.getProject('parser');
 // let file = project.getFile('func.hdbtablefunction');
 // var content = file.getText();
-// let HanaVisitor = require('./HanaVisitor');
+// import { HanaVisitor } from './hana-visitor';
 
 // let visitor = new HanaVisitor(content);
 // visitor.visit();
