@@ -11,6 +11,8 @@ export class HanaVisitor {
     fw_super;
     schemaRefs = [];
     viewRefs = [];
+    schemaSeparator = '"."';
+    viewSeparator = "/";
 
     constructor(content) {
         this.content = content;
@@ -45,13 +47,13 @@ export class HanaVisitor {
     }
 
     addToSchemaRefsIfNeeded(text) {
-        if (text.split('"."').length > 1) {
+        if (text.split(this.schemaSeparator).length > 1) {
             this.schemaRefs.push(text);
         }
     }
 
     addToViewRefsIfNeeded(text) {
-        if (text.split("/").length > 1) {
+        if (text.split(this.viewSeparator).length > 1) {
             this.viewRefs.push(text.replace(/['"]+/g, ""));
         }
     }
@@ -62,15 +64,17 @@ export class HanaVisitor {
 
     removeSchemaRefs() {
         for (const schemaRef of this.schemaRefs) {
-            let edited = schemaRef.split('"."')[1].replace(/['"]+/g, "");
-            this.content = this.replaceAll(this.content, schemaRef, edited);
+            let startOfArtifact = schemaRef.indexOf(this.schemaSeparator) + this.schemaSeparator.length - 1;
+            let artifact = schemaRef.substring(startOfArtifact, schemaRef.length);
+            this.content = this.replaceAll(this.content, schemaRef, artifact);
         }
     }
 
     removeViewRefs() {
         for (const viewRef of this.viewRefs) {
-            let edited = viewRef.split("/")[1].replace(/['"]+/g, "");
-            this.content = this.replaceAll(this.content, viewRef, edited);
+            var startOfView = viewRef.indexOf(this.viewSeparator) + this.viewSeparator.length;
+            let view = viewRef.substring(startOfView, viewRef.length);
+            this.content = this.replaceAll(this.content, viewRef, view);
         }
     }
 
