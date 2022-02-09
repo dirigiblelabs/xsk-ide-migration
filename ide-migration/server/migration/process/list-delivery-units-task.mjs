@@ -1,6 +1,6 @@
 import { process } from "@dirigible/bpm";
-import { MigrationService } from "../api/migration-service";
-import { TrackService } from "../api/track-service";
+import { MigrationService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/migration-service.mjs";
+import { TrackService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/track-service.mjs";
 
 export class ListDeliveryUnitsTask {
     execution = process.getExecutionContext();
