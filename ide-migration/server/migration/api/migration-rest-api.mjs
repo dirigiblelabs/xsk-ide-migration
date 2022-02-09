@@ -3,16 +3,37 @@ import { client as httpClient, rs } from "@dirigible/http";
 import { database } from "@dirigible/db";
 import { url } from "@dirigible/utils";
 
+
 rs.service()
-    .resource("start-process")
+    .resource('start-process-from-zip')
+    .post(startProcessFromZip)
+    .resource('start-process')
     .post(startProcess)
-    .resource("continue-process")
+    .resource('continue-process')
     .post(continueProcess)
-    .resource("get-process")
+    .resource('get-process')
     .post(getProcessState)
-    .resource("migrationsTrack")
+    .resource('migrationsTrack')
     .post(getMigrations)
     .execute();
+
+function startProcessFromZip(ctx, req, res) {
+    const userDataJson = req.getJSON();
+    const processInstanceId = processService.start("migrationProcess", {
+        userData: JSON.stringify(userDataJson),
+        migrationType: "FROM_LOCAL_ZIP",
+    });
+
+    const response = {
+        processInstanceId: processInstanceId
+    };
+
+    res.print(JSON.stringify(response));
+
+
+
+
+}
 
 function startProcess(ctx, req, res) {
     const userDataJson = req.getJSON();
@@ -34,6 +55,7 @@ function startProcess(ctx, req, res) {
     const processInstanceId = processService.start("migrationProcess", {
         userData: JSON.stringify(userDataJson),
         userJwtToken: tokenResponse.access_token,
+        migrationType: "FROM_HANA",
     });
 
     const response = {

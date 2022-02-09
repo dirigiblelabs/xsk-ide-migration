@@ -1,6 +1,6 @@
 import { process } from "@dirigible/bpm";
-import { MigrationService } from "../api/migration-service";
-import { TrackService } from "../api/track-service";
+import { MigrationService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/migration-service.mjs";
+import { TrackService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/track-service.mjs";
 
 export class CreateWorkspaceTask {
     execution = process.getExecutionContext();
@@ -8,16 +8,25 @@ export class CreateWorkspaceTask {
 
     run() {
         try {
+            console.log("In create workspace")
             process.setVariable(this.execution.getId(), "migrationState", "EXECUTING_CREATE_WORKSPACE");
             this.trackService.updateMigrationStatus("CREATING WORKSPACE");
             const userDataJson = process.getVariable(this.execution.getId(), "userData");
+            const migrationType = process.getVariable(this.execution.getId(), "migrationType")
+            console.log("Status" +  migrationType);
             const userData = JSON.parse(userDataJson);
 
             const migrationService = new MigrationService();
 
-            for (const deliveryUnit of userData.du) {
-                migrationService.createMigratedWorkspace(userData.workspace, deliveryUnit);
+
+            if (migrationType ==='FROM_LOCAL_ZIP') {
+                migrationService.createMigratedWorkspace(userData.selectedWorkspace);
+            }else{
+                for (let i = 0; i < userData.du.length; i++) {
+                    migrationService.createMigratedWorkspace(userData.workspace, userData.du[i]);
+                }
             }
+
 
             process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
             process.setVariable(this.execution.getId(), "migrationState", "WORKSPACE_CREATE_EXECUTED");
