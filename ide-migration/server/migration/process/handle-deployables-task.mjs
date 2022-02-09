@@ -10,8 +10,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { process } from "@dirigible/bpm";
-import { MigrationService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/migration-service.mjs";
-import { TrackService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/track-service.mjs";
+import { MigrationService } from "../api/migration-service.mjs";
+import { TrackService } from "../api/track-service.mjs";
 
 export class HandleDeployablesTask {
     execution = process.getExecutionContext();

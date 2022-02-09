@@ -1,6 +1,6 @@
 import { process } from "@dirigible/bpm";
 import { workspace as workspaceManager } from "@dirigible/platform";
-import { TrackService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/track-service.mjs";
+import { TrackService } from "../api/track-service.mjs";
 
 export class ListWorkspacesTask {
     execution = process.getExecutionContext();

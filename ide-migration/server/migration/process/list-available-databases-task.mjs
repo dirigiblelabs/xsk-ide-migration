@@ -1,6 +1,6 @@
 import { process } from "@dirigible/bpm";
-import { TrackService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/track-service.mjs";
-import { NeoDatabasesService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/neo-databases-service.mjs";
+import { TrackService } from "../api/track-service.mjs";
+import { NeoDatabasesService } from "../api/neo-databases-service.mjs";
 
 export class ListAvailableDatabasesTask {
     execution = process.getExecutionContext();

@@ -1,6 +1,6 @@
 import { process } from "@dirigible/bpm";
-import { TrackService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/track-service.mjs";
-import { NeoTunnelService } from "../../../../../../Downloads/ide-migration 7/server/migration/api/neo-tunnel-service.mjs";
+import { TrackService } from "../api/track-service.mjs";
+import { NeoTunnelService } from "../api/neo-tunnel-service.mjs";
 
 export class OpenHanaTunnelTask {
     execution = process.getExecutionContext();

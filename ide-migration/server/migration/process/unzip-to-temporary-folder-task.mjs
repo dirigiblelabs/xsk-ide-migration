@@ -11,13 +11,13 @@
  */
 import {process} from "@dirigible/bpm"
 import {repository as repositoryManager} from "@dirigible/platform"
-const TrackService = require('ide-migration/server/migration/api/track-service');
+import {TrackService} from "../api/track-service.mjs";
 
 
 export class UnzipToTemporaryFolder {
-    trackService = new TrackService();
-    execution = process.getExecutionContext();
-	
+	trackService = new TrackService();
+	execution = process.getExecutionContext();
+
 	run() {
 		try {
 			this.trackService.addEntry("PROCESSING ZIP")
