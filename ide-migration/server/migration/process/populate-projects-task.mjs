@@ -15,21 +15,15 @@ export class PopulateProjectsTask {
 
             const migrationService = new MigrationService();
             const workspace = userData.workspace;
-            console.log(workspace);
-            console.log("1")
+
             for (const deliveryUnit of userData.du) {
                 const localFiles = deliveryUnit.locals;
                 if (!(localFiles && localFiles.length > 0)) {
                     throw "Delivery unit is empty";
                 }
-                            console.log("2")
 
                 migrationService.addFilesWithoutGenerated(userData, workspace, localFiles);
-                            console.log("3")
-
                 migrationService.addGeneratedFiles(userData, deliveryUnit, workspace, localFiles);
-                            console.log("4")
-
                 migrationService.modifyFiles(workspace, localFiles);
             }
             process.setVariable(this.execution.getId(), "migrationState", "MIGRATION_EXECUTED");
