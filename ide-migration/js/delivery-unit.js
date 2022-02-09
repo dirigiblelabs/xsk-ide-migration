@@ -40,6 +40,11 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
         });
 
         function getDUData() {
+            if (!migrationDataState.processInstanceId) {
+                $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
+                errorOccurred();
+                return;
+            }
             body = {
                 neo: {
                     hostName: migrationDataState.neoHostName,
@@ -84,7 +89,11 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                                             $scope.dataLoaded = true;
                                         }
                                     },
-                                    function (response) {}
+                                    function (response) {
+                                        clearInterval(timer);
+                                        $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
+                                        errorOccurred();
+                                    }
                                 );
                         }, 1000);
                     },
@@ -209,6 +218,7 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                         }
                     });
                     if (msg.data.isVisible) {
+                        console.log('DU msg', msg)
                         getDUData();
                     }
                 }

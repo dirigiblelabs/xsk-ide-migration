@@ -18,6 +18,7 @@ migrationLaunchView.controller("StartMigrationViewController", [
         $scope.migrationDataState = migrationDataState;
         $scope.isVisible = false;
         $scope.migrationFinished = false;
+        $scope.isZipMigrationVisible = false;
         $scope.progressBarPercentage = 100;
         let titleList = ["Migration in progress", "One last step"];
         $scope.progressTitle = titleList[0];
@@ -104,5 +105,12 @@ migrationLaunchView.controller("StartMigrationViewController", [
                 }
             }.bind(this)
         );
+        $messageHub.on('migration.start-zip-migration', function (msg) {
+            if ("isVisible" in msg.data) {
+                $scope.$apply(function () {
+                    $scope.isZipMigrationVisible = msg.data.isVisible;
+                });
+            }
+        }.bind(this));
     },
 ]);
