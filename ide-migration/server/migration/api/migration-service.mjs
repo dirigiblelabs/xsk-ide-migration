@@ -448,7 +448,7 @@ export class MigrationService {
         for (const resName of resNames) {
             var path = collection.getPath() + "/" + resName;
             let oldProjectRelativePath = parentPath + "/" + resName;
-            if (path.endsWith(".hdbtablefunction") || path.endsWith(".hdbscalarfunction") {
+            if (path.endsWith(".hdbtablefunction") || path.endsWith(".hdbscalarfunction")) {
                 let resource = collection.getResource(resName);
                 let content = resource.getText();
                 let visitor = new HanaVisitor(content);

@@ -111,6 +111,18 @@ migrationLaunchView.controller("StartMigrationViewController", [
                     $scope.isZipMigrationVisible = msg.data.isVisible;
                 });
             }
+            if ("migrationFinished" in msg.data) {
+                $scope.$apply(function () {
+                    $scope.migrationFinished = msg.data.migrationFinished;
+                    if ("workspace" in msg.data)
+                        migrationDataState.selectedWorkspace = msg.data.workspace;
+                    $scope.progressTitle = titleList[1];
+                    $scope.statusMessage = ("status" in msg.data) ? msg.data.status : ("workspace" in msg.data)
+                        ? `Successfully migrated uploaded Delivery Unit(s)! Go to workspace "${msg.data.workspace}" and publish them.` :
+                        "Successfully migrated uploaded Delivery Unit(s)!";
+
+                });
+            }
         }.bind(this));
     },
 ]);
