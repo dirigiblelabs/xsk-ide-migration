@@ -448,23 +448,20 @@ export class MigrationService {
         for (const resName of resNames) {
             var path = collection.getPath() + "/" + resName;
             let oldProjectRelativePath = parentPath + "/" + resName;
-            if (path.endsWith(".hdbtablefunction")) {
+            if (path.endsWith(".hdbtablefunction") || path.endsWith(".hdbscalarfunction") {
                 let resource = collection.getResource(resName);
                 let content = resource.getText();
                 let visitor = new HanaVisitor(content);
                 visitor.visit();
                 visitor.removeSchemaRefs();
                 visitor.removeViewRefs();
-                let splitted = resName.split(".");
-                splitted[splitted.length - 1] = "tablefunction";
-                let newName = splitted.join(".");
-                let newProjectRelativePath = parentPath + "/" + newName;
+                let newProjectRelativePath = parentPath + "/" + resName;
                 this.tableFunctionPaths.push(newProjectRelativePath);
                 console.log("Creating new file at: " + newProjectRelativePath);
                 let newFile = project.createFile(newProjectRelativePath);
                 newFile.setText(visitor.content);
-                console.log("Creating new resource at: " + newName);
-                let newResource = collection.createResource(newName, [0]);
+                console.log("Creating new resource at: " + resName);
+                let newResource = collection.createResource(resName, [0]);
                 newResource.setText(visitor.content);
                 console.log("deleting file at: " + path);
                 project.deleteFile(oldProjectRelativePath);

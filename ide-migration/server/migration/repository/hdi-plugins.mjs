@@ -52,6 +52,12 @@ export function getHdiFilePlugins() {
             hdbfunction: {
                 plugin_name: "com.sap.hana.di.function",
             },
+            hdbtablefunction: {
+                plugin_name: "com.sap.hana.di.function",
+            },
+            hdbscalarfunction: {
+                plugin_name: "com.sap.hana.di.function",
+            },
             hdbflowgraph: {
                 plugin_name: "com.sap.hana.di.flowgraph",
             },
