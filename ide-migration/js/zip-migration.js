@@ -105,7 +105,7 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
                     "migration.start-zip-migration",
                     {
                         migrationFinished: true,
-                        workspace: response.data.selectedWorkspace,
+                        workspace: body.workspace,
                         error: false
                     }
                 );
@@ -118,15 +118,12 @@ migrationLaunchView.controller('ImportZippedDU', ['$scope', '$http', 'FileUpload
                 $scope.removeAll($scope.uploader);
             }
         }, function (response) {
-            $messageHub.message(
-                "migration.start-zip-migration",
-                {
-                    migrationFinished: true,
-                    workspace: response.data.selectedWorkspace,
-                    error: true,
-                    errorMessage: response.error.message
-                }
-            );
+            $scope.migrationFinished = false;
+            $messageHub.announceAlertError('Migration failed', response.error.message);
+            $messageHub.message($scope.currentZipStep.topicId, { isVisible: false });
+            $scope.currentZipStep = $scope.zipsteps[0];
+            $messageHub.message($scope.currentZipStep.topicId, { isVisible: true });
+            $scope.removeAll($scope.uploader);
         });
     };
 
