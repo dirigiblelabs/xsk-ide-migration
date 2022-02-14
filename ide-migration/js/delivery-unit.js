@@ -40,11 +40,6 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
         });
 
         function getDUData() {
-            if (!migrationDataState.processInstanceId) {
-                $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                errorOccurred();
-                return;
-            }
             body = {
                 neo: {
                     hostName: migrationDataState.neoHostName,
@@ -55,7 +50,6 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                     username: migrationDataState.dbUsername,
                     password: migrationDataState.dbPassword,
                 },
-                processInstanceId: migrationDataState.processInstanceId,
                 userJwtToken: migrationDataState.userJwtToken,
             };
 
