@@ -2,6 +2,7 @@ import { tasks as tasksService, process as processService } from "@dirigible/bpm
 import { client as httpClient, rs } from "@dirigible/http";
 import { database } from "@dirigible/db";
 import { url } from "@dirigible/utils";
+import { NeoDatabasesService } from "./neo-databases-service.mjs"
 
 
 rs.service()
@@ -152,8 +153,14 @@ function listDatabases(ctx, request, response) {
 
     const userJwtToken = tokenResponse.access_token;
 
-    const NeoDatabasesService = require('ide-migration/server/migration/api/neo-databases-service');
     const neoDatabasesService = new NeoDatabasesService();
     const databases = neoDatabasesService.getAvailableDatabases(subaccount, hostName, userJwtToken);
-    response.print(JSON.stringify({ databases, userJwtToken }));
+    
+    const responseObject = {
+        databases: databases,
+        userJwtToken: userJwtToken
+    };
+
+    const responseObjectJson = JSON.stringify(responseObject);
+    response.print(responseObjectJson);
 }
