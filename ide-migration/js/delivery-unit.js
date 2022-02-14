@@ -56,19 +56,16 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                     password: migrationDataState.dbPassword,
                 },
                 processInstanceId: migrationDataState.processInstanceId,
-                userJwtToken: migrationDataState.userJwtToken
+                userJwtToken: migrationDataState.userJwtToken,
             };
 
             $http
-                .post(
-                    "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.js/start-process",
-                    JSON.stringify(body),
-                    { headers: { "Content-Type": "application/json" } }
-                )
+                .post("/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/start-process", JSON.stringify(body), {
+                    headers: { "Content-Type": "application/json" },
+                })
                 .then(
                     function (response) {
-                        migrationDataState.processInstanceId = body.processInstanceId =
-                            response.data.processInstanceId;
+                        migrationDataState.processInstanceId = body.processInstanceId = response.data.processInstanceId;
                         const timer = setInterval(function () {
                             $http
                                 .post(
@@ -223,7 +220,7 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                         }
                     });
                     if (msg.data.isVisible) {
-                        console.log('DU msg', msg)
+                        console.log("DU msg", msg);
                         getDUData();
                     }
                 }
