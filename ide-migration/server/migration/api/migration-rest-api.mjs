@@ -3,6 +3,7 @@ import { client as httpClient, rs } from "@dirigible/http";
 import { database } from "@dirigible/db";
 import { url } from "@dirigible/utils";
 import { NeoDatabasesService } from "./neo-databases-service.mjs"
+import { TrackService } from "./track-service.mjs";
 
 
 rs.service()
@@ -22,9 +23,11 @@ rs.service()
 
 function startProcessFromZip(ctx, req, res) {
     const userDataJson = req.getJSON();
+    const migrationTableIndex = _trackMigrationStartAndGetMigrationTableIndex();
     const processInstanceId = processService.start("migrationProcess", {
         userData: JSON.stringify(userDataJson),
         migrationType: "FROM_LOCAL_ZIP",
+        migrationIndex: migrationTableIndex
     });
 
     const response = {
@@ -32,25 +35,29 @@ function startProcessFromZip(ctx, req, res) {
     };
 
     res.print(JSON.stringify(response));
-
-
-
-
 }
 
 function startProcess(ctx, req, res) {
     const userDataJson = req.getJSON();
 
+    const migrationTableIndex = _trackMigrationStartAndGetMigrationTableIndex();
     const processInstanceId = processService.start("migrationProcess", {
         migrationType: "FROM_HANA",
         userData: JSON.stringify(userDataJson),
-        userJwtToken: userDataJson.userJwtToken
+        userJwtToken: userDataJson.userJwtToken,
+        migrationIndex: migrationTableIndex
     });
 
     const response = {
         processInstanceId: processInstanceId,
     };
     res.print(JSON.stringify(response));
+}
+
+function _trackMigrationStartAndGetMigrationTableIndex() {
+    const trackService = new TrackService();
+    trackService.addEntry("MIGRATION_STARTING");
+    return trackService.getCurrentMigrationIndex();
 }
 
 function getJwtToken(host, username, password) {
@@ -155,7 +162,7 @@ function listDatabases(ctx, request, response) {
 
     const neoDatabasesService = new NeoDatabasesService();
     const databases = neoDatabasesService.getAvailableDatabases(subaccount, hostName, userJwtToken);
-    
+
     const responseObject = {
         databases: databases,
         userJwtToken: userJwtToken

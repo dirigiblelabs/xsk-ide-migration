@@ -1,54 +1,40 @@
 import { process } from "@dirigible/bpm";
-import { TrackService } from "../api/track-service.mjs";
 import { NeoTunnelService } from "../api/neo-tunnel-service.mjs";
+import { MigrationTask } from "./task.mjs";
 
-export class OpenHanaTunnelTask {
+export class OpenHanaTunnelTask extends MigrationTask {
     execution = process.getExecutionContext();
-    trackService = new TrackService();
+
+    constructor() {
+        super("TUNNEL_OPENING", "TUNNEL_OPENED", "TUNNEL_OPENING_FAILED");
+    }
 
     run() {
-        try {
-            const userDataJson = process.getVariable(this.execution.getId(), "userData");
-            const userJwtToken = process.getVariable(this.execution.getId(), "userJwtToken");
-            const userData = JSON.parse(userDataJson);
+        const userDataJson = process.getVariable(this.execution.getId(), "userData");
+        const userJwtToken = process.getVariable(this.execution.getId(), "userJwtToken");
+        const userData = JSON.parse(userDataJson);
 
-            process.setVariable(this.execution.getId(), "migrationState", "TUNNEL_OPENING");
-            this.trackService.addEntry("OPENING TUNEL");
-            process.setVariable(
-                this.execution.getId(),
-                "migrationIndex",
-                this.trackService.getCurrentMigrationIndex()
-            );
-            
-            const account = userData.neo.subaccount;
-            const host = userData.neo.hostName;
-            const databaseId = userData.hana.databaseSchema;
+        const account = userData.neo.subaccount;
+        const host = userData.neo.hostName;
+        const databaseId = userData.hana.databaseSchema;
 
-            const neoTunnelService = new NeoTunnelService();
+        const neoTunnelService = new NeoTunnelService();
 
-            const openedTunnelData = neoTunnelService.openTunnel(
-                account,
-                host,
-                userJwtToken,
-                databaseId
-            );
+        const openedTunnelData = neoTunnelService.openTunnel(
+            account,
+            host,
+            userJwtToken,
+            databaseId
+        );
 
-            userData.sessionId = openedTunnelData.sessionId;
-            process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
-            process.setVariable(this.execution.getId(), "migrationState", "TUNNEL_OPENED");
+        userData.sessionId = openedTunnelData.sessionId;
+        process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
+        process.setVariable(
+            this.execution.getId(),
+            "connectionId",
+            openedTunnelData.sessionId.toString()
+        );
 
-            this.trackService.updateMigrationStatus("TUNNEL OPENED");
-            process.setVariable(
-                this.execution.getId(),
-                "connectionId",
-                openedTunnelData.sessionId.toString()
-            );
-
-            process.setVariable(this.execution.getId(), "connectionUrl", openedTunnelData.jdbcUrl);
-        } catch (e) {
-            process.setVariable(this.execution.getId(), "migrationState", "TUNNEL_OPENING_FAILED");
-            this.trackService.updateMigrationStatus("TUNNEL OPENING FAILED");
-            process.setVariable(this.execution.getId(), "TUNNEL_OPENING_FAILED_REASON", e.toString());
-        }
+        process.setVariable(this.execution.getId(), "connectionUrl", openedTunnelData.jdbcUrl);
     }
 }

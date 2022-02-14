@@ -1,27 +1,17 @@
 import { process } from "@dirigible/bpm";
 import { workspace as workspaceManager } from "@dirigible/platform";
-import { TrackService } from "../api/track-service.mjs";
+import { MigrationTask } from "./task.mjs";
 
-export class ListWorkspacesTask {
+export class ListWorkspacesTask extends MigrationTask {
     execution = process.getExecutionContext();
-    trackService = new TrackService();
+
+    constructor() {
+        super("WORKSPACES_LISTING", "WORKSPACES_LISTED", "WORKSPACES_LISTING_FAILED");
+    }
 
     run() {
-        try {
-            process.setVariable(this.execution.getId(), "migrationState", "WORKSPACES_LISTING");
-            this.trackService.updateMigrationStatus("WORKSPACES LISTING");
-            const workspaces = workspaceManager.getWorkspacesNames();
-            process.setVariable(this.execution.getId(), "workspaces", JSON.stringify(workspaces));
-            process.setVariable(this.execution.getId(), "migrationState", "WORKSPACES_LISTED");
-            this.trackService.updateMigrationStatus("WORKSPACES LISTED");
-        } catch (e) {
-            process.setVariable(this.execution.getId(), "migrationState", "WORKSPACES_LISTING_FAILED");
-            this.trackService.updateMigrationStatus("WORKSPACES LISTING FAILED");
-            process.setVariable(
-                this.execution.getId(),
-                "WORKSPACES_LISTING_FAILED_REASON",
-                e.toString()
-            );
-        }
+        const workspaces = workspaceManager.getWorkspacesNames();
+        process.setVariable(this.execution.getId(), "workspaces", JSON.stringify(workspaces));
+        process.setVariable(this.execution.getId(), "migrationState", "WORKSPACES_LISTED");
     }
 }

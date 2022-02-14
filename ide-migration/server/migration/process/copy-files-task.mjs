@@ -1,47 +1,36 @@
 import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service.mjs";
-import { TrackService } from "../api/track-service.mjs";
+import { MigrationTask } from "./task.mjs";
 
-export class CopyFilesTask {
+export class CopyFilesTask extends MigrationTask {
     execution = process.getExecutionContext();
-    trackService = new TrackService();
+
+    constructor() {
+        super("COPY_FILES_EXECUTING", "COPY_FILES_EXECUTED", "COPY_FILES_FAILED");
+    }
 
     run() {
-        try {
-            process.setVariable(this.execution.getId(), "migrationState", "COPY_FILES_EXECUTING");
-            this.trackService.updateMigrationStatus("COPYING FILES");
+        const userDataJson = process.getVariable(this.execution.getId(), "userData");
+        const userData = JSON.parse(userDataJson);
+        const userDatabaseData = userData.hana;
+        const connectionUrl = process.getVariable(this.execution.getId(), "connectionUrl");
 
-            const userDataJson = process.getVariable(this.execution.getId(), "userData");
-            const userData = JSON.parse(userDataJson);
-            const userDatabaseData = userData.hana;
-            const connectionUrl = process.getVariable(this.execution.getId(), "connectionUrl");
+        const migrationService = new MigrationService();
 
-            const migrationService = new MigrationService();
-
-            for (const deliveryUnit of userData.du) {
-                this.trackService.updateMigrationStatus("COPYING FILES");
-                migrationService.setupConnection(
-                    userDatabaseData.databaseSchema,
-                    userDatabaseData.username,
-                    userDatabaseData.password,
-                    connectionUrl
-                );
-                const files = migrationService.getAllFilesForDU(deliveryUnit);
-                if (files) {
-                    const locals = migrationService.copyFilesLocally(userData.workspace, files);
-                    deliveryUnit.locals = locals;
-                }
+        for (const deliveryUnit of userData.du) {
+            migrationService.setupConnection(
+                userDatabaseData.databaseSchema,
+                userDatabaseData.username,
+                userDatabaseData.password,
+                connectionUrl
+            );
+            const files = migrationService.getAllFilesForDU(deliveryUnit);
+            if (files) {
+                const locals = migrationService.copyFilesLocally(userData.workspace, files);
+                deliveryUnit.locals = locals;
             }
-
-            process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
-            process.setVariable(this.execution.getId(), "migrationState", "COPY_FILES_EXECUTED");
-            this.trackService.updateMigrationStatus("COPYING FILES DONE");
-        } catch (e) {
-            console.log("COPY_FILES failed with error:");
-            console.log(e.message);
-            process.setVariable(this.execution.getId(), "migrationState", "COPY_FILES_FAILED");
-            this.trackService.updateMigrationStatus("COPYING FILES FAILED");
-            process.setVariable(this.execution.getId(), "COPY_FILES_FAILED_REASON", e.toString());
         }
+
+        process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
     }
 }

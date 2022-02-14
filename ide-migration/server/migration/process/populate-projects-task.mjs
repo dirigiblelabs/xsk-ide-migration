@@ -1,45 +1,31 @@
 import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service.mjs";
-import { TrackService } from "../api/track-service.mjs";
+import { MigrationTask } from "./task.mjs";
 
-export class PopulateProjectsTask {
+export class PopulateProjectsTask extends MigrationTask {
     execution = process.getExecutionContext();
-    trackService = new TrackService();
+
+    constructor() {
+        super("POPULATING_PROJECTS", "MIGRATION_EXECUTED", "POPULATING_PROJECTS_FAILED");
+    }
 
     run() {
-        try {
-            process.setVariable(this.execution.getId(), "migrationState", "POPULATING_PROJECTS");
-            this.trackService.updateMigrationStatus("POPULATING PROJECTS");
-            const userDataJson = process.getVariable(this.execution.getId(), "userData");
-            const userData = JSON.parse(userDataJson);
+        const userDataJson = process.getVariable(this.execution.getId(), "userData");
+        const userData = JSON.parse(userDataJson);
 
-            const migrationService = new MigrationService();
-            const workspace = userData.workspace;
+        const migrationService = new MigrationService();
+        const workspace = userData.workspace;
 
-            for (const deliveryUnit of userData.du) {
-                const localFiles = deliveryUnit.locals;
-                if (!(localFiles && localFiles.length > 0)) {
-                    console.warn("Delivery unit is empty.");
-                    continue;
-                }
-
-                migrationService.addFilesWithoutGenerated(userData, workspace, localFiles);
-                migrationService.addGeneratedFiles(userData, deliveryUnit, workspace, localFiles);
-                migrationService.modifyFiles(workspace, localFiles);
+        for (const deliveryUnit of userData.du) {
+            const localFiles = deliveryUnit.locals;
+            if (!(localFiles && localFiles.length > 0)) {
+                console.warn("Delivery unit is empty.");
+                continue;
             }
-            process.setVariable(this.execution.getId(), "migrationState", "MIGRATION_EXECUTED");
-            this.trackService.updateMigrationStatus("MIGRATION EXECUTED");
-        } catch (e) {
-            console.log("POPULATING_PROJECTS failed with error:");
-            console.log(e.message);
-            console.log(e.stack);
-            process.setVariable(this.execution.getId(), "migrationState", "POPULATING_PROJECTS_FAILED");
-            this.trackService.updateMigrationStatus("POPULATING PROJECTS FAILED");
-            process.setVariable(
-                this.execution.getId(),
-                "POPULATING_PROJECTS_FAILED_REASON",
-                e.toString()
-            );
+
+            migrationService.addFilesWithoutGenerated(userData, workspace, localFiles);
+            migrationService.addGeneratedFiles(userData, deliveryUnit, workspace, localFiles);
+            migrationService.modifyFiles(workspace, localFiles);
         }
     }
 }
