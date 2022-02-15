@@ -27,8 +27,10 @@ export class CopyFilesTask {
                     connectionUrl
                 );
                 const files = migrationService.getAllFilesForDU(deliveryUnit);
-                const locals = migrationService.copyFilesLocally(userData.workspace, files);
-                deliveryUnit.locals = locals;
+                if (files) {
+                    const locals = migrationService.copyFilesLocally(userData.workspace, files);
+                    deliveryUnit.locals = locals;
+                }
             }
 
             process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
@@ -38,7 +40,7 @@ export class CopyFilesTask {
             console.log("COPY_FILES failed with error:");
             console.log(e.message);
             process.setVariable(this.execution.getId(), "migrationState", "COPY_FILES_FAILED");
-            this.trackService.updateMigrationStatus("COPYING FILES DONE");
+            this.trackService.updateMigrationStatus("COPYING FILES FAILED");
             process.setVariable(this.execution.getId(), "COPY_FILES_FAILED_REASON", e.toString());
         }
     }

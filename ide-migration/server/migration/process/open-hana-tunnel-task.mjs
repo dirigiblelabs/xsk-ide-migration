@@ -13,12 +13,19 @@ export class OpenHanaTunnelTask {
             const userData = JSON.parse(userDataJson);
 
             process.setVariable(this.execution.getId(), "migrationState", "TUNNEL_OPENING");
-            this.trackService.updateMigrationStatus("TUNNEL OPENING");
+            this.trackService.addEntry("OPENING TUNEL");
+            process.setVariable(
+                this.execution.getId(),
+                "migrationIndex",
+                this.trackService.getCurrentMigrationIndex()
+            );
+            
             const account = userData.neo.subaccount;
             const host = userData.neo.hostName;
             const databaseId = userData.hana.databaseSchema;
 
             const neoTunnelService = new NeoTunnelService();
+
             const openedTunnelData = neoTunnelService.openTunnel(
                 account,
                 host,
@@ -29,12 +36,14 @@ export class OpenHanaTunnelTask {
             userData.sessionId = openedTunnelData.sessionId;
             process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
             process.setVariable(this.execution.getId(), "migrationState", "TUNNEL_OPENED");
+
             this.trackService.updateMigrationStatus("TUNNEL OPENED");
             process.setVariable(
                 this.execution.getId(),
                 "connectionId",
                 openedTunnelData.sessionId.toString()
             );
+
             process.setVariable(this.execution.getId(), "connectionUrl", openedTunnelData.jdbcUrl);
         } catch (e) {
             process.setVariable(this.execution.getId(), "migrationState", "TUNNEL_OPENING_FAILED");

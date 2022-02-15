@@ -2,6 +2,7 @@ import { tasks as tasksService, process as processService } from "@dirigible/bpm
 import { client as httpClient, rs } from "@dirigible/http";
 import { database } from "@dirigible/db";
 import { url } from "@dirigible/utils";
+import { NeoDatabasesService } from "./neo-databases-service.mjs"
 
 
 rs.service()
@@ -13,8 +14,10 @@ rs.service()
     .post(continueProcess)
     .resource('get-process')
     .post(getProcessState)
-    .resource('migrationsTrack')
+    .resource("migrationsTrack")
     .post(getMigrations)
+    .resource('list-databases')
+    .post(listDatabases)
     .execute();
 
 function startProcessFromZip(ctx, req, res) {
@@ -37,31 +40,16 @@ function startProcessFromZip(ctx, req, res) {
 
 function startProcess(ctx, req, res) {
     const userDataJson = req.getJSON();
-    const neoData = userDataJson.neo;
-
-    const tokenResponse = getJwtToken(neoData.hostName, neoData.username, neoData.password);
-    if (tokenResponse.error) {
-        res.setStatus(403);
-        res.print(
-            JSON.stringify({
-                error: {
-                    message: tokenResponse.error_description,
-                },
-            })
-        );
-        return;
-    }
 
     const processInstanceId = processService.start("migrationProcess", {
-        userData: JSON.stringify(userDataJson),
-        userJwtToken: tokenResponse.access_token,
         migrationType: "FROM_HANA",
+        userData: JSON.stringify(userDataJson),
+        userJwtToken: userDataJson.userJwtToken
     });
 
     const response = {
         processInstanceId: processInstanceId,
     };
-
     res.print(JSON.stringify(response));
 }
 
@@ -140,4 +128,39 @@ function getMigrations(ctx, request, response) {
         connection.close();
     }
     response.print(migrationsData.migrations);
+}
+
+function listDatabases(ctx, request, response) {
+    const userDataJson = request.getJSON();
+    const neoData = userDataJson.neo;
+    const subaccount = neoData.subaccount;
+    const hostName = neoData.hostName;
+    const username = neoData.username;
+    const password = neoData.password;
+
+    const tokenResponse = getJwtToken(hostName, username, password);
+    if (tokenResponse.error) {
+        response.setStatus(403);
+        response.print(
+            JSON.stringify({
+                error: {
+                    message: tokenResponse.error_description
+                }
+            })
+        );
+        return;
+    }
+
+    const userJwtToken = tokenResponse.access_token;
+
+    const neoDatabasesService = new NeoDatabasesService();
+    const databases = neoDatabasesService.getAvailableDatabases(subaccount, hostName, userJwtToken);
+    
+    const responseObject = {
+        databases: databases,
+        userJwtToken: userJwtToken
+    };
+
+    const responseObjectJson = JSON.stringify(responseObject);
+    response.print(responseObjectJson);
 }
