@@ -18,6 +18,8 @@ const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
 const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor");
 const XSKHDBCoreFacade = Java.type("com.sap.xsk.hdb.ds.facade.XSKHDBCoreFacade");
 const hdbDDModel = "com.sap.xsk.hdb.ds.model.hdbdd.XSKDataStructureCdsModel";
+const hdbTableFunctionModel = "com.sap.xsk.hdb.ds.model.hdbtablefunction.XSKDataStructureHDBTableFunctionModel";
+const hdbCalculationViewModel = "migration.calc.view.model";
 const xskModificator = new XSKProjectMigrationInterceptor();
 
 export class MigrationService {
@@ -134,7 +136,14 @@ export class MigrationService {
             const fileContent = bytes.byteArrayToText(content);
 
             // Parse current artifacts and generate synonym files for it if necessary
-            const parsedData = hdbFacade.parseDataStructureModel(fileName, filePath, fileContent, workspaceCollection.getPath() + "/");
+            const parsedData = this._parseArtifact(
+                fileName,
+                filePath,
+                fileContent,
+                workspaceCollection.getPath() + "/",
+                hdbFacade
+            );
+
             const synonymData = this._handleParsedData(parsedData);
             const hdbSynonyms = this._appendOrCreateSynonymsFile(this.synonymFileName, synonymData.hdbSynonyms, workspaceName, projectName);
             const hdbPublicSynonyms = this._appendOrCreateSynonymsFile(
@@ -159,6 +168,19 @@ export class MigrationService {
         return locals;
     }
 
+    _parseArtifact(fileName, filePath, fileContent, workspacePath, hdbFacade) {
+        if (this._isFileCalculationView(fileName)) {
+            return this._buildCalcViewModel(fileName);
+        }
+
+        return hdbFacade.parseDataStructureModel(
+                  fileName,
+                  filePath,
+                  fileContent,
+                  workspacePath
+        );
+    }
+
     _getFileNameWithExtension(file) {
         return file._name + "." + file._suffix;
     }
@@ -181,33 +203,51 @@ export class MigrationService {
             for (const tableModel of parsedData.tableModels) {
                 const tableModelName = tableModel.getName();
                 const tableModelSchema = tableModel.getSchema();
-                const hdbPublicSynonym = this._generateHdbPublicSynonym(tableModelName);
-                const hdbSynonym = this._generateHdbSynonym(tableModelName, tableModelSchema);
+                const hdbSynonym = this._generateHdbSynonym(
+                    tableModelName, 
+                    tableModelSchema
+                );
 
-                publicSynonyms.push(hdbPublicSynonym);
                 synonyms.push(hdbSynonym);
             }
 
             for (const tableTypeModel of parsedData.tableTypeModels) {
                 const tableTypeModelName = tableTypeModel.getName();
                 const tableTypeModelSchema = tableTypeModel.getSchema();
-                const hdbPublicSynonym = this._generateHdbPublicSynonym(tableTypeModelName);
-                const hdbSynonym = this._generateHdbSynonym(tableTypeModelName, tableTypeModelSchema);
+                const hdbSynonym = this._generateHdbSynonym(
+                    tableTypeModelName,
+                    tableTypeModelSchema
+                );
 
-                publicSynonyms.push(hdbPublicSynonym);
                 synonyms.push(hdbSynonym);
             }
         } else {
             const modelName = parsedData.getName();
-            const modelSchema = parsedData.getSchema();
-            const hdbPublicSynonym = this._generateHdbPublicSynonym(modelName);
-            const hdbSynonym = this._generateHdbSynonym(modelName, modelSchema);
 
-            publicSynonyms.push(hdbPublicSynonym);
-            synonyms.push(hdbSynonym);
+            if(dataModelType == hdbTableFunctionModel || dataModelType == hdbCalculationViewModel) {
+                const hdbPublicSynonym = this._generateHdbPublicSynonym(modelName);
+                publicSynonyms.push(hdbPublicSynonym);
+            }
+            else {
+                const modelSchema = parsedData.getSchema();
+                const hdbSynonym = this._generateHdbSynonym(modelName, modelSchema);
+                synonyms.push(hdbSynonym);
+            }
         }
 
         return { hdbSynonyms: synonyms, hdbPublicSynonyms: publicSynonyms };
+    }
+
+    _buildCalcViewModel(fileName) {
+        const calcViewName = fileName.substring(0, fileName.lastIndexOf('.'));
+        const calcViewModelClass = {
+            getName: () => hdbCalculationViewModel
+        }
+        const calcViewModel = {
+            getName: () => calcViewName,
+            getClass: () => calcViewModelClass
+        }
+        return calcViewModel;
     }
 
     _generateHdbSynonym(name, schemaName) {
