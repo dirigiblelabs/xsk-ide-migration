@@ -50,7 +50,7 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
                         errorOccurred();
                     } else if (response.data.databases && response.data.userJwtToken) {
                         body.databases = response.data.databases;
-                        migrationDataState["userJwtToken"] = response.data.userJwtToken;
+                        migrationDataState.userJwtToken = response.data.userJwtToken;
 
                         $scope.areDatabasesLoaded = true;
                         $scope.descriptionText = descriptionList[1];
@@ -67,7 +67,8 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
                     }
                 })
                 .catch(function (err) {
-                    console.log(err);
+                    $messageHub.announceAlertError(defaultErrorTitle, err.message ?? defaultErrorDesc);
+                    errorOccurred();
                 });
         }
 
