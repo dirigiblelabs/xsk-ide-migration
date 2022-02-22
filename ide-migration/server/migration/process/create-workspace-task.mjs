@@ -12,7 +12,6 @@ export class CreateWorkspaceTask extends MigrationTask {
     run() {
         const userDataJson = process.getVariable(this.execution.getId(), "userData");
         const migrationType = process.getVariable(this.execution.getId(), "migrationType")
-        console.log("Status" + migrationType);
         const userData = JSON.parse(userDataJson);
 
         const migrationService = new MigrationService();
@@ -20,8 +19,8 @@ export class CreateWorkspaceTask extends MigrationTask {
         if (migrationType === 'FROM_LOCAL_ZIP') {
             migrationService.createMigratedWorkspace(userData.selectedWorkspace);
         } else {
-            for (let i = 0; i < userData.du.length; i++) {
-                migrationService.createMigratedWorkspace(userData.workspace, userData.du[i]);
+            for (const deliveryUnit of userData.du) {
+                migrationService.createMigratedWorkspace(userData.workspace, deliveryUnit);
             }
         }
 

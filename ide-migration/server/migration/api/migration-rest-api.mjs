@@ -23,7 +23,7 @@ rs.service()
 
 function startProcessFromZip(ctx, req, res) {
     const userDataJson = req.getJSON();
-    const migrationTableIndex = _trackMigrationStartAndGetMigrationTableIndex();
+    const migrationTableIndex = _trackMigrationStart();
     const processInstanceId = processService.start("migrationProcess", {
         userData: JSON.stringify(userDataJson),
         migrationType: "FROM_LOCAL_ZIP",
@@ -40,7 +40,7 @@ function startProcessFromZip(ctx, req, res) {
 function startProcess(ctx, req, res) {
     const userDataJson = req.getJSON();
 
-    const migrationTableIndex = _trackMigrationStartAndGetMigrationTableIndex();
+    const migrationTableIndex = _trackMigrationStart();
     const processInstanceId = processService.start("migrationProcess", {
         migrationType: "FROM_HANA",
         userData: JSON.stringify(userDataJson),
@@ -54,7 +54,7 @@ function startProcess(ctx, req, res) {
     res.print(JSON.stringify(response));
 }
 
-function _trackMigrationStartAndGetMigrationTableIndex() {
+function _trackMigrationStart() {
     const trackService = new TrackService();
     trackService.addEntry("MIGRATION_STARTING");
     return trackService.getCurrentMigrationIndex();
