@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
+ * Copyright (c) 2022 SAP SE or an SAP affiliate company and XSK contributors
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v2.0
+ * are made available under the terms of the Apache License, v2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v20.html
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * SPDX-FileCopyrightText: 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
- * SPDX-License-Identifier: EPL-2.0
+ * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and XSK contributors
+ * SPDX-License-Identifier: Apache-2.0
  */
 migrationLaunchView.controller("StartMigrationViewController", [
     "$scope",
@@ -98,6 +98,7 @@ migrationLaunchView.controller("StartMigrationViewController", [
                 if ("isVisible" in msg.data) {
                     $scope.$apply(function () {
                         $scope.isVisible = msg.data.isVisible;
+                        if (msg.data.isVisible) $scope.$parent.setFullWidthEnabled(false);
                     });
                     if (msg.data.isVisible) {
                         startMigration();
@@ -105,24 +106,28 @@ migrationLaunchView.controller("StartMigrationViewController", [
                 }
             }.bind(this)
         );
-        $messageHub.on('migration.start-zip-migration', function (msg) {
-            if ("isVisible" in msg.data) {
-                $scope.$apply(function () {
-                    $scope.isZipMigrationVisible = msg.data.isVisible;
-                });
-            }
-            if ("migrationFinished" in msg.data) {
-                $scope.$apply(function () {
-                    $scope.migrationFinished = msg.data.migrationFinished;
-                    if ("workspace" in msg.data)
-                        migrationDataState.selectedWorkspace = msg.data.workspace;
-                    $scope.progressTitle = titleList[1];
-                    $scope.statusMessage = ("status" in msg.data) ? msg.data.status : ("workspace" in msg.data)
-                        ? `Successfully migrated uploaded Delivery Unit(s)! Go to workspace "${msg.data.workspace}" and publish them.` :
-                        "Successfully migrated uploaded Delivery Unit(s)!";
-
-                });
-            }
-        }.bind(this));
+        $messageHub.on(
+            "migration.start-zip-migration",
+            function (msg) {
+                if ("isVisible" in msg.data) {
+                    $scope.$apply(function () {
+                        $scope.isZipMigrationVisible = msg.data.isVisible;
+                    });
+                }
+                if ("migrationFinished" in msg.data) {
+                    $scope.$apply(function () {
+                        $scope.migrationFinished = msg.data.migrationFinished;
+                        if ("workspace" in msg.data) migrationDataState.selectedWorkspace = msg.data.workspace;
+                        $scope.progressTitle = titleList[1];
+                        $scope.statusMessage =
+                            "status" in msg.data
+                                ? msg.data.status
+                                : "workspace" in msg.data
+                                ? `Successfully migrated uploaded Delivery Unit(s)! Go to workspace "${msg.data.workspace}" and publish them.`
+                                : "Successfully migrated uploaded Delivery Unit(s)!";
+                    });
+                }
+            }.bind(this)
+        );
     },
 ]);
