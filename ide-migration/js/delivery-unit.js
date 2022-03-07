@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
+ * Copyright (c) 2022 SAP SE or an SAP affiliate company and XSK contributors
  *
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v2.0
+ * are made available under the terms of the Apache License, v2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v20.html
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * SPDX-FileCopyrightText: 2010-2021 SAP SE or an SAP affiliate company and Eclipse Dirigible contributors
- * SPDX-License-Identifier: EPL-2.0
+ * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and XSK contributors
+ * SPDX-License-Identifier: Apache-2.0
  */
 migrationLaunchView.controller("DeliveryUnitViewController", [
     "$scope",
@@ -186,7 +186,7 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
             $scope.duDropdownText = $scope.duSelectedUItext.length ? $scope.duSelectedUItext.join(", ") : $scope.duDropdownInitText;
             $scope.selectAllText =
                 migrationDataState.selectedDeliveryUnits.length == $scope.deliveryUnitList.length ? "Unselect all" : "Select all";
-            $scope.$parent.setFinishEnabled(true);
+            $scope.$parent.setNextEnabled(true);
         };
 
         $messageHub.on(
@@ -201,16 +201,12 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                         $scope.descriptionText = descriptionList[0];
                         $scope.isVisible = msg.data.isVisible;
                         if (msg.data.isVisible) {
-                            if (migrationDataState.selectedDeliveryUnits) {
-                                $scope.$parent.setFinishEnabled(true);
-                            } else {
-                                $scope.$parent.setFinishEnabled(false);
-                            }
+                            $scope.$parent.setFullWidthEnabled(false);
                             $scope.$parent.setBottomNavEnabled(false);
                             $scope.$parent.setPreviousVisible(true);
                             $scope.$parent.setPreviousEnabled(true);
-                            $scope.$parent.setNextVisible(false);
-                            $scope.$parent.setFinishVisible(true);
+                            $scope.$parent.setNextEnabled(false);
+                            $scope.$parent.setNextVisible(true);
                         }
                     });
                     if (msg.data.isVisible) {
