@@ -1,6 +1,7 @@
 import { process } from "@dirigible/bpm";
 import { NeoTunnelService } from "../api/neo-tunnel-service.mjs";
 import { MigrationTask } from "./task.mjs";
+import { migrationInputStateStore } from "../api/state/migration-input-state.mjs";
 
 export class CloseHanaTunnelTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -10,10 +11,8 @@ export class CloseHanaTunnelTask extends MigrationTask {
     }
 
     run() {
-        const userDataJson = process.getVariable(this.execution.getId(), "userData");
-        const userData = JSON.parse(userDataJson);
-
+        const migrationState = migrationInputStateStore.getState();
         const neoTunnelService = new NeoTunnelService();
-        neoTunnelService.closeTunnel(userData.connectionId);
+        neoTunnelService.closeTunnel(migrationState.tunnelConnectionId);
     }
 }

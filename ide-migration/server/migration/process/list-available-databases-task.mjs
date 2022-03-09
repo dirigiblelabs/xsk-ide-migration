@@ -1,6 +1,7 @@
 import { process } from "@dirigible/bpm";
 import { NeoDatabasesService } from "../api/neo-databases-service.mjs";
 import { MigrationTask } from "./task.mjs";
+import { migrationInputStateStore } from "../api/state/migration-input-state.mjs";
 
 export class ListAvailableDatabasesTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -10,18 +11,17 @@ export class ListAvailableDatabasesTask extends MigrationTask {
     }
 
     run() {
-        const userDataJson = process.getVariable(this.execution.getId(), "userData");
-        const userJwtToken = process.getVariable(this.execution.getId(), "userJwtToken");
-        const userData = JSON.parse(userDataJson);
+        const migrationState = migrationInputStateStore.getState();
 
-        const account = userData.neo.subaccount;
-        const host = userData.neo.hostName;
+        const account = migrationState.neoCredentials.subaccount;
+        const host = migrationState.neoCredentials.hostName;
+        const token = migrationState.token;
 
         const neoDatabasesService = new NeoDatabasesService();
         const databases = neoDatabasesService.getAvailableDatabases(
             account,
             host,
-            userJwtToken
+            token
         );
 
         process.setVariable(this.execution.getId(), "databases", JSON.stringify(databases));

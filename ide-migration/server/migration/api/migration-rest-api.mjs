@@ -4,6 +4,7 @@ import { database } from "@dirigible/db";
 import { url } from "@dirigible/utils";
 import { NeoDatabasesService } from "./neo-databases-service.mjs"
 import { TrackService } from "./track-service.mjs";
+import { MigrationState, getMigrationInputStateKey } from "./state/migration-input-state.mjs"
 
 
 rs.service()
@@ -40,10 +41,16 @@ function startProcessFromZip(ctx, req, res) {
 function startProcess(ctx, req, res) {
     const userDataJson = req.getJSON();
 
+    const migrationInputState = new MigrationState(
+        userDataJson.hana,
+        userDataJson.neo,
+        userDataJson.userJwtToken
+    );
+
     const migrationTableIndex = _trackMigrationStart();
     const processInstanceId = processService.start("migrationProcess", {
         migrationType: "FROM_HANA",
-        userData: JSON.stringify(userDataJson),
+        migrationInputState: migrationInputState,
         userJwtToken: userDataJson.userJwtToken,
         migrationIndex: migrationTableIndex
     });
@@ -112,10 +119,10 @@ function getProcessState(ctx, req, res) {
     } else if (migrationState === "WORKSPACES_LISTED") {
         const workspacesJson = processService.getVariable(processInstanceIdString, "workspaces");
         const deliveryUnitsJson = processService.getVariable(processInstanceIdString, "deliveryUnits");
-        const connectionId = processService.getVariable(processInstanceIdString, "connectionId");
+        const tunnelConnectionId = processService.getVariable(processInstanceIdString, "tunnelConnectionId");
         response.workspaces = JSON.parse(workspacesJson);
         response.deliveryUnits = JSON.parse(deliveryUnitsJson);
-        response.connectionId = connectionId;
+        response.tunnelConnectionId = tunnelConnectionId;
     } else if (migrationState === "MIGRATION_EXECUTED") {
         const diffViewData = processService.getVariable(processInstanceIdString, "diffViewData");
         response.diffViewData = JSON.parse(diffViewData);

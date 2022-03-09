@@ -73,9 +73,13 @@ migrationLaunchView.controller("DeliveryUnitViewController", [
                                             clearInterval(timer);
                                             $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
                                             errorOccurred();
-                                        } else if (response.data.workspaces && response.data.deliveryUnits && response.data.connectionId) {
+                                        } else if (
+                                            response.data.workspaces &&
+                                            response.data.deliveryUnits &&
+                                            response.data.tunnelConnectionId
+                                        ) {
                                             clearInterval(timer);
-                                            migrationDataState.connectionId = response.data.connectionId;
+                                            migrationDataState.tunnelConnectionId = response.data.tunnelConnectionId;
                                             $scope.workspaces = response.data.workspaces;
                                             $scope.workspacesList = $scope.workspaces;
                                             $scope.deliveryUnits = response.data.deliveryUnits;

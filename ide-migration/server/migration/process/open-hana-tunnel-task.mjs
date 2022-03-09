@@ -1,6 +1,7 @@
 import { process } from "@dirigible/bpm";
 import { NeoTunnelService } from "../api/neo-tunnel-service.mjs";
 import { MigrationTask } from "./task.mjs";
+import { migrationInputStateStore } from "../api/state/migration-input-state.mjs";
 
 export class OpenHanaTunnelTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -10,31 +11,24 @@ export class OpenHanaTunnelTask extends MigrationTask {
     }
 
     run() {
-        const userDataJson = process.getVariable(this.execution.getId(), "userData");
-        const userJwtToken = process.getVariable(this.execution.getId(), "userJwtToken");
-        const userData = JSON.parse(userDataJson);
+        const migrationState = migrationInputStateStore.getState();
 
-        const account = userData.neo.subaccount;
-        const host = userData.neo.hostName;
-        const databaseId = userData.hana.databaseSchema;
+        const account = migrationState.neoCredentials.subaccount;
+        const host = migrationState.neoCredentials.hostName;
+        const databaseId = migrationState.hanaCredentials.databaseSchema;
+        const token = migrationState.token;
 
         const neoTunnelService = new NeoTunnelService();
 
         const openedTunnelData = neoTunnelService.openTunnel(
             account,
             host,
-            userJwtToken,
+            token,
             databaseId
         );
 
-        userData.sessionId = openedTunnelData.sessionId;
-        process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
-        process.setVariable(
-            this.execution.getId(),
-            "connectionId",
-            openedTunnelData.sessionId.toString()
-        );
-
-        process.setVariable(this.execution.getId(), "connectionUrl", openedTunnelData.jdbcUrl);
+        migrationState.tunnelConnectionId = openedTunnelData.tunnelConnectionId.toString();
+        migrationState.databaseConnectionUrl = openedTunnelData.jdbcUrl;
+        migrationInputStateStore.saveState(migrationState);
     }
 }

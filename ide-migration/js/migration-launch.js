@@ -61,7 +61,7 @@ function migrationDataState() {
         selectedWorkspace: null,
 
         processInstanceId: null,
-        connectionId: null,
+        tunnelConnectionId: null,
     };
 
     return state;

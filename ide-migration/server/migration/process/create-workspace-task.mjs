@@ -1,6 +1,7 @@
 import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service.mjs";
 import { MigrationTask } from "./task.mjs";
+import { migrationInputStateStore } from "../api/state/migration-input-state.mjs";
 
 export class CreateWorkspaceTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -10,6 +11,7 @@ export class CreateWorkspaceTask extends MigrationTask {
     }
 
     run() {
+        const migrationState = migrationInputStateStore.getState();
         const userDataJson = process.getVariable(this.execution.getId(), "userData");
         const migrationType = process.getVariable(this.execution.getId(), "migrationType")
         const userData = JSON.parse(userDataJson);
@@ -18,12 +20,11 @@ export class CreateWorkspaceTask extends MigrationTask {
 
         if (migrationType === 'FROM_LOCAL_ZIP') {
             migrationService.createMigratedWorkspace(userData.selectedWorkspace);
-        } else {
-            for (const deliveryUnit of userData.du) {
-                migrationService.createMigratedWorkspace(userData.workspace, deliveryUnit);
-            }
+            return;
         }
 
-        process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
+        for (const deliveryUnit of migrationState.selectedDeliveryUnitNames) {
+            migrationService.createMigratedWorkspace(migrationState.selectedWorkspaceName, deliveryUnit);
+        }
     }
 }

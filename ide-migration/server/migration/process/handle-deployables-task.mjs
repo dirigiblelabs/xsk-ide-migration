@@ -12,6 +12,7 @@
 import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service.mjs";
 import { MigrationTask } from "./task.mjs";
+import { migrationInputStateStore } from "../api/state/migration-input-state.mjs";
 
 export class HandleDeployablesTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -21,11 +22,11 @@ export class HandleDeployablesTask extends MigrationTask {
     }
 
     run() {
-        const userDataJson = process.getVariable(this.execution.getId(), "userData");
-        const userData = JSON.parse(userDataJson);
+        const migrationState = migrationInputStateStore.getState();
+        const selectedWorkspaceName = migrationState.selectedWorkspaceName;
 
         const migrationService = new MigrationService();
-        for (const deliveryUnit of userData.du) {
+        for (const deliveryUnit of migrationState.selectedDeliveryUnitNames) {
             const locals = deliveryUnit.locals;
             if (!(locals && locals.length > 0)) {
                 continue;
@@ -33,7 +34,7 @@ export class HandleDeployablesTask extends MigrationTask {
             let deployables = [];
             for (const local of locals) {
                 deployables = migrationService.collectDeployables(
-                    userData.workspace,
+                    selectedWorkspaceName,
                     local.repositoryPath,
                     local.runLocation,
                     local.projectName,
@@ -41,25 +42,7 @@ export class HandleDeployablesTask extends MigrationTask {
                 );
             }
 
-            // Get names of projects with generated synonyms and add them to deployables
-            const projectsWithSynonyms = migrationService.getProjectsWithSynonyms(locals);
-            if (projectsWithSynonyms) {
-                for (const projectName of projectsWithSynonyms) {
-                    const hdbSynonymFilePath = migrationService.getSynonymFilePath(projectName);
-                    const hdbPublicSynonymFilePath = migrationService.getPublicSynonymFilePath(projectName);
-                    const projectDeployables = deployables.find((x) => x.projectName === projectName).artifacts;
-
-                    projectDeployables.push(hdbSynonymFilePath);
-                    projectDeployables.push(hdbPublicSynonymFilePath);
-                }
-            }
-
-            deliveryUnit["deployableArtifactsResult"] =
-                migrationService.handlePossibleDeployableArtifacts(
-                    userData.workspace,
-                    deployables
-                );
+            deliveryUnit.deployableArtifactsResult = migrationService.handlePossibleDeployableArtifacts(selectedWorkspaceName, deployables);
         }
-        process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
     }
 }

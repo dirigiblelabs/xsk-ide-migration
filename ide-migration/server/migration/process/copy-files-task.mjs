@@ -1,6 +1,8 @@
 import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service.mjs";
 import { MigrationTask } from "./task.mjs";
+import { DeliveryUnitsProvider } from "../api/delivery-units-provider.mjs";
+import { migrationInputStateStore } from "../api/state/migration-input-state.mjs";
 
 export class CopyFilesTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -10,27 +12,17 @@ export class CopyFilesTask extends MigrationTask {
     }
 
     run() {
-        const userDataJson = process.getVariable(this.execution.getId(), "userData");
-        const userData = JSON.parse(userDataJson);
-        const userDatabaseData = userData.hana;
-        const connectionUrl = process.getVariable(this.execution.getId(), "connectionUrl");
+        const migrationState = migrationInputStateStore.getState();
+        const deliveryUnitsProvider = new DeliveryUnitsProvider(migrationState.hanaCredentials, migrationState.databaseConnectionUrl);
 
         const migrationService = new MigrationService();
 
-        for (const deliveryUnit of userData.du) {
-            migrationService.setupConnection(
-                userDatabaseData.databaseSchema,
-                userDatabaseData.username,
-                userDatabaseData.password,
-                connectionUrl
-            );
-            const files = migrationService.getAllFilesForDU(deliveryUnit);
+        for (const deliveryUnit of migrationState.selectedDeliveryUnitNames) {
+            const files = deliveryUnitsProvider.getAllDeliveryUnitFilesMetadata(deliveryUnit);
             if (files) {
-                const locals = migrationService.copyFilesLocally(userData.workspace, files);
+                const locals = migrationService.copyFilesLocally(deliveryUnitsProvider, migrationState.selectedWorkspaceName, files);
                 deliveryUnit.locals = locals;
             }
         }
-
-        process.setVariable(this.execution.getId(), "userData", JSON.stringify(userData));
     }
 }

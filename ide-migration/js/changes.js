@@ -36,7 +36,7 @@ migrationLaunchView.controller("ChangesViewController", [
                     username: migrationDataState.dbUsername,
                     password: migrationDataState.dbPassword,
                 },
-                connectionId: migrationDataState.connectionId,
+                tunnelConnectionId: migrationDataState.tunnelConnectionId,
                 workspace: migrationDataState.selectedWorkspace,
                 du: migrationDataState.selectedDeliveryUnits,
                 processInstanceId: migrationDataState.processInstanceId,

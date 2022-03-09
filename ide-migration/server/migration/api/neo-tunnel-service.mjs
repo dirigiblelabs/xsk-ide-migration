@@ -12,7 +12,7 @@
 import { configurations as config } from "@dirigible/core";
 import { MigrationToolExecutor } from "./migration-tool-executor";
 
-const neoClientPath = config.get("user.dir") + "/target/dirigible/resources-neo-sdk/tools/neo.sh";
+const neoClientPath = config.get("user.dir") + "/target/dirigible/resources-neo-sdk/sdk/tools/neo.sh";
 
 export class NeoTunnelService {
     constructor() {
@@ -32,8 +32,8 @@ export class NeoTunnelService {
         return commandResult.result;
     }
 
-    closeTunnel(sessionId) {
-        const script = `${neoClientPath} close-db-tunnel --session-id ${sessionId}`;
+    closeTunnel(tunnelConnectionId) {
+        const script = `${neoClientPath} close-db-tunnel --session-id ${tunnelConnectionId}`;
         this.migrationToolExecutor.execute(script);
     }
 }

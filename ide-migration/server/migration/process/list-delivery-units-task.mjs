@@ -1,6 +1,7 @@
 import { process } from "@dirigible/bpm";
-import { MigrationService } from "../api/migration-service.mjs";
 import { MigrationTask } from "./task.mjs";
+import { DeliveryUnitsProvider } from "../api/delivery-units-provider.mjs";
+import { migrationInputStateStore } from "../api/state/migration-input-state.mjs";
 
 export class ListDeliveryUnitsTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -10,14 +11,14 @@ export class ListDeliveryUnitsTask extends MigrationTask {
     }
 
     run() {
-        const userDataJson = process.getVariable(this.execution.getId(), "userData");
-        const userData = JSON.parse(userDataJson);
-        const userDatabaseData = userData.hana;
-        const connectionUrl = process.getVariable(this.execution.getId(), "connectionUrl");
+        const migrationState = migrationInputStateStore.getState();
 
-        const migrationService = new MigrationService();
-        migrationService.setupConnection(userDatabaseData.databaseSchema, userDatabaseData.username, userDatabaseData.password, connectionUrl);
-        const deliveryUnits = migrationService.getAllDeliveryUnits();
+        const deliveryUnitsProvider = new DeliveryUnitsProvider(
+            migrationState.hanaCredentials, 
+            migrationState.databaseConnectionUrl
+        );
+
+        const deliveryUnits = deliveryUnitsProvider.getAllDeliveryUnitNames();
         process.setVariable(this.execution.getId(), "deliveryUnits", JSON.stringify(deliveryUnits));
     }
 }
