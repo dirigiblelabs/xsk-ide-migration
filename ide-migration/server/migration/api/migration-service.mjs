@@ -580,6 +580,7 @@ export class MigrationService {
     }
 
     addGeneratedFiles(userData, deliveryUnit, workspace, localFiles) {
+        const projectNames = new Set()
         for (const localFile of localFiles) {
             const projectName = localFile.projectName;
             const generatedFiles = deliveryUnit["deployableArtifactsResult"]["generated"].filter((x) => x.projectName === projectName);
@@ -587,6 +588,10 @@ export class MigrationService {
                 this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
             }
             git.commit("migration", "", userData.workspace, projectName, "Artifacts handled", true);
+            projectNames.add(projectName);
+        }
+
+        for(const projectName of projectNames) {
             this.handleHDBTableFunctions(workspace, projectName);
             git.commit("migration", "", userData.workspace, projectName, "HDB Functions handled", true);
         }
