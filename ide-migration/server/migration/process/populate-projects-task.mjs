@@ -28,6 +28,7 @@ export class PopulateProjectsTask extends MigrationTask {
             migrationService.addFilesWithoutGenerated(userData, workspace, localFiles);
             migrationService.addGeneratedFiles(userData, deliveryUnit, workspace, localFiles);
             migrationService.modifyFiles(workspace, localFiles);
+            migrationService.commitProjectModifications(workspace, localFiles);
         }
 
         process.setVariable(this.execution.getId(), "migrationState", "MIGRATION_EXECUTED");
