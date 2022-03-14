@@ -604,7 +604,7 @@ export class MigrationService {
             }
 
             if (repoExists) {
-                git.commit("migration", "", userData.workspace, projectName, "Overwrite existing project", true);
+                git.commit("migration", "", workspace, projectName, "Overwrite existing project", true);
             } else {
                 console.log("Initializing repository...");
                 git.initRepository("migration", "", workspace, projectName, projectName, "Migration initial commit");
