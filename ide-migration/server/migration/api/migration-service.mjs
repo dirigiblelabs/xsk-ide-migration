@@ -460,6 +460,20 @@ export class MigrationService {
         }
         return projectNames;
     }
+    checkExistingSynonymTypes(projectFiles) {
+        const synonyms = [];
+        for (const projectFile of projectFiles) {
+            const projectSynonymPath = this.getSynonymFilePath(local.projectName);
+            const projectPublicSynonymPath = this.getPublicSynonymFilePath(local.projectName);
+
+            if (projectFile.runLocation === projectSynonymPath || projectFile.runLocation === projectPublicSynonymPath) {
+                if (!synonyms.includes(projectFile.runLocation)) {
+                    synonyms.push(projectFile.runLocation);
+                }
+            }
+        }
+        return synonyms;
+    }
 
     addFileToWorkspace(workspaceName, repositoryPath, relativePath, projectName) {
         const workspace = workspaceManager.getWorkspace(workspaceName);
@@ -499,11 +513,11 @@ export class MigrationService {
         for (const resName of resNames) {
             var path = collection.getPath() + "/" + resName;
             let oldProjectRelativePath = parentPath + "/" + resName;
-            
+
             if (path.endsWith(".hdbtablefunction") || path.endsWith(".hdbscalarfunction")) {
                 let resource = collection.getResource(resName);
                 let content = resource.getText();
-                
+
                 let visitor = new HanaVisitor(content);
                 visitor.visit();
                 visitor.removeSchemaRefs();
