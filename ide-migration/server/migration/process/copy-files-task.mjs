@@ -3,6 +3,7 @@ import { MigrationService } from "../api/migration-service.mjs";
 import { MigrationTask } from "./task.mjs";
 import { DeliveryUnitsProvider } from "../api/delivery-units-provider.mjs";
 import { migrationInputStateStore } from "../api/state/migration-input-state.mjs";
+import { deliveryUnitProjectStateStore } from "../api/state/delivery-unit-project-state.mjs";
 
 export class CopyFilesTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -17,11 +18,11 @@ export class CopyFilesTask extends MigrationTask {
 
         const migrationService = new MigrationService();
 
-        for (const deliveryUnit of migrationState.selectedDeliveryUnitNames) {
-            const files = deliveryUnitsProvider.getAllDeliveryUnitFilesMetadata(deliveryUnit);
-            if (files) {
-                const locals = migrationService.copyFilesLocally(deliveryUnitsProvider, migrationState.selectedWorkspaceName, files);
-                deliveryUnit.locals = locals;
+        for (const deliveryUnitName of migrationState.selectedDeliveryUnitNames) {
+            const filesMetadata = deliveryUnitsProvider.getAllDeliveryUnitFilesMetadata(deliveryUnitName);
+            if (filesMetadata) {
+                const locals = migrationService.downloadAllDeliveryUnitFilesLocally(deliveryUnitsProvider, deliveryUnitName, migrationState.selectedWorkspaceName, filesMetadata);
+
             }
         }
     }

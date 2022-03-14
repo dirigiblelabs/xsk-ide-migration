@@ -12,14 +12,12 @@ export class CreateWorkspaceTask extends MigrationTask {
 
     run() {
         const migrationState = migrationInputStateStore.getState();
-        const userDataJson = process.getVariable(this.execution.getId(), "userData");
         const migrationType = process.getVariable(this.execution.getId(), "migrationType")
-        const userData = JSON.parse(userDataJson);
 
         const migrationService = new MigrationService();
 
         if (migrationType === 'FROM_LOCAL_ZIP') {
-            migrationService.createMigratedWorkspace(userData.selectedWorkspace);
+            migrationService.createMigratedWorkspace(migrationState.selectedWorkspaceName);
             return;
         }
 

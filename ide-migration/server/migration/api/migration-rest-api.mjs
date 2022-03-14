@@ -25,8 +25,12 @@ rs.service()
 function startProcessFromZip(ctx, req, res) {
     const userDataJson = req.getJSON();
     const migrationTableIndex = _trackMigrationStart();
+    
+    const migrationInputState = new MigrationState("","","");
+    migrationInputState.selectedWorkspaceName = userDataJson.selectedWorkspace;
+
     const processInstanceId = processService.start("migrationProcess", {
-        userData: JSON.stringify(userDataJson),
+        migrationInputState: migrationInputState,
         migrationType: "FROM_LOCAL_ZIP",
         migrationIndex: migrationTableIndex
     });
@@ -49,9 +53,8 @@ function startProcess(ctx, req, res) {
 
     const migrationTableIndex = _trackMigrationStart();
     const processInstanceId = processService.start("migrationProcess", {
-        migrationType: "FROM_HANA",
         migrationInputState: migrationInputState,
-        userJwtToken: userDataJson.userJwtToken,
+        migrationType: "FROM_HANA",
         migrationIndex: migrationTableIndex
     });
 

@@ -15,53 +15,67 @@ export class MigrationService {
     synonymsGenerator = new SynonymsGenerator();
     hdiGenerator = new HdiGenerator();
 
-    copyFilesLocally(deliveryUnitsProvider, workspaceName, lists) {
+    downloadAllDeliveryUnitFilesLocally(deliveryUnitsProvider, deliveryUnitName, workspaceName, filesMetadata) {
         const workspaceCollection = getOrCreateTemporaryWorkspaceCollection(workspaceName);
         const unmodifiedWorkspaceCollection = getOrCreateTemporaryWorkspaceCollection(workspaceName + "_unmodified");
         const hdbFacade = new XSKHDBCoreFacade();
 
         const locals = [];
-        for (const file of lists) {
-            let fileRunLocation = file.RunLocation;
+        const deliveryUnitProjects = filesMetadata
+            .map(file => {
+                file.projectName = file.packageId.split(".")[0];
+                return file;
+            })
+            .reduce( // group by project name
+                (entryMap, e) => entryMap.set(e.projectName, [...entryMap.get(e.projectName) || [], e]),
+                new Map()
+            )
+            .forEach((value, key, _) => {
+                const projectName = key;
+                const projectFilesMetadata = value;
 
-            // each file's package id is based on its directory
-            // if we do not get only the first part of the package id, we would have several XSK projects created for directories in the same XS app
-            const projectName = file.packageId.split(".")[0];
+                for (const projectFileMetadata of projectFilesMetadata) {
+                    let fileRunLocation = file.RunLocation;
 
-            if (fileRunLocation.startsWith("/" + projectName)) {
-                // remove package id from file location in order to remove XSK project and folder nesting
-                fileRunLocation = fileRunLocation.slice(projectName.length + 1);
-            }
-            let content = deliveryUnitsProvider.getDeliveryUnitFileContent(file);
+                    // each file's package id is based on its directory
+                    // if we do not get only the first part of the package id, we would have several XSK projects created for directories in the same XS app
+                    const projectName = file.packageId.split(".")[0];
 
-            const unmodifiedProjectCollection = getOrCreateTemporaryProjectCollection(
-                unmodifiedWorkspaceCollection,
-                projectName
-            );
-            unmodifiedProjectCollection.createResource(fileRunLocation, content);
+                    if (fileRunLocation.startsWith("/" + projectName)) {
+                        // remove package id from file location in order to remove XSK project and folder nesting
+                        fileRunLocation = fileRunLocation.slice(projectName.length + 1);
+                    }
+                    let content = deliveryUnitsProvider.getDeliveryUnitFileContent(file);
 
-            if (isCalculationView(fileRunLocation)) {
-                content = this.projectFileContentTransformer.transformCalculationView(content);
-            } else if (isTableFunction(fileRunLocation)) {
-                content = this.projectFileContentTransformer.removeSchemasAndTransformViewReferencesInTableFunction(content);
-            }
+                    const unmodifiedProjectCollection = getOrCreateTemporaryProjectCollection(
+                        unmodifiedWorkspaceCollection,
+                        projectName
+                    );
+                    unmodifiedProjectCollection.createResource(fileRunLocation, content);
 
-            const projectCollection = getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
-            const localResource = projectCollection.createResource(fileRunLocation, content);
+                    if (isCalculationView(fileRunLocation)) {
+                        content = this.projectFileContentTransformer.transformCalculationView(content);
+                    } else if (isTableFunction(fileRunLocation)) {
+                        content = this.projectFileContentTransformer.removeSchemasAndTransformViewReferencesInTableFunction(content);
+                    }
 
-            const synonyms = this.synonymsGenerator.createSynonyms(file, content, workspaceCollection, hdbFacade);
+                    const projectCollection = getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
+                    const localResource = projectCollection.createResource(fileRunLocation, content);
 
-            // Add any generated synonym files to locals
-            locals.push(...synonyms.hdbSynonyms);
-            locals.push(...synonyms.hdbPublicSynonyms);
+                    const synonyms = this.synonymsGenerator.createSynonyms(file, content, workspaceCollection, hdbFacade);
 
-            locals.push({
-                repositoryPath: localResource.getPath(),
-                relativePath: fileRunLocation,
-                projectName: projectName,
-                runLocation: file.RunLocation,
+                    // Add any generated synonym files to locals
+                    locals.push(...synonyms.hdbSynonyms);
+                    locals.push(...synonyms.hdbPublicSynonyms);
+
+                    locals.push({
+                        repositoryPath: localResource.getPath(),
+                        relativePath: fileRunLocation,
+                        projectName: projectName,
+                        runLocation: file.RunLocation,
+                    });
+                }
             });
-        }
 
         return locals;
     }
@@ -123,7 +137,7 @@ export class MigrationService {
             filePath.endsWith(".hdbflowgraph" ||
                 isCalculationView(filePath) ||
                 isTableFunction(filePath)) ||
-                isHdbSynonym(filePath)
+            isHdbSynonym(filePath)
         ) {
             console.log("!!!! VM: filePath: " + filePath);
             deployables.find((x) => x.projectName === projectName).artifacts.push(runLocation);
