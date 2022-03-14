@@ -47,9 +47,7 @@ export class HandleDeployablesTask extends MigrationTask {
             if (projectsWithSynonyms) {
                 for (const projectName of projectsWithSynonyms) {
                     const projectDeployables = deployables.find((x) => x.projectName === projectName).artifacts;
-                    for(const sPath of synonymsPaths){
-                        projectDeployables.push(sPath);
-                    }
+                    projectDeployables.push(...synonymsPaths);
                 }
             }
 

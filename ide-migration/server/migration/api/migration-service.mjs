@@ -460,20 +460,15 @@ export class MigrationService {
         }
         return projectNames;
     }
-    checkExistingSynonymTypes(locals) {
+    checkExistingSynonymTypes(projectFiles) {
         const synonyms = [];
-        for (const local of locals) {
+        for (const projectFile of projectFiles) {
             const projectSynonymPath = this.getSynonymFilePath(local.projectName);
             const projectPublicSynonymPath = this.getPublicSynonymFilePath(local.projectName);
 
-            if (local.runLocation === projectSynonymPath) {
-                if (!synonyms.includes(projectSynonymPath)) {
-                    synonyms.push(projectSynonymPath);
-                }
-            }
-            if (local.runLocation === projectPublicSynonymPath) {
-                if (!synonyms.includes(projectPublicSynonymPath)) {
-                    synonyms.push(projectPublicSynonymPath);
+            if (projectFile.runLocation === projectSynonymPath || projectFile.runLocation === projectPublicSynonymPath) {
+                if (!synonyms.includes(projectFile.runLocation)) {
+                    synonyms.push(projectFile.runLocation);
                 }
             }
         }
