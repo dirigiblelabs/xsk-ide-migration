@@ -80,13 +80,14 @@ export class MigrationService {
 
     createHdiFile(workspaceName, project, hdiConfigPath, deployables) {
         const projectName = project.getName();
+        const groupOrContainerHdiValue = projectName.toUpperCase();
         const defaultHanaUser = config.get(HANA_USERNAME, "DBADMIN");
 
         const hdi = {
             configuration: `/${projectName}/${hdiConfigPath.relativePath}`,
             users: [defaultHanaUser],
-            group: projectName,
-            container: projectName,
+            group: groupOrContainerHdiValue,
+            container: groupOrContainerHdiValue,
             deploy: deployables,
             undeploy: [],
         };
