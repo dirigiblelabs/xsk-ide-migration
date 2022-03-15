@@ -463,8 +463,8 @@ export class MigrationService {
     checkExistingSynonymTypes(projectFiles) {
         const synonyms = [];
         for (const projectFile of projectFiles) {
-            const projectSynonymPath = this.getSynonymFilePath(local.projectName);
-            const projectPublicSynonymPath = this.getPublicSynonymFilePath(local.projectName);
+            const projectSynonymPath = this.getSynonymFilePath(projectFile.projectName);
+            const projectPublicSynonymPath = this.getPublicSynonymFilePath(projectFile.projectName);
 
             if (projectFile.runLocation === projectSynonymPath || projectFile.runLocation === projectPublicSynonymPath) {
                 if (!synonyms.includes(projectFile.runLocation)) {
