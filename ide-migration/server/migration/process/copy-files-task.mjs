@@ -16,7 +16,7 @@ export class CopyFilesTask extends MigrationTask {
         const connectionUrl = process.getVariable(this.execution.getId(), "connectionUrl");
 
         const migrationService = new MigrationService();
-
+        migrationService.removeTemporaryFolders(userData.workspace);
         for (const deliveryUnit of userData.du) {
             migrationService.setupConnection(
                 userDatabaseData.databaseSchema,
