@@ -80,7 +80,7 @@ export class MigrationService {
 
     createHdiFile(deliveryUnitName, workspaceName, project, hdiConfigPath, deployables) {
         const projectName = project.getName();
-        const groupOrContainerHdiValue = `${deliveryUnitName}_${projectName}`.toUpperCase();
+        const groupOrContainerHdiValue = this._buildCalcViewModel(deliveryUnitName, projectName);
         const defaultHanaUser = config.get(HANA_USERNAME, "DBADMIN");
 
         const hdi = {
