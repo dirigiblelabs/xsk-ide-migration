@@ -365,6 +365,15 @@ export class MigrationService {
 
         return workspaceCollection.createCollection(projectName);
     }
+    removeTemporaryFolders(workspaceName){
+        let directories = [workspaceName,workspaceName+'_unmodified']
+        for(const directory of  directories){
+            const workspaceCollection = repositoryManager.getCollection(directory);
+            if (workspaceCollection.exists()) {
+                workspaceCollection.delete();
+            }
+        }
+    }
 
     _getOrCreateHdbSynonymFile(workspaceName, projectName, hdbSynonymFileName) {
         const workspaceCollection = repositoryManager.getCollection(workspaceName);
@@ -389,6 +398,7 @@ export class MigrationService {
             },
         };
     }
+
 
     createMigratedWorkspace(workspaceName) {
         let workspace;
