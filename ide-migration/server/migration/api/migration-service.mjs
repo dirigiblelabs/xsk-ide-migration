@@ -44,14 +44,14 @@ export class MigrationService {
         return this.repo.getAllDeliveryUnits();
     }
 
-    handlePossibleDeployableArtifacts(workspaceName, deployables) {
+    handlePossibleDeployableArtifacts(deliveryUnitName, workspaceName, deployables) {
         let generatedFiles = [];
         let updatedFiles = [];
         for (const deployable of deployables) {
             if (deployable.artifacts && deployable.artifacts.length > 0) {
                 const hdiConfigPath = this.createHdiConfigFile(workspaceName, deployable.project);
                 generatedFiles.push(hdiConfigPath);
-                let hdiPath = this.createHdiFile(workspaceName, deployable.project, hdiConfigPath, deployable.artifacts);
+                let hdiPath = this.createHdiFile(deliveryUnitName, workspaceName, deployable.project, hdiConfigPath, deployable.artifacts);
                 generatedFiles.push(hdiPath);
             }
         }
@@ -78,15 +78,16 @@ export class MigrationService {
         };
     }
 
-    createHdiFile(workspaceName, project, hdiConfigPath, deployables) {
+    createHdiFile(deliveryUnitName, workspaceName, project, hdiConfigPath, deployables) {
         const projectName = project.getName();
+        const groupOrContainerHdiValue = `${deliveryUnitName}_${projectName}`.toUpperCase();
         const defaultHanaUser = config.get(HANA_USERNAME, "DBADMIN");
 
         const hdi = {
             configuration: `/${projectName}/${hdiConfigPath.relativePath}`,
             users: [defaultHanaUser],
-            group: projectName,
-            container: projectName,
+            group: groupOrContainerHdiValue,
+            container: groupOrContainerHdiValue,
             deploy: deployables,
             undeploy: [],
         };
