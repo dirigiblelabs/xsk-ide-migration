@@ -366,9 +366,9 @@ export class MigrationService {
         return workspaceCollection.createCollection(projectName);
     }
     removeTemporaryFolders(workspaceName){
-        let directories = [workspaceName,workspaceName+'_unmodified']
-        for(const directory of  directories){
-            const workspaceCollection = repositoryManager.getCollection(directory);
+        let collectionNames = [workspaceName,workspaceName+'_unmodified']
+        for(const collectionName of  collectionNames){
+            const workspaceCollection = repositoryManager.getCollection(collectionName);
             if (workspaceCollection.exists()) {
                 workspaceCollection.delete();
             }
@@ -398,7 +398,6 @@ export class MigrationService {
             },
         };
     }
-
 
     createMigratedWorkspace(workspaceName) {
         let workspace;
