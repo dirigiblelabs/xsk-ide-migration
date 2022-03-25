@@ -615,30 +615,30 @@ export class MigrationService {
         let workspace = this.getOrCreateWorkspace(workspaceName);
         let project = this.getOrCreateProject(workspace, localFiles[0].projectName);
         const projectNames = new Set()
-        for (const localFile of localFiles) {
-            const projectName = localFile.projectName;
+        // for (const localFile of localFiles) {
+            const projectName = localFiles[0].projectName;
             const generatedFiles = deliveryUnit["deployableArtifactsResult"]["generated"].filter((x) => x.projectName === projectName);
             for (const generatedFile of generatedFiles) {
                 this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName, project);
             }
             projectNames.add(projectName);
-        }
+        // }
 
         for (const projectName of projectNames) {
-            this.handleHDBTableFunctions(workspace, projectName);
+            this.handleHDBTableFunctions(workspaceName, projectName);
         }
     }
 
     modifyFiles(workspace, localFiles) {
-        for (const localFile of localFiles) {
-            const projectName = localFile.projectName;
+        // for (const localFile of localFiles) {
+            const projectName = localFiles[0].projectName;
             xskModificator.interceptXSKProject(workspace, projectName);
-        }
+        // }
     }
 
     commitProjectModifications(workspace, localFiles) {
-        for (const localFile of localFiles) {
-            const projectName = localFile.projectName;
+        // for (const localFile of localFiles) {
+            const projectName = localFiles[0].projectName;
             let repos = git.getGitRepositories(workspace);
             let repoExists = false;
             for (const repo of repos) {
@@ -654,6 +654,6 @@ export class MigrationService {
                 console.log("Initializing repository...");
                 git.initRepository("migration", "", workspace, projectName, projectName, "Migration initial commit");
             }
-        }
+        // }
     }
 }
