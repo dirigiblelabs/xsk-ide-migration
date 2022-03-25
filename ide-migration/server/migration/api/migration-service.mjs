@@ -414,20 +414,33 @@ export class MigrationService {
         return workspace;
     }
 
-    collectDeployables(workspaceName, filePath, runLocation, projectName, oldDeployables) {
-        let workspace = workspaceManager.getWorkspace(workspaceName);
-        if (!workspace) {
-            workspaceManager.createWorkspace(workspaceName);
-            workspace = workspaceManager.getWorkspace(workspaceName);
+    getOrCreateWorkspace(workspaceName) {
+      let workspace = workspaceManager.getWorkspace(workspaceName);
+      if (!workspace) {
+        workspaceManager.createWorkspace(workspaceName);
+        workspace = workspaceManager.getWorkspace(workspaceName);
+      }
+      return workspace;
+    }
+
+    getOrCreateProject(workspace, projectName) {
+      if (!workspace) {
+         throw new Error("No workspace provided");
+      }
+      let project = workspace.getProject(projectName);
+      if (!project) {
+        workspace.createProject(projectName);
+        project = workspace.getProject(projectName);
+      }
+      return project;
+    }
+
+    collectDeployables(workspace, filePath, runLocation, projectName, project, oldDeployables) {
+        if (!workspace || !project) {
+         throw new Error("Workspace or project is null");
         }
 
         const deployables = oldDeployables;
-
-        let project = workspace.getProject(projectName);
-        if (!project) {
-            workspace.createProject(projectName);
-            project = workspace.getProject(projectName);
-        }
 
         if (!deployables.find((x) => x.projectName === projectName)) {
             deployables.push({
@@ -482,9 +495,10 @@ export class MigrationService {
         return synonyms;
     }
 
-    addFileToWorkspace(workspaceName, repositoryPath, relativePath, projectName) {
-        const workspace = workspaceManager.getWorkspace(workspaceName);
-        const project = workspace.getProject(projectName);
+    addFileToWorkspace(workspace, repositoryPath, relativePath, projectName, project) {
+        if (!workspace || !project) {
+          throw new Error("Workspace or project is null");
+        }
 
         if (project.existsFile(relativePath)) {
             project.deleteFile(relativePath);
@@ -583,19 +597,29 @@ export class MigrationService {
         hdiFile.setText(hdiJson);
     }
 
-    addFilesWithoutGenerated(userData, workspace, localFiles) {
+    addFilesWithoutGenerated(workspaceName, localFiles) {
+        if (!(localFiles && localFiles.length > 0)) {
+            return;
+        }
+        let workspace = this.getOrCreateWorkspace(workspaceName);
+        let project = this.getOrCreateProject(workspace, localFiles[0].projectName);
         for (const localFile of localFiles) {
-            this.addFileToWorkspace(workspace, localFile.repositoryPath, localFile.relativePath, localFile.projectName);
+            this.addFileToWorkspace(workspace, localFile.repositoryPath, localFile.relativePath, localFile.projectName, project);
         }
     }
 
-    addGeneratedFiles(userData, deliveryUnit, workspace, localFiles) {
+    addGeneratedFiles(deliveryUnit, workspaceName, localFiles) {
+        if (!(localFiles && localFiles.length > 0)) {
+            return;
+        }
+        let workspace = this.getOrCreateWorkspace(workspaceName);
+        let project = this.getOrCreateProject(workspace, localFiles[0].projectName);
         const projectNames = new Set()
         for (const localFile of localFiles) {
             const projectName = localFile.projectName;
             const generatedFiles = deliveryUnit["deployableArtifactsResult"]["generated"].filter((x) => x.projectName === projectName);
             for (const generatedFile of generatedFiles) {
-                this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
+                this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName, project);
             }
             projectNames.add(projectName);
         }

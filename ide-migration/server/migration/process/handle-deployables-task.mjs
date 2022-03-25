@@ -31,16 +31,21 @@ export class HandleDeployablesTask extends MigrationTask {
                 continue;
             }
             let deployables = [];
+            let workspace = migrationService.getOrCreateWorkspace(userData.workspace);
+            let projectName = locals[0].projectName;
+            let project = migrationService.getOrCreateProject(workspace, projectName);
+            console.log("START COLLECTING DEPLOYABLES");
             for (const local of locals) {
                 deployables = migrationService.collectDeployables(
-                    userData.workspace,
+                    workspace,
                     local.repositoryPath,
                     local.runLocation,
                     local.projectName,
+                    project,
                     deployables
                 );
             }
-
+            console.log("FINISH COLLECTING DEPLOYABLES");
             // Get names of projects with generated synonyms and add them to deployables
             const projectsWithSynonyms = migrationService.getProjectsWithSynonyms(locals);
             const synonymsPaths = migrationService.checkExistingSynonymTypes(locals)

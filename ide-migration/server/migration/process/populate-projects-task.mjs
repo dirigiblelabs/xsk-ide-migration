@@ -25,9 +25,13 @@ export class PopulateProjectsTask extends MigrationTask {
                 continue;
             }
 
-            migrationService.addFilesWithoutGenerated(userData, workspace, localFiles);
-            migrationService.addGeneratedFiles(userData, deliveryUnit, workspace, localFiles);
+            console.log("START ADDFILESWITHOUTGENERATED");
+            migrationService.addFilesWithoutGenerated(workspace, localFiles);
+            console.log("START ADDGENERATED");
+            migrationService.addGeneratedFiles(deliveryUnit, workspace, localFiles);
+            console.log("START MODIFYFILES");
             migrationService.modifyFiles(workspace, localFiles);
+            console.log("START COMMIT");
             migrationService.commitProjectModifications(workspace, localFiles);
 
         }
