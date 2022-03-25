@@ -18,7 +18,6 @@ const ByteArrayOutputStream = Java.type("java.io.ByteArrayOutputStream");
 const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKProjectMigrationInterceptor");
 const XSKHDBCoreFacade = Java.type("com.sap.xsk.hdb.ds.facade.XSKHDBCoreSynchronizationFacade");
 const hdbDDModel = "com.sap.xsk.hdb.ds.model.hdbdd.XSKDataStructureCdsModel";
-const schemaModel = "com.sap.xsk.hdb.ds.model.hdbschema.XSKDataStructureHDBSchemaModel";
 const xskModificator = new XSKProjectMigrationInterceptor();
 
 export class MigrationService {
@@ -27,7 +26,19 @@ export class MigrationService {
 
     synonymFileName = "hdi-synonyms.hdbsynonym";
     publicSynonymFileName = "hdi-public-synonyms.hdbpublicsynonym";
-    fileExtsForHDI = [".hdbcalculationview", ".calculationview", ".analyticprivilege", ".hdbanalyticprivilege", ".hdbflowgraph", ".hdbtablefunction"];
+    modelsWithoutSynonym = ["com.sap.xsk.hdb.ds.model.hdbschema.XSKDataStructureHDBSchemaModel", "com.sap.xsk.hdb.ds.model.hdbsequence.XSKDataStructureHDBSequenceModel"];
+    fileToPublicSynonymNameFunc = {
+        ".hdbcalculationview": function (name) {
+            return name.split(":").pop();
+        },
+        ".calculationview": function (name) {
+            return name.split(":").pop();
+        },
+        ".analyticprivilege": function (name) { return name; },
+        ".hdbanalyticprivilege": function (name) { return name; },
+        ".hdbflowgraph": function (name) { return name; },
+        ".hdbtablefunction": function (name) { return name; }
+    };
 
     setupConnection(databaseName, databaseUser, databaseUserPassword, connectionUrl) {
         database.createDataSource(databaseName, "com.sap.db.jdbc.Driver", connectionUrl, databaseUser, databaseUserPassword, null);
@@ -227,15 +238,19 @@ export class MigrationService {
             const modelName = parsedData.getName();
             const loc = parsedData.getLocation();
             const fileExt = loc.substring(loc.lastIndexOf('.'), loc.length);
-            if (this.fileExtsForHDI.indexOf(fileExt) >= 0) {
-                const hdbPublicSynonym = this._generateHdbPublicSynonym(modelName, hdiSchema);
+            let fileNameFunc = this.fileToPublicSynonymNameFunc[fileExt];
+            if (this.modelsWithoutSynonym.indexOf(dataModelType) >= 0) {
+                // synonym not needed
+                console.log("Synonym won't be generated for file " + loc);
+            } else if (fileNameFunc) {
+                // public synonym needed
+                const hdbPublicSynonym = this._generateHdbPublicSynonym(modelName, hdiSchema, fileNameFunc);
                 publicSynonyms.push(hdbPublicSynonym);
-            } else if (dataModelType != schemaModel) {
+            } else {
+                // hdb synonym needed
                 const modelSchema = parsedData.getSchema();
                 const hdbSynonym = this._generateHdbSynonym(modelName, modelSchema);
                 synonyms.push(hdbSynonym);
-            } else {
-                console.log("Synonym won't be generated for file " + loc);
             }
         }
 
@@ -271,8 +286,8 @@ export class MigrationService {
         };
     }
 
-    _generateHdbPublicSynonym(name, schemaName) {
-        const trimmedName = name.split(":").pop();
+    _generateHdbPublicSynonym(name, schemaName, fileNameFunc) {
+        const trimmedName = fileNameFunc(name);
         return {
             name: name,
             value: {
@@ -367,9 +382,9 @@ export class MigrationService {
 
         return workspaceCollection.createCollection(projectName);
     }
-    removeTemporaryFolders(workspaceName){
-        let collectionNames = [workspaceName,workspaceName+'_unmodified']
-        for(const collectionName of  collectionNames){
+    removeTemporaryFolders(workspaceName) {
+        let collectionNames = [workspaceName, workspaceName + '_unmodified']
+        for (const collectionName of collectionNames) {
             const workspaceCollection = repositoryManager.getCollection(collectionName);
             if (workspaceCollection.exists()) {
                 workspaceCollection.delete();
@@ -438,7 +453,8 @@ export class MigrationService {
         }
 
         let fileExt = filePath.substring(filePath.lastIndexOf('.'), filePath.length);
-        if (this.fileExtsForHDI.indexOf(fileExt) >= 0) {
+        let fileNameFunc = this.fileToPublicSynonymNameFunc[fileExt];
+        if (fileNameFunc) {
             deployables.find((x) => x.projectName === projectName).artifacts.push(runLocation);
         }
 
