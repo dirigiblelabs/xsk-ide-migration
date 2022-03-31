@@ -11,6 +11,7 @@
  */
 import { process } from "@dirigible/bpm"
 import { repository as repositoryManager } from "@dirigible/platform"
+import { MigrationDB } from "../api/migration-db.mjs";
 import { MigrationTask } from "./task.mjs";
 
 export class UnzipToTemporaryFolder extends MigrationTask {
@@ -36,7 +37,7 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 			let zipProjectName = resources.getName();
 
 			getAllFiles(resources);
-
+			console.log("GETTING ALL FILES")
 			function getAllFiles(resources) {
 				getResourcesFromFOlder(resources)
 			}
@@ -55,6 +56,13 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 				}
 			}
 
+			const duTableRef = MigrationDB.createDuTable()
+			let duObjectId = MigrationDB.addDuDetails(composeJson(zipProjectName, filesDetails), duTableRef);
+
+			const fileTableRef = MigrationDB.createLocalFileDetailsTable();
+
+
+			console.log("START ITERATING")
 			for (const localFile of localFiles) {
 				const repositoryPath = localFile.getPath();
 				const runLocation = repositoryPath.split("/").slice(4).join("/");
@@ -64,16 +72,23 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 					repositoryPath: repositoryPath,
 					relativePath: "/" + relativePath,
 					projectName: zipProjectName,
-					runLocation: "/" + runLocation
+					runLocation: "/" + runLocation,
+					deliveryUnitId: duObjectId
 				};
 
-				filesDetails.push(fileDetails)
+				
+				let fileId = MigrationDB.addFileDetails(fileDetails, fileTableRef)
+				//filesDetails.push(fileDetails)
+				filesDetails.push({fileId});
 			}
+			console.log("DONE ITERATING")
 
-			userData.du.push(composeJson(zipProjectName, filesDetails))
+			//userData.du.push(composeJson(zipProjectName, filesDetails));
+			userData.du.push({duObjectId, locals: filesDetails});
 		}
+		console.log("SETTING VARIABLE")
 		process.setVariable(this.execution.getId(), 'userData', JSON.stringify(userData));
-
+		console.log("DONE SETTING VARIABLE")
 		function composeJson(projectName, filesDetails) {
 			let duObject = {}
 			duObject.ach = "";
@@ -87,7 +102,7 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 			duObject.version_patch = "";
 			duObject.version_sp = "";
 			duObject.name = projectName
-			duObject.locals = filesDetails;
+			// duObject.locals = filesDetails;
 			return duObject;
 		}
 

@@ -602,9 +602,13 @@ export class MigrationService {
             return;
         }
         let workspace = this.getOrCreateWorkspace(workspaceName);
-        let project = this.getOrCreateProject(workspace, localFiles[0].projectName);
+        let project;
         for (const localFile of localFiles) {
-            this.addFileToWorkspace(workspace, localFile.repositoryPath, localFile.relativePath, localFile.projectName, project);
+            const fileData = MigrationDB.getFileDetails(localFile.fileId);
+            if (!project) {
+                project = this.getOrCreateProject(workspace, fileData.projectName);
+            }
+            this.addFileToWorkspace(workspace, fileData.repositoryPath, fileData.relativePath, localFile.projectName, project);
         }
     }
 
@@ -613,10 +617,12 @@ export class MigrationService {
             return;
         }
         let workspace = this.getOrCreateWorkspace(workspaceName);
-        let project = this.getOrCreateProject(workspace, localFiles[0].projectName);
+        const firstFile = MigrationDB.getFileDetails(localFiles[0].fileId);
+        const projectName = firstFile.projectName;
+        let project = this.getOrCreateProject(workspace, projectName);
         const projectNames = new Set()
         // for (const localFile of localFiles) {
-            const projectName = localFiles[0].projectName;
+            
             const generatedFiles = deliveryUnit["deployableArtifactsResult"]["generated"].filter((x) => x.projectName === projectName);
             for (const generatedFile of generatedFiles) {
                 this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName, project);
@@ -631,14 +637,16 @@ export class MigrationService {
 
     modifyFiles(workspace, localFiles) {
         // for (const localFile of localFiles) {
-            const projectName = localFiles[0].projectName;
+            const firstFile = MigrationDB.getFileDetails(localFiles[0].fileId);
+            const projectName = firstFile.projectName;
             xskModificator.interceptXSKProject(workspace, projectName);
         // }
     }
 
     commitProjectModifications(workspace, localFiles) {
         // for (const localFile of localFiles) {
-            const projectName = localFiles[0].projectName;
+            const firstFile = MigrationDB.getFileDetails(localFiles[0].fileId);
+            const projectName = firstFile.projectName;
             let repos = git.getGitRepositories(workspace);
             let repoExists = false;
             for (const repo of repos) {

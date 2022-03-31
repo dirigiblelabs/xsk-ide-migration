@@ -4,6 +4,7 @@ import { MigrationTask } from "./task.mjs";
 import { configurations as config } from "@dirigible/core";
 import { TrackService } from "../api/track-service";
 import { DiffToolService } from "../api/diff-tool-executor.mjs";
+import { MigrationDB } from "../api/migration-db.mjs";
 
 export class PopulateProjectsTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -26,7 +27,7 @@ export class PopulateProjectsTask extends MigrationTask {
             }
 
             console.log("START ADDFILESWITHOUTGENERATED");
-            //migrationService.addFilesWithoutGenerated(workspace, localFiles);
+            migrationService.addFilesWithoutGenerated(workspace, localFiles);
             console.log("START ADDGENERATED");
             migrationService.addGeneratedFiles(deliveryUnit, workspace, localFiles);
             console.log("START MODIFYFILES");
