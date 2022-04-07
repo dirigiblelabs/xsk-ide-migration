@@ -7,6 +7,7 @@ import { client as git } from "@dirigible/git";
 import { HanaRepository } from "../repository/hana-repository";
 import { HanaVisitor } from "./hana-visitor.mjs";
 import { getHdiFilePlugins } from "../repository/hdi-plugins";
+import { migrationDB } from "./migration-db.mjs";
 
 const HANA_USERNAME = "HANA_USERNAME";
 const TransformerFactory = Java.type("javax.xml.transform.TransformerFactory");
@@ -367,9 +368,9 @@ export class MigrationService {
 
         return workspaceCollection.createCollection(projectName);
     }
-    removeTemporaryFolders(workspaceName){
-        let collectionNames = [workspaceName,workspaceName+'_unmodified']
-        for(const collectionName of  collectionNames){
+    removeTemporaryFolders(workspaceName) {
+        let collectionNames = [workspaceName, workspaceName + '_unmodified']
+        for (const collectionName of collectionNames) {
             const workspaceCollection = repositoryManager.getCollection(collectionName);
             if (workspaceCollection.exists()) {
                 workspaceCollection.delete();
@@ -415,29 +416,29 @@ export class MigrationService {
     }
 
     getOrCreateWorkspace(workspaceName) {
-      let workspace = workspaceManager.getWorkspace(workspaceName);
-      if (!workspace) {
-        workspaceManager.createWorkspace(workspaceName);
-        workspace = workspaceManager.getWorkspace(workspaceName);
-      }
-      return workspace;
+        let workspace = workspaceManager.getWorkspace(workspaceName);
+        if (!workspace) {
+            workspaceManager.createWorkspace(workspaceName);
+            workspace = workspaceManager.getWorkspace(workspaceName);
+        }
+        return workspace;
     }
 
     getOrCreateProject(workspace, projectName) {
-      if (!workspace) {
-         throw new Error("No workspace provided");
-      }
-      let project = workspace.getProject(projectName);
-      if (!project) {
-        workspace.createProject(projectName);
-        project = workspace.getProject(projectName);
-      }
-      return project;
+        if (!workspace) {
+            throw new Error("No workspace provided");
+        }
+        let project = workspace.getProject(projectName);
+        if (!project) {
+            workspace.createProject(projectName);
+            project = workspace.getProject(projectName);
+        }
+        return project;
     }
 
     collectDeployables(workspace, filePath, runLocation, projectName, project, oldDeployables) {
         if (!workspace || !project) {
-         throw new Error("Workspace or project is null");
+            throw new Error("Workspace or project is null");
         }
 
         const deployables = oldDeployables;
@@ -497,7 +498,7 @@ export class MigrationService {
 
     addFileToWorkspace(workspace, repositoryPath, relativePath, projectName, project) {
         if (!workspace || !project) {
-          throw new Error("Workspace or project is null");
+            throw new Error("Workspace or project is null");
         }
 
         if (project.existsFile(relativePath)) {
@@ -604,7 +605,7 @@ export class MigrationService {
         let workspace = this.getOrCreateWorkspace(workspaceName);
         let project;
         for (const localFile of localFiles) {
-            const fileData = MigrationDB.getFileDetails(localFile.fileId);
+            const fileData = migrationDB.getFileDetails(localFile.fileId);
             if (!project) {
                 project = this.getOrCreateProject(workspace, fileData.projectName);
             }
@@ -617,17 +618,17 @@ export class MigrationService {
             return;
         }
         let workspace = this.getOrCreateWorkspace(workspaceName);
-        const firstFile = MigrationDB.getFileDetails(localFiles[0].fileId);
+        const firstFile = migrationDB.getFileDetails(localFiles[0].fileId);
         const projectName = firstFile.projectName;
         let project = this.getOrCreateProject(workspace, projectName);
         const projectNames = new Set()
         // for (const localFile of localFiles) {
-            
-            const generatedFiles = deliveryUnit["deployableArtifactsResult"]["generated"].filter((x) => x.projectName === projectName);
-            for (const generatedFile of generatedFiles) {
-                this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName, project);
-            }
-            projectNames.add(projectName);
+
+        const generatedFiles = deliveryUnit["deployableArtifactsResult"]["generated"].filter((x) => x.projectName === projectName);
+        for (const generatedFile of generatedFiles) {
+            this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName, project);
+        }
+        projectNames.add(projectName);
         // }
 
         for (const projectName of projectNames) {
@@ -637,31 +638,31 @@ export class MigrationService {
 
     modifyFiles(workspace, localFiles) {
         // for (const localFile of localFiles) {
-            const firstFile = MigrationDB.getFileDetails(localFiles[0].fileId);
-            const projectName = firstFile.projectName;
-            xskModificator.interceptXSKProject(workspace, projectName);
+        const firstFile = migrationDB.getFileDetails(localFiles[0].fileId);
+        const projectName = firstFile.projectName;
+        xskModificator.interceptXSKProject(workspace, projectName);
         // }
     }
 
     commitProjectModifications(workspace, localFiles) {
         // for (const localFile of localFiles) {
-            const firstFile = MigrationDB.getFileDetails(localFiles[0].fileId);
-            const projectName = firstFile.projectName;
-            let repos = git.getGitRepositories(workspace);
-            let repoExists = false;
-            for (const repo of repos) {
-                if (repo.getName() === projectName) {
-                    repoExists = true;
-                    break;
-                }
+        const firstFile = migrationDB.getFileDetails(localFiles[0].fileId);
+        const projectName = firstFile.projectName;
+        let repos = git.getGitRepositories(workspace);
+        let repoExists = false;
+        for (const repo of repos) {
+            if (repo.getName() === projectName) {
+                repoExists = true;
+                break;
             }
+        }
 
-            if (repoExists) {
-                git.commit("migration", "", workspace, projectName, "Overwrite existing project", true);
-            } else {
-                console.log("Initializing repository...");
-                git.initRepository("migration", "", workspace, projectName, projectName, "Migration initial commit");
-            }
+        if (repoExists) {
+            git.commit("migration", "", workspace, projectName, "Overwrite existing project", true);
+        } else {
+            console.log("Initializing repository...");
+            git.initRepository("migration", "", workspace, projectName, projectName, "Migration initial commit");
+        }
         // }
     }
 }

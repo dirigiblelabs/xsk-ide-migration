@@ -11,7 +11,7 @@
  */
 import { process } from "@dirigible/bpm"
 import { repository as repositoryManager } from "@dirigible/platform"
-import { MigrationDB } from "../api/migration-db.mjs";
+import migrationDB from "../api/migration-db.mjs";
 import { MigrationTask } from "./task.mjs";
 
 export class UnzipToTemporaryFolder extends MigrationTask {
@@ -56,11 +56,7 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 				}
 			}
 
-			const duTableRef = MigrationDB.createDuTable()
-			let duObjectId = MigrationDB.addDuDetails(composeJson(zipProjectName, filesDetails), duTableRef);
-
-			const fileTableRef = MigrationDB.createLocalFileDetailsTable();
-
+			let duObjectId = migrationDB.addDuDetails(composeJson(zipProjectName, filesDetails), duTableRef);
 
 			console.log("START ITERATING")
 			for (const localFile of localFiles) {
@@ -76,15 +72,15 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 					deliveryUnitId: duObjectId
 				};
 
-				
-				let fileId = MigrationDB.addFileDetails(fileDetails, fileTableRef)
+
+				let fileId = migrationDB.addFileDetails(fileDetails, fileTableRef)
 				//filesDetails.push(fileDetails)
-				filesDetails.push({fileId});
+				filesDetails.push({ fileId });
 			}
 			console.log("DONE ITERATING")
 
 			//userData.du.push(composeJson(zipProjectName, filesDetails));
-			userData.du.push({duObjectId, locals: filesDetails});
+			userData.du.push({ duObjectId, locals: filesDetails });
 		}
 		console.log("SETTING VARIABLE")
 		process.setVariable(this.execution.getId(), 'userData', JSON.stringify(userData));

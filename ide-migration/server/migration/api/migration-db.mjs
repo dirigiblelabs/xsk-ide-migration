@@ -1,12 +1,16 @@
 var dao = require("db/v4/dao");
 
-export class MigrationDB {
+class MigrationDB {
 
-    setup(duName) {
+    filesDetailsRef;
+    duDetailsRef;
 
+    constructor() {
+        this.filesDetailsRef = this.createLocalFileDetailsTable();
+        this.duDetailsRef = this.createDuTable();
     }
 
-    static createLocalFileDetailsTable() {
+    createLocalFileDetailsTable() {
 
         var fileDetailsRef = dao.create({
             table: `LOCAL_FILE_DETAILS`,
@@ -44,12 +48,17 @@ export class MigrationDB {
         });
 
         //Create CUSTOMERS table
-        fileDetailsRef.createTable();
+        try {
+            fileDetailsRef.createTable();
+        } catch (err) {
+            console.log(err.message)
+        }
+
 
         return fileDetailsRef;
     }
 
-    static createDuTable() {
+    createDuTable() {
 
         var tableRef = dao.create({
             table: `DELIVERY_UNIT`,
@@ -111,33 +120,43 @@ export class MigrationDB {
             }]
         });
 
-        tableRef.createTable();
+        try {
+            tableRef.createTable();
+        } catch (err) {
+            console.log(err.message)
+        }
 
         return tableRef;
 
     }
 
-    static addDuDetails(data, tableRef) {
+    addDuDetails(data) {
         try {
-            var recordId = tableRef.insert(data);
+            var recordId = this.duDetailsRef.insert(data);
             return recordId;
         } catch (err) {
             console.log(err.message)
         }
     }
 
-    static addFileDetails(details, tableRef) {
+    addFileDetails(details) {
 
         try {
-            var fileDetailsId = tableRef.insert(details);
+            var fileDetailsId = this.filesDetailsRef.insert(details);
             return fileDetailsId;
         } catch (err) {
             console.log(err.message)
         }
     }
 
-    static getFileDetails(id, tableRef) {
-        var details = tableRef.find(id);
+    getFileDetails(id) {
+        var details = this.filesDetailsRef.find(id);
         return details;
     }
 }
+
+export const migrationDB = new MigrationDB();
+
+// Object.freeze(migrationDB);
+
+// export default migrationDB;
