@@ -116,13 +116,21 @@ export class MigrationService {
         const unmodifiedWorkspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName + "_unmodified");
         const hdbFacade = new XSKHDBCoreFacade();
 
+        let projectName;
+
         const locals = [];
         for (const file of lists) {
             let fileRunLocation = file.RunLocation;
 
             // each file's package id is based on its directory
             // if we do not get only the first part of the package id, we would have several XSK projects created for directories in the same XS app
-            const projectName = file.packageId.split(".")[0];
+            const fileProjectName = file.packageId.split(".")[0];
+            if (!projectName) {
+                projectName = fileProjectName;
+            }
+            if (projectName !== fileProjectName) {
+                throw new Error("Files with different project names in the same DU detected");
+            }
 
             if (fileRunLocation.startsWith("/" + projectName)) {
                 // remove package id from file location in order to remove XSK project and folder nesting
@@ -167,18 +175,19 @@ export class MigrationService {
             );
 
             // Add any generated synonym files to locals
-            locals.push(...hdbSynonyms);
-            locals.push(...hdbPublicSynonyms);
+            // locals.push(...hdbSynonyms);
+            // locals.push(...hdbPublicSynonyms);
 
-            locals.push({
-                repositoryPath: localResource.getPath(),
-                relativePath: fileRunLocation,
-                projectName: projectName,
-                runLocation: file.RunLocation,
-            });
+            // locals.push({
+            //     repositoryPath: localResource.getPath(),
+            //     relativePath: fileRunLocation,
+            //     projectName: projectName,
+            //     runLocation: file.RunLocation,
+            // });
         }
 
-        return locals;
+        //return locals;
+        return projectName;
     }
 
     _parseArtifact(fileName, filePath, fileContent, workspacePath, hdbFacade) {
@@ -367,9 +376,9 @@ export class MigrationService {
 
         return workspaceCollection.createCollection(projectName);
     }
-    removeTemporaryFolders(workspaceName){
-        let collectionNames = [workspaceName,workspaceName+'_unmodified']
-        for(const collectionName of  collectionNames){
+    removeTemporaryFolders(workspaceName) {
+        let collectionNames = [workspaceName, workspaceName + '_unmodified']
+        for (const collectionName of collectionNames) {
             const workspaceCollection = repositoryManager.getCollection(collectionName);
             if (workspaceCollection.exists()) {
                 workspaceCollection.delete();
@@ -467,6 +476,7 @@ export class MigrationService {
         }
         return projectNames;
     }
+
     checkExistingSynonymTypes(projectFiles) {
         const synonyms = [];
         for (const projectFile of projectFiles) {
@@ -612,6 +622,10 @@ export class MigrationService {
         }
     }
 
+    interceptProject(workspace, projectName) {
+        xskModificator.interceptXSKProject(workspace, projectName);
+    }
+
     commitProjectModifications(workspace, localFiles) {
         for (const localFile of localFiles) {
             const projectName = localFile.projectName;
@@ -630,6 +644,24 @@ export class MigrationService {
                 console.log("Initializing repository...");
                 git.initRepository("migration", "", workspace, projectName, projectName, "Migration initial commit");
             }
+        }
+    }
+
+    commitProjectModificationsWithoutLoop(workspace, projectName) {
+        let repos = git.getGitRepositories(workspace);
+        let repoExists = false;
+        for (const repo of repos) {
+            if (repo.getName() === projectName) {
+                repoExists = true;
+                break;
+            }
+        }
+
+        if (repoExists) {
+            git.commit("migration", "", workspace, projectName, "Overwrite existing project", true);
+        } else {
+            console.log("Initializing repository...");
+            git.initRepository("migration", "", workspace, projectName, projectName, "Migration initial commit");
         }
     }
 }

@@ -12,12 +12,23 @@
 import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service.mjs";
 import { MigrationTask } from "./task.mjs";
+var repositoryManager = require("platform/v4/repository");
 
 export class HandleDeployablesTask extends MigrationTask {
     execution = process.getExecutionContext();
+    synonymFileName = "hdi-synonyms.hdbsynonym";
+    publicSynonymFileName = "hdi-public-synonyms.hdbpublicsynonym";
 
     constructor() {
         super("HANDLE_DEPLOYABLES_EXECUTING", "HANDLE_DEPLOYABLES_EXECUTED", "HANDLE_DEPLOYABLES_FAILED");
+    }
+
+    getSynonymFilePath(projectName) {
+        return "/" + projectName + "/" + this.synonymFileName;
+    }
+
+    getPublicSynonymFilePath(projectName) {
+        return "/" + projectName + "/" + this.publicSynonymFileName;
     }
 
     run() {
@@ -25,31 +36,74 @@ export class HandleDeployablesTask extends MigrationTask {
         const userData = JSON.parse(userDataJson);
 
         const migrationService = new MigrationService();
+
         for (const deliveryUnit of userData.du) {
-            const locals = deliveryUnit.locals;
-            if (!(locals && locals.length > 0)) {
-                continue;
-            }
+
+            const projectName = deliveryUnit.projectName;
+
+            const projectSynonymPath = this.getSynonymFilePath(projectName);
+            const projectPublicSynonymPath = this.getPublicSynonymFilePath(projectName);
             let deployables = [];
-            for (const local of locals) {
+            let synonymsPaths = [];
+            let projectsWithSynonyms = [];
+
+            const workspaceName = "workspace";
+            const workspacePath = `${deliveryUnit.fromZip ? "temp/migrations/" : ""}${workspaceName}`
+
+            const repositoryPath = `${workspacePath}/${projectName}`;
+            const duRootCollection = repositoryManager.getCollection(repositoryPath);
+
+
+            function localHandler(collection, localName) {
+                const local = collection.getResource(localName);
+                const repositoryPath = local.getPath();
+                const runLocation = repositoryPath.substring(`/${workspacePath}`.length);
+                if (runLocation === projectSynonymPath || runLocation === projectPublicSynonymPath) {
+                    if (!projectsWithSynonyms.includes(projectName)) {
+                        projectsWithSynonyms.push(projectName);
+                    }
+                    if (!synonymsPaths.includes(runLocation)) {
+                        synonymsPaths.push(runLocation);
+                    }
+                }
+                console.log(local.getPath());
                 deployables = migrationService.collectDeployables(
                     userData.workspace,
-                    local.repositoryPath,
-                    local.runLocation,
-                    local.projectName,
+                    repositoryPath,
+                    runLocation,
+                    projectName,
                     deployables
                 );
             }
 
+            visitCollection(duRootCollection, localHandler);
+
+            function visitCollection(collection, handler) {
+                const localNames = collection.getResourcesNames();
+
+                for (const name of localNames) {
+
+                    handler(collection, name);
+                }
+                const subcollectionNames = collection.getCollectionsNames();
+                for (const name of subcollectionNames) {
+                    visitCollection(collection.getCollection(name), localHandler);
+                }
+
+            }
+
             // Get names of projects with generated synonyms and add them to deployables
-            const projectsWithSynonyms = migrationService.getProjectsWithSynonyms(locals);
-            const synonymsPaths = migrationService.checkExistingSynonymTypes(locals)
+            // const projectsWithSynonyms = getProjectsWithSynonyms(deliveryUnit.projectName);
+            // const projectsWithSynonyms = [deliveryUnit.projectName];
+            // const synonymsPaths = migrationService.checkExistingSynonymTypes(locals)
             if (projectsWithSynonyms) {
                 for (const projectName of projectsWithSynonyms) {
                     const projectDeployables = deployables.find((x) => x.projectName === projectName).artifacts;
                     projectDeployables.push(...synonymsPaths);
                 }
             }
+
+
 
             deliveryUnit["deployableArtifactsResult"] =
                 migrationService.handlePossibleDeployableArtifacts(
