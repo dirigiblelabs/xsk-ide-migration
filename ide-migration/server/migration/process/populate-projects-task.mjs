@@ -18,71 +18,55 @@ export class PopulateProjectsTask extends MigrationTask {
         const userData = JSON.parse(userDataJson);
 
         const migrationService = new MigrationService();
-        const workspace = userData.workspace;
+        const workspaceName = userData.workspace;
         for (const deliveryUnit of userData.du) {
 
-            const workspaceName = "workspace";
-            const projectName = deliveryUnit.projectName
+            for (const projectName of deliveryUnit.projectNames) {
 
-            const workspacePath = `${deliveryUnit.fromZip ? "temp/migrations/" : ""}${workspaceName}`
+                const workspacePath = `${deliveryUnit.fromZip ? "temp/migrations/" : ""}${workspaceName}`
 
-            const repositoryPath = `${workspacePath}/${projectName}`;
-            const duRootCollection = repositoryManager.getCollection(repositoryPath);
+                const repositoryPath = `${workspacePath}/${projectName}`;
+                const duRootCollection = repositoryManager.getCollection(repositoryPath);
 
-            function localHandler(collection, localName) {
-                const local = collection.getResource(localName);
-                const repositoryPath = local.getPath();
+                function localHandler(collection, localName) {
+                    const local = collection.getResource(localName);
+                    const repositoryPath = local.getPath();
 
-                const runLocation = repositoryPath.substring(`/${workspacePath}`.length);
-                const relativePath = runLocation.substring(`/${projectName}.length`);
-                //add non generated
-                console.log(">>>>>> ADDING FILE  >>>> " + relativePath);
-                migrationService.addFileToWorkspace(workspaceName, repositoryPath, relativePath, projectName)
-
-
-            }
-
-            visitCollection(duRootCollection, localHandler);
-
-            function visitCollection(collection, handler) {
-                const localNames = collection.getResourcesNames();
-
-                for (const name of localNames) {
-
-                    handler(collection, name);
-                }
-                const subcollectionNames = collection.getCollectionsNames();
-                for (const name of subcollectionNames) {
-                    visitCollection(collection.getCollection(name), localHandler);
+                    const runLocation = repositoryPath.substring(`/${workspacePath}`.length);
+                    const relativePath = runLocation.substring(`/${projectName}.length`);
+                    //add non generated
+                    console.log("Adding file: " + relativePath);
+                    migrationService.addFileToWorkspace(workspaceName, repositoryPath, relativePath, projectName)
                 }
 
+                migrationService.iterateCollection(duRootCollection, localHandler);
+
+                //add generated files
+                console.log("Adding generated files...")
+                const generatedFiles = deliveryUnit["deployableArtifactsResult"]["generated"].filter((x) => x.projectName === projectName);
+                for (const generatedFile of generatedFiles) {
+                    migrationService.addFileToWorkspace(workspaceName, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
+                }
+                migrationService.handleHDBTableFunctions(workspaceName, projectName);
+
+                //modify files
+                console.log("Modifying files...")
+                migrationService.interceptProject(workspaceName, projectName);
+
+                //commit
+                console.log("Commiting changes...")
+                migrationService.commitProjectModifications(workspaceName, projectName);
+
             }
-
-            //add generated files
-            console.log(">>>>>> ADDING NO GENERATED FILES >>>>")
-            const generatedFiles = deliveryUnit["deployableArtifactsResult"]["generated"].filter((x) => x.projectName === projectName);
-            for (const generatedFile of generatedFiles) {
-                migrationService.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
-            }
-            migrationService.handleHDBTableFunctions(workspace, projectName);
-
-            //modify files
-            console.log(">>>>>> INTERCEPTING FILES >>>>")
-            migrationService.interceptProject(workspace, projectName);
-
-            //commit
-            console.log(">>>>>> COMMITING CHANGES >>>>")
-            migrationService.commitProjectModificationsWithoutLoop(workspace, projectName);
 
         }
 
         process.setVariable(this.execution.getId(), "migrationState", "MIGRATION_EXECUTED");
-        this.trackService.updateMigrationStatus("MIGRATION EXECUTED");
 
         const workspaceHolderFolder = config.get("user.dir") + "/target/dirigible/repository/root"
         const diffTool = new DiffToolService();
-        const diffViewData = diffTool.diffFolders(`${workspaceHolderFolder}/${workspace}_unmodified`, `${workspaceHolderFolder}/${workspace}`);
-        migrationService.removeTemporaryFolders(workspace);
+        const diffViewData = diffTool.diffFolders(`${workspaceHolderFolder}/${workspaceName}_unmodified`, `${workspaceHolderFolder}/${workspaceName}`);
+        migrationService.removeTemporaryFolders(workspaceName);
         process.setVariable(this.execution.getId(), "diffViewData", JSON.stringify(diffViewData));
     }
 }
