@@ -192,8 +192,10 @@ migrationLaunchView.controller("MigrationLaunchViewController", [
             }
         };
 
-        $scope.continueMigrationClicked = function() {
-            $messageHub.message("migration.changes", { isVisible: true });
+        $scope.getDiffClicked = function (processInstanceId) {
+            $messageHub.message("migration.neo-credentials", { isVisible: false });
+            // $messageHub.message("migration.get-diff", { processInstanceId });
+            $messageHub.message("migration.changes", { isVisible: true, diffOnly: true, processInstanceId });
         }
 
         $scope.migrateClicked = function () {
@@ -215,6 +217,6 @@ migrationLaunchView.controller("MigrationLaunchViewController", [
             else return "inactive";
         };
 
-        $messageHub.on("migration.launch", function (msg) {}.bind(this));
+        $messageHub.on("migration.launch", function (msg) { }.bind(this));
     },
 ]);

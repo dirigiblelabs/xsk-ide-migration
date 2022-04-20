@@ -65,7 +65,7 @@ export class TrackService {
                         name: "processInstanceId",
                         column: "PROCESS_INSTANCE_ID",
                         type: "VARCHAR",
-                        required: true,
+                        required: false,
                     },
                 ],
             },
@@ -83,6 +83,7 @@ export class TrackService {
         this.setupTable();
         try {
             let entryToUpdate = migrationsTable.find(process.getVariable(execution.getId(), "migrationIndex"));
+            console.log("UPDATING ENTRY: ")
             console.log(JSON.parse(JSON.stringify(entryToUpdate)));
             let startedOn = entryToUpdate.startedOn;
             entryToUpdate.lastUpdated = Date.now();
@@ -95,16 +96,31 @@ export class TrackService {
         }
     }
 
-    addEntry(processInstanceId, status) {
+    updateProcessInstanceId(entryInstance, processInstanceId) {
         this.setupTable();
+        try {
+            console.log("ENTRY INSTANCE IS " + entryInstance);
+            let entryToUpdate = migrationsTable.find(entryInstance);
+            console.log("UPDATING ENTRY PROCESS_ID: " + processInstanceId);
+            console.log(JSON.parse(JSON.stringify(entryToUpdate)));
+            entryToUpdate.processInstanceId = processInstanceId;
+            entryToUpdate.lastUpdated = Date.now();
+            entryToUpdate.startedOn = Date.parse(entryToUpdate.startedOn);
+            migrationsTable.update(entryToUpdate);
+            entryInstance = entryToUpdate;
+        } catch (e) {
+            throw new Error("Cant update migration instance id. Reason: " + e);
+        }
+    }
 
+    addEntry(status) {
+        this.setupTable();
         try {
             entryInstance = migrationsTable.insert({
                 executedBy: userName,
                 startedOn: Date.now(),
                 lastUpdated: Date.now(),
-                status: status,
-                processInstanceId
+                status: status
             });
             this.currentIndex = entryInstance;
         } catch (e) {

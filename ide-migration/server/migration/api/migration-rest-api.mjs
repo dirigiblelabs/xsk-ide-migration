@@ -23,13 +23,15 @@ rs.service()
 
 function startProcessFromZip(ctx, req, res) {
     const userDataJson = req.getJSON();
-    
+
+    const migrationTableIndex = _trackMigrationStart();
     const processInstanceId = processService.start("migrationProcess", {
         userData: JSON.stringify(userDataJson),
         migrationType: "FROM_LOCAL_ZIP",
         migrationIndex: migrationTableIndex
     });
-    const migrationTableIndex = _trackMigrationStart(processInstanceId);
+
+    _updateProcessInstanceId(migrationTableIndex, processInstanceId);
 
     const response = {
         processInstanceId: processInstanceId
@@ -42,6 +44,7 @@ function startProcess(ctx, req, res) {
     const userDataJson = req.getJSON();
 
     const migrationTableIndex = _trackMigrationStart();
+
     const processInstanceId = processService.start("migrationProcess", {
         migrationType: "FROM_HANA",
         userData: JSON.stringify(userDataJson),
@@ -49,16 +52,23 @@ function startProcess(ctx, req, res) {
         migrationIndex: migrationTableIndex
     });
 
+    _updateProcessInstanceId(migrationTableIndex, processInstanceId);
+
     const response = {
         processInstanceId: processInstanceId,
     };
     res.print(JSON.stringify(response));
 }
 
-function _trackMigrationStart(processInstanceId) {
+function _trackMigrationStart() {
     const trackService = new TrackService();
-    trackService.addEntry(processInstanceId, "MIGRATION_STARTING");
+    trackService.addEntry("MIGRATION_STARTING");
     return trackService.getCurrentMigrationIndex();
+}
+
+function _updateProcessInstanceId(migrationTableIndex, processInstanceId) {
+    const trackService = new TrackService();
+    trackService.updateProcessInstanceId(migrationTableIndex, processInstanceId)
 }
 
 function getJwtToken(host, username, password) {
@@ -117,7 +127,7 @@ function getProcessState(ctx, req, res) {
         response.workspaces = JSON.parse(workspacesJson);
         response.deliveryUnits = JSON.parse(deliveryUnitsJson);
         response.connectionId = connectionId;
-    } else if (migrationState === "MIGRATION_EXECUTED") {
+    } else if (migrationState === "POPULATING_PROJECTS_EXECUTED") {
         const diffViewData = processService.getVariable(processInstanceIdString, "diffViewData");
         response.diffViewData = JSON.parse(diffViewData);
     }
@@ -139,9 +149,9 @@ function getMigrations(ctx, request, response) {
         connection.close();
     }
 
-    if (migrationsData.migrations) {
-        let migrations = JSON.parse(migrationsData.migrations);
-    }
+    // if (migrationsData.migrations) {
+    //     let migrations = JSON.parse(migrationsData.migrations);
+    // }
 
     response.print(migrationsData.migrations);
 }

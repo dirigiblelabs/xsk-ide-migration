@@ -5,4 +5,8 @@ export class AfterMigrationTask extends MigrationTask {
     constructor() {
         super("AFTER_MIGRATION_EXECUTING", "MIGRATION_EXECUTED", "AFTER_MIGRATION_FAILED");
     }
+
+    run() {
+        console.log("RUNNING AFTER MIGRATION TASK")
+    }
 }
