@@ -61,6 +61,12 @@ export class TrackService {
                         type: "VARCHAR",
                         required: false,
                     },
+                    {
+                        name: "processInstanceId",
+                        column: "PROCESS_INSTANCE_ID",
+                        type: "VARCHAR",
+                        required: true,
+                    },
                 ],
             },
             null,
@@ -89,7 +95,7 @@ export class TrackService {
         }
     }
 
-    addEntry(status) {
+    addEntry(processInstanceId, status) {
         this.setupTable();
 
         try {
@@ -98,6 +104,7 @@ export class TrackService {
                 startedOn: Date.now(),
                 lastUpdated: Date.now(),
                 status: status,
+                processInstanceId
             });
             this.currentIndex = entryInstance;
         } catch (e) {

@@ -192,6 +192,10 @@ migrationLaunchView.controller("MigrationLaunchViewController", [
             }
         };
 
+        $scope.continueMigrationClicked = function() {
+            $messageHub.message("migration.changes", { isVisible: true });
+        }
+
         $scope.migrateClicked = function () {
             $messageHub.message($scope.currentStep.topicId, { isVisible: false });
             $scope.currentStep = $scope.steps[$scope.steps.length - 1];

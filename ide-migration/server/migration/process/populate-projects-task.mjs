@@ -2,7 +2,6 @@ import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service.mjs";
 import { MigrationTask } from "./task.mjs";
 import { configurations as config } from "@dirigible/core";
-import { TrackService } from "../api/track-service";
 import { DiffToolService } from "../api/diff-tool-executor.mjs";
 const repositoryManager = require("platform/v4/repository");
 
@@ -10,7 +9,7 @@ export class PopulateProjectsTask extends MigrationTask {
     execution = process.getExecutionContext();
 
     constructor() {
-        super("POPULATING_PROJECTS", "MIGRATION_EXECUTED", "POPULATING_PROJECTS_FAILED");
+        super("POPULATING_PROJECTS", "POPULATING_PROJECTS_EXECUTED", "POPULATING_PROJECTS_FAILED");
     }
 
     run() {
@@ -61,7 +60,7 @@ export class PopulateProjectsTask extends MigrationTask {
 
         }
 
-        process.setVariable(this.execution.getId(), "migrationState", "MIGRATION_EXECUTED");
+        process.setVariable(this.execution.getId(), "migrationState", "POPULATING_PROJECTS_EXECUTED");
 
         const workspaceHolderFolder = config.get("user.dir") + "/target/dirigible/repository/root"
         const diffTool = new DiffToolService();

@@ -23,12 +23,13 @@ rs.service()
 
 function startProcessFromZip(ctx, req, res) {
     const userDataJson = req.getJSON();
-    const migrationTableIndex = _trackMigrationStart();
+    
     const processInstanceId = processService.start("migrationProcess", {
         userData: JSON.stringify(userDataJson),
         migrationType: "FROM_LOCAL_ZIP",
         migrationIndex: migrationTableIndex
     });
+    const migrationTableIndex = _trackMigrationStart(processInstanceId);
 
     const response = {
         processInstanceId: processInstanceId
@@ -54,9 +55,9 @@ function startProcess(ctx, req, res) {
     res.print(JSON.stringify(response));
 }
 
-function _trackMigrationStart() {
+function _trackMigrationStart(processInstanceId) {
     const trackService = new TrackService();
-    trackService.addEntry("MIGRATION_STARTING");
+    trackService.addEntry(processInstanceId, "MIGRATION_STARTING");
     return trackService.getCurrentMigrationIndex();
 }
 
@@ -137,6 +138,11 @@ function getMigrations(ctx, request, response) {
     } finally {
         connection.close();
     }
+
+    if (migrationsData.migrations) {
+        let migrations = JSON.parse(migrationsData.migrations);
+    }
+
     response.print(migrationsData.migrations);
 }
 

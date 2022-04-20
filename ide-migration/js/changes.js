@@ -25,7 +25,7 @@ migrationLaunchView.controller("ChangesViewController", [
         $scope.isDiffViewSplit = viewWidth > 1100 ? true : false;
         $scope.data = [];
 
-        function startMigration() {
+        function continueMigration() {
             let body = {
                 neo: {
                     hostName: migrationDataState.neoHostName,
@@ -109,7 +109,7 @@ migrationLaunchView.controller("ChangesViewController", [
             });
         };
 
-        $scope.startMigration = function () {
+        $scope.continueMigration = function () {
             // TODO
             for (let i = 0; i < $scope.data.length; i++) {
                 if (!$scope.data[i].excluded) {
@@ -152,7 +152,7 @@ migrationLaunchView.controller("ChangesViewController", [
                         }
                     });
                     if (msg.data.isVisible) {
-                        startMigration();
+                        continueMigration();
                     }
                 }
             }.bind(this)
