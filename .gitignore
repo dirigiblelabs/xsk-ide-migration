@@ -18,4 +18,4 @@ dirigible_local/
 derby.log
 /target/
 /target/
-
+.husky/project.json
