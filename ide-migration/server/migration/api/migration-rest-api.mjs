@@ -63,8 +63,10 @@ function _trackMigrationStart() {
 function getJwtToken(host, username, password) {
     const encodedUsername = url.encode(username);
     const encodedPassword = url.encode(password);
-    const jwtTokenServiceUrl = `https://oauthasservices.${host}/oauth2/api/v1/token?grant_type=password&username=${encodedUsername}&password=${encodedPassword}`;
+    const jwtTokenServiceUrl = `https://oauthasservices.${host}/oauth2/api/v1/token?grant_type=password`;
+    const encodedBody = `username=${encodedUsername}&password=${encodedPassword}`;
     const jwtTokenResponse = httpClient.post(jwtTokenServiceUrl, {
+        text: encodedBody,
         headers: [
             {
                 name: "Content-Type",
