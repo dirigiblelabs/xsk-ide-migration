@@ -149,10 +149,6 @@ function getMigrations(ctx, request, response) {
         connection.close();
     }
 
-    // if (migrationsData.migrations) {
-    //     let migrations = JSON.parse(migrationsData.migrations);
-    // }
-
     response.print(migrationsData.migrations);
 }
 

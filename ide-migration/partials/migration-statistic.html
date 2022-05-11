@@ -23,7 +23,8 @@
                         <td>{{migrationEntry.STATUS}}</td>
                         <td>
                             <button type="button" class="btn btn-secondary btn-big pull-right"
-                                ng-click="getDiffClicked(migrationEntry.PROCESS_INSTANCE_ID)" ng-show="true">
+                                ng-click="continueClicked(migrationEntry)"
+                                ng-disabled="migrationEntry.STATUS !== 'POPULATING_PROJECTS_EXECUTED'">
                                 Continue
                             </button>
                         </td>

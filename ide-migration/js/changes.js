@@ -9,7 +9,7 @@
  * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-require.config({ paths: { vs: "/services/v4/web/ide-monaco/monaco-editor/min/vs" } });
+require.config({ paths: { vs: "/webjars/monaco-editor/0.33.0/min/vs" } });
 let editors = [];
 migrationLaunchView.controller("ChangesViewController", [
     "$scope",
@@ -17,19 +17,22 @@ migrationLaunchView.controller("ChangesViewController", [
     "$messageHub",
     "$timeout",
     "migrationDataState",
-    function ($scope, $http, $messageHub, $timeout, migrationDataState) {
+    "migrationViewState",
+    function ($scope, $http, $messageHub, $timeout, migrationDataState, migrationViewState) {
         $scope.migrationDataState = migrationDataState;
-        $scope.isVisible = false;
-        $scope.dataLoaded = false;
+        $scope.dataLoaded = function () {
+            return !migrationViewState.getIsDataLoading();
+        }
         let viewWidth = document.querySelectorAll(".changes-body")[0].clientWidth | 100;
         $scope.isDiffViewSplit = viewWidth > 1100 ? true : false;
         $scope.data = [];
 
-        function getDiffData(processInstanceId) {
+        function getDiffData() {
+
             $http
                 .post(
                     "/services/v4/js/ide-migration/server/migration/api/migration-rest-api.mjs/get-process",
-                    JSON.stringify({ processInstanceId }),
+                    JSON.stringify({ processInstanceId: migrationDataState.processInstanceId }),
                     {
                         headers: { "Content-Type": "application/json" },
                     }
@@ -37,36 +40,10 @@ migrationLaunchView.controller("ChangesViewController", [
 
                     function (response) {
                         let diffViewData = response.data.diffViewData;
-                        // Add additional keys needed by AngularJS
-                        for (let i = 0; i < diffViewData.length; i++) {
-                            diffViewData[i]["id"] = `m-${i}`;
-                            diffViewData[i]["collapsed"] = false;
-                            diffViewData[i]["excluded"] = false;
-                        }
-                        // Set data variable
-                        $scope.data = diffViewData;
-                        // Set full width for better experience
-                        $scope.$parent.setFullWidthEnabled(true);
-                        // Show data
-                        $scope.dataLoaded = true;
-                        $scope.$apply();
+                        handleDiffViewData(diffViewData);
                     },
                     function (response) {
-                        if (response.data) {
-                            if ("error" in response.data) {
-                                if ("message" in response.data.error) {
-                                    $messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
-                                } else {
-                                    $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                                }
-                                console.error(`HTTP $response.status`, response.data.error);
-                            } else {
-                                $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                            }
-                        } else {
-                            $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                        }
-                        errorOccurred();
+                        handleResponseError(response);
                     }
                 );
 
@@ -86,7 +63,7 @@ migrationLaunchView.controller("ChangesViewController", [
                 connectionId: migrationDataState.connectionId,
                 workspace: migrationDataState.selectedWorkspace,
                 du: migrationDataState.selectedDeliveryUnits,
-                processInstanceId: migrationDataState.processInstanceId, //refactor
+                processInstanceId: migrationDataState.processInstanceId
             };
 
             $http
@@ -107,41 +84,46 @@ migrationLaunchView.controller("ChangesViewController", [
                                 function (response) {
                                     clearInterval(timer);
                                     let diffViewData = response.data.diffViewData;
-                                    // Add additional keys needed by AngularJS
-                                    for (let i = 0; i < diffViewData.length; i++) {
-                                        diffViewData[i]["id"] = `m-${i}`;
-                                        diffViewData[i]["collapsed"] = false;
-                                        diffViewData[i]["excluded"] = false;
-                                    }
-                                    // Set data variable
-                                    $scope.data = diffViewData;
-                                    // Set full width for better experience
-                                    $scope.$parent.setFullWidthEnabled(true);
-                                    // Show data
-                                    $scope.dataLoaded = true;
+                                    handleDiffViewData(diffViewData);
                                     $scope.$apply();
                                 },
                                 function (response) {
                                     clearInterval(timer);
-                                    if (response.data) {
-                                        if ("error" in response.data) {
-                                            if ("message" in response.data.error) {
-                                                $messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
-                                            } else {
-                                                $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                                            }
-                                            console.error(`HTTP $response.status`, response.data.error);
-                                        } else {
-                                            $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                                        }
-                                    } else {
-                                        $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
-                                    }
-                                    errorOccurred();
+                                    handleResponseError(response);
                                 }
                             );
                     }, 1000);
                 });
+        }
+
+        function handleDiffViewData(diffViewData) {
+            // Add additional keys needed by AngularJS
+            for (let i = 0; i < diffViewData.length; i++) {
+                diffViewData[i]["id"] = `m-${i}`;
+                diffViewData[i]["collapsed"] = false;
+                diffViewData[i]["excluded"] = false;
+            }
+            $scope.data = diffViewData;
+            migrationViewState.setFullWidthEnabled(true);
+            migrationViewState.setDataLoading(false);
+        }
+
+        function handleResponseError(response) {
+            if (response.data) {
+                if ("error" in response.data) {
+                    if ("message" in response.data.error) {
+                        $messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
+                    } else {
+                        $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
+                    }
+                    console.error(`HTTP $response.status`, response.data.error);
+                } else {
+                    $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
+                }
+            } else {
+                $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
+            }
+            errorOccurred();
         }
 
         $scope.createDiffEditor = function (index) {
@@ -157,13 +139,7 @@ migrationLaunchView.controller("ChangesViewController", [
         };
 
         $scope.continueMigration = function () {
-            // TODO
-            for (let i = 0; i < $scope.data.length; i++) {
-                if (!$scope.data[i].excluded) {
-                    console.log("Migrating file:", $scope.data[i].file);
-                }
-            }
-            $scope.$parent.migrateClicked();
+            $scope.$parent.goForward();
         };
 
         $scope.splitDiffView = function () {
@@ -187,33 +163,22 @@ migrationLaunchView.controller("ChangesViewController", [
         $messageHub.on(
             "migration.changes",
             function (msg) {
-                if ("isVisible" in msg.data) {
-                    $scope.$apply(function () {
-                        $scope.dataLoaded = false;
-                        $scope.isVisible = msg.data.isVisible;
-                        if (msg.data.isVisible) {
-                            $scope.$parent.setBottomNavEnabled(false);
-                        } else {
-                            $scope.data = [];
-                            editors = [];
-                        }
-                    });
-
-                    if (msg.data.isVisible && msg.data.diffOnly) {
-                        getDiffData(msg.data.processInstanceId);
-                    } else if (msg.data.isVisible) {
+                $scope.$apply(function () {
+                    migrationViewState.setDataLoading(true);
+                    if (msg.data && msg.data.migrationEntry && msg.data.migrationEntry.PROCESS_INSTANCE_ID) {
+                        migrationDataState.processInstanceId = msg.data.migrationEntry.PROCESS_INSTANCE_ID;
+                        migrationDataState.selectedDeliveryUnits = JSON.parse(msg.data.migrationEntry.DU_STRING);
+                        migrationDataState.selectedWorkspace = msg.data.migrationEntry.WORKSPACE_NAME;
+                        getDiffData();
+                    } else {
                         continueMigration();
                     }
+
                 }
+                );
             }.bind(this)
         );
 
-        $messageHub.on(
-            "migration.get-diff",
-            function (msg) {
-                getDiffData(msg.data.processInstanceId);
-            }.bind(this)
-        );
     },
 ]);
 

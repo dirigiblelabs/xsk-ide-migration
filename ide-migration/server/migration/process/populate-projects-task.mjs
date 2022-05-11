@@ -18,6 +18,9 @@ export class PopulateProjectsTask extends MigrationTask {
 
         const migrationService = new MigrationService();
         const workspaceName = userData.workspace;
+
+        this.trackService.updateMigrationTarget(workspaceName, userData.du);
+
         for (const deliveryUnit of userData.du) {
 
             for (const projectName of deliveryUnit.projectNames) {

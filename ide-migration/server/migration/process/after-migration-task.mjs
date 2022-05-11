@@ -7,6 +7,6 @@ export class AfterMigrationTask extends MigrationTask {
     }
 
     run() {
-        console.log("RUNNING AFTER MIGRATION TASK")
+        console.log("RUNNIN AFTER MIGRATION TASK")
     }
 }
