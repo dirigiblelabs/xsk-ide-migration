@@ -108,17 +108,12 @@ export class MigrationService {
     }
 
     _buildHDIContainerName(duName, projectName) {
-        const groupAndContainerNamePattern = /[^\w_]/g;
+        const groupAndContainerNamePattern = /[^\w]/g;
         const forbiddenCharactersReplacer = "_";
-        const forbiddenLeadingCharacter = "_";
 
-        let nameAccordingToConvention = `${duName}_${projectName}`.toUpperCase().replace(groupAndContainerNamePattern, forbiddenCharactersReplacer);
+        let nameAccordingToConvention = `hdi_${duName}_${projectName}`.toUpperCase().replace(groupAndContainerNamePattern, forbiddenCharactersReplacer);
 
-        while (nameAccordingToConvention.substring(0, 1) == forbiddenLeadingCharacter) {
-            nameAccordingToConvention = nameAccordingToConvention.substring(1);
-        }
-
-        return nameAccordingToConvention.length ? nameAccordingToConvention : "NAME_CONVERSION_LEADS_TO_TRIM";
+        return nameAccordingToConvention;
     }
 
     copyFilesLocally(workspaceName, duName, lists) {
