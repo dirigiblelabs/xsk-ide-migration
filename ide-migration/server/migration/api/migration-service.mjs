@@ -111,7 +111,7 @@ export class MigrationService {
         const groupAndContainerNamePattern = /[^\w]/g;
         const forbiddenCharactersReplacer = "_";
 
-        let nameAccordingToConvention = `hdi_${duName}_${projectName}`.toUpperCase().replace(groupAndContainerNamePattern, forbiddenCharactersReplacer);
+        const nameAccordingToConvention = `hdi_${duName}_${projectName}`.toUpperCase().replace(groupAndContainerNamePattern, forbiddenCharactersReplacer);
 
         return nameAccordingToConvention;
     }
