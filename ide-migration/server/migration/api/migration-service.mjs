@@ -108,7 +108,12 @@ export class MigrationService {
     }
 
     _buildHDIContainerName(duName, projectName) {
-        return `${duName}_${projectName}`.toUpperCase();
+        const groupAndContainerNamePattern = /[^\w]/g;
+        const forbiddenCharactersReplacer = "_";
+
+        const nameAccordingToConvention = `hdi_${duName}_${projectName}`.toUpperCase().replace(groupAndContainerNamePattern, forbiddenCharactersReplacer);
+
+        return nameAccordingToConvention;
     }
 
     copyFilesLocally(workspaceName, duName, lists) {
@@ -580,13 +585,13 @@ export class MigrationService {
         hdiFile.setText(hdiJson);
     }
 
-    _getPublicSynonymArtifactName(artifactName, filePath){
-        if(this._isFileCalculationView(filePath)){
+    _getPublicSynonymArtifactName(artifactName, filePath) {
+        if (this._isFileCalculationView(filePath)) {
             return artifactName.split(":").pop()
         }
         return artifactName;
     }
-    
+
     _shouldGeneratePublicSynonym(filePath) {
         const fileExtension = this._getFileExtension(filePath);
         return this.fileExtsForHDI.indexOf(fileExtension) >= 0;
