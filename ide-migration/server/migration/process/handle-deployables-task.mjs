@@ -12,7 +12,7 @@
 import { process } from "@dirigible/bpm";
 import { MigrationService } from "../api/migration-service.mjs";
 import { MigrationTask } from "./task.mjs";
-var repositoryManager = require("platform/v4/repository");
+import { repository } from "@dirigible/platform";
 
 export class HandleDeployablesTask extends MigrationTask {
     execution = process.getExecutionContext();
@@ -50,7 +50,7 @@ export class HandleDeployablesTask extends MigrationTask {
                 const workspacePath = `${deliveryUnit.fromZip ? "temp/migrations/" : ""}${workspaceName}`
 
                 const repositoryPath = `${workspacePath}/${projectName}`;
-                const duRootCollection = repositoryManager.getCollection(repositoryPath);
+                const duRootCollection = repository.getCollection(repositoryPath);
 
                 function localHandler(collection, localName) {
                     const local = collection.getResource(localName);

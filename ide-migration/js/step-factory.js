@@ -33,6 +33,15 @@ migrationLaunchView.factory("stepFactory", ['migrationViewState', 'migrationFlow
         return flow === FLOW_TYPE_LIVE ? steps[index - 1] : zipsteps[index - 1];
     }
 
+    function getStepByNameForFlow(name, flow) {
+        const result = flow === FLOW_TYPE_LIVE ? steps.filter(s => s.name === name) : zipsteps.filter(s => s.name === name);
+        if (result && result.length > 0) {
+            return result[0];
+        }
+        return null;
+    }
+
+
     function getSteps() {
         const activeFlow = migrationFlow.getActiveFlow();
         return activeFlow === FLOW_TYPE_LIVE ? steps : zipsteps;
@@ -41,6 +50,7 @@ migrationLaunchView.factory("stepFactory", ['migrationViewState', 'migrationFlow
     return {
         getStepByIndex,
         getSteps,
-        getStepByIndexForFlow
+        getStepByIndexForFlow,
+        getStepByNameForFlow
     }
 }])

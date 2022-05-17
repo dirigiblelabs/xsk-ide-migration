@@ -1,7 +1,7 @@
 migrationLaunchView.factory("$messageHub", [
     function () {
-        var messageHub = new FramesMessageHub();
-        var announceAlert = function (title, message, type) {
+        const messageHub = new FramesMessageHub();
+        const announceAlert = function (title, message, type) {
             messageHub.post(
                 {
                     data: {
@@ -13,13 +13,13 @@ migrationLaunchView.factory("$messageHub", [
                 "ide.alert"
             );
         };
-        var announceAlertError = function (title, message) {
+        const announceAlertError = function (title, message) {
             announceAlert(title, message, "error");
         };
-        var message = function (evtName, data) {
+        const message = function (evtName, data) {
             messageHub.post({ data: data }, evtName);
         };
-        var on = function (topic, callback) {
+        const on = function (topic, callback) {
             messageHub.subscribe(callback, topic);
         };
         return {

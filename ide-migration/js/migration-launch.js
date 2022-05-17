@@ -159,8 +159,8 @@ migrationLaunchView.controller("MigrationLaunchViewController", [
 
         $scope.continueClicked = function (migrationEntry) {
             if (migrationEntry.STATUS === "POPULATING_PROJECTS_EXECUTED") {
-                const step = stepFactory.getStepByIndexForFlow(4, FLOW_TYPE_LIVE);
-                migrationFlow.goToStep(4, FLOW_TYPE_LIVE, step, { migrationEntry });
+                const step = stepFactory.getStepByNameForFlow("Changes", FLOW_TYPE_LIVE);
+                migrationFlow.goToStep(step.id, FLOW_TYPE_LIVE, step, { migrationEntry });
             }
         }
 

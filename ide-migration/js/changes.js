@@ -99,9 +99,10 @@ migrationLaunchView.controller("ChangesViewController", [
         function handleDiffViewData(diffViewData) {
             // Add additional keys needed by AngularJS
             for (let i = 0; i < diffViewData.length; i++) {
-                diffViewData[i]["id"] = `m-${i}`;
-                diffViewData[i]["collapsed"] = false;
-                diffViewData[i]["excluded"] = false;
+                const diff = diffViewData[i];
+                diff.id = `m-${i}`;
+                diff.collapsed = false;
+                diff.excluded = false;
             }
             $scope.data = diffViewData;
             migrationViewState.setFullWidthEnabled(true);
@@ -116,7 +117,6 @@ migrationLaunchView.controller("ChangesViewController", [
                     } else {
                         $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
                     }
-                    console.error(`HTTP $response.status`, response.data.error);
                 } else {
                     $messageHub.announceAlertError(defaultErrorTitle, defaultErrorDesc);
                 }

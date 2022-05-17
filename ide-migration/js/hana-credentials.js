@@ -72,7 +72,6 @@ migrationLaunchView.controller("HanaCredentialsViewController", [
 
         function errorOccurred() {
             $scope.$parent.previousClicked();
-            $scope.$parent.setBottomNavEnabled(true);
         }
 
         $scope.userInput = function () {
