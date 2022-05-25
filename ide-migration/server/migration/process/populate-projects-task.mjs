@@ -35,7 +35,7 @@ export class PopulateProjectsTask extends MigrationTask {
                     const repositoryPath = local.getPath();
 
                     const runLocation = repositoryPath.substring(`/${workspacePath}`.length);
-                    const relativePath = runLocation.substring(`/${projectName}.length`);
+                    const relativePath = runLocation.substring(`/${projectName}`.length);
                     //add non generated
                     console.log("Adding file: " + relativePath);
                     migrationService.addFileToWorkspace(workspaceName, repositoryPath, relativePath, projectName)
