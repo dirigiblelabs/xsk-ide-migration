@@ -116,7 +116,9 @@ export class MigrationService {
         const unmodifiedWorkspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName + "_unmodified");
         const hdbFacade = new XSKHDBCoreFacade();
 
-        let projectNames = [];
+        const projectNames = [];
+        const synonyms = [];
+        const calcViews = [];
 
         for (const file of lists) {
             let fileRunLocation = file.RunLocation;
@@ -140,12 +142,13 @@ export class MigrationService {
             );
             unmodifiedProjectCollection.createResource(fileRunLocation, content);
 
-            if (this._isFileCalculationView(fileRunLocation)) {
-                content = this._transformColumnObject(content);
-            }
-
             const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, fileProjectName);
-            projectCollection.createResource(fileRunLocation, content);
+            const resource = projectCollection.createResource(fileRunLocation, content);
+
+            //collect calcviews in order to create synonyms for external schemas later
+            if (this._isFileCalculationView(fileRunLocation)) {
+                calcViews[resource.getPath()] = fileProjectName; //TODO: optimize so getContentForObject is not called multiple times
+            }
 
             const fileName = this._getFileNameWithExtension(file);
             const filePath = this._getAbsoluteFilePath(file);
@@ -162,6 +165,16 @@ export class MigrationService {
 
             const hdiContainerName = this._buildHDIContainerName(duName, fileProjectName);
             const synonymData = this._handleParsedData(parsedData, hdiContainerName);
+            if (synonymData.hdbSynonyms) {
+                const hdbSynonyms = synonymData.hdbSynonyms;
+                for (const synonym of hdbSynonyms) {
+                    const schemaName = synonym.value.target.schema;
+                    const schemaObject = synonym.value.target.object;
+                    synonyms.push(`${schemaName}_${schemaObject}`);
+                }
+
+            }
+
             this._appendOrCreateSynonymsFile(this.synonymFileName, synonymData.hdbSynonyms, workspaceName, fileProjectName);
             this._appendOrCreateSynonymsFile(
                 this.publicSynonymFileName,
@@ -170,7 +183,44 @@ export class MigrationService {
                 fileProjectName
             );
         }
-        return projectNames;
+        this._handleCalculationViews(calcViews, synonyms, workspaceName);
+        return { projectNames, synonyms };
+    }
+
+    _handleCalculationViews(calcViews, synonyms, workspaceName) {
+        for (const key of calcViews) {
+            if (calcViews.hasOwnProperty(key)) {
+                const resource = repositoryManager.getResource(key);
+                const fileProjectName = calcViews[key]
+                this._generateSynonymsForExternalResources(resource.getText(), synonyms, workspaceName, fileProjectName);
+                const newContent = this._transformColumnObject(resource.getContent(), synonyms);
+                resource.setContent(newContent);
+            }
+
+        }
+    }
+
+    _generateSynonymsForExternalResources(calcViewText, localSynonyms, workspaceName, fileProjectName) {
+        var xml2json = require("utils/v4/xml");
+        var input = calcViewText;
+        var result = xml2json.toJson(input);
+        var json = JSON.parse(result);
+        const synonyms = [];
+        const dataSourceArray = json["Calculation:scenario"]["dataSources"]["DataSource"];
+        for (const dataSource of dataSourceArray) {
+            const objectName = dataSource["columnObject"]["-columnObjectName"];
+            const schema = dataSource["columnObject"]["-schemaName"];
+            if (localSynonyms.indexOf(`${schema}_${objectName}`) === -1) {
+                //create synonym
+                console.log("Generating synonym for calculation view...")
+                const hdbSynonym = this._generateHdbSynonym(
+                    objectName,
+                    schema
+                );
+                synonyms.push(hdbSynonym);
+            }
+        }
+        this._appendOrCreateSynonymsFile(this.synonymFileName, synonyms, workspaceName, fileProjectName);
     }
 
     _parseArtifact(fileName, filePath, fileContent, workspacePath, hdbFacade) {
@@ -309,28 +359,37 @@ export class MigrationService {
         return filePath.endsWith("hdbcalculationview") || filePath.endsWith("calculationview");
     }
 
-    _transformColumnObject(calculationViewXmlBytes) {
+    _transformColumnObject(calculationViewXmlBytes, synonymsArray) {
         try {
             const columnObjectToResourceUriXslt = `<?xml version="1.0" encoding="UTF8"?>
             <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-
+            <xsl:param name="synonymsArray" />
                 <xsl:template match="node()|@*">
                     <xsl:copy>
                         <xsl:apply-templates select="node()|@*"/>
                     </xsl:copy>
                 </xsl:template>
-
                 <xsl:template match="DataSource[@type='DATA_BASE_TABLE']/columnObject[@columnObjectName]">
-                    <xsl:element name="resourceUri">
-                        <xsl:value-of select="@columnObjectName"/>
+                    <xsl:element name="resourceUri">   
+                        <xsl:choose>
+                            <xsl:when test="contains($synonymsArray,concat(@schemaName, '_', @columnObjectName))">
+                                <xsl:value-of select="@columnObjectName"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="concat(@schemaName, '_', @columnObjectName)"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
                     </xsl:element>
+                    
                 </xsl:template>
             </xsl:stylesheet>
+            
         `;
 
             const factory = TransformerFactory.newInstance();
             const source = new StreamSource(new StringReader(columnObjectToResourceUriXslt));
             const transformer = factory.newTransformer(source);
+            transformer.setParameter("synonymsArray", JSON.stringify(synonymsArray));
 
             const text = new StreamSource(new ByteArrayInputStream(calculationViewXmlBytes));
             const bout = new ByteArrayOutputStream();
@@ -470,8 +529,9 @@ export class MigrationService {
         return filesAndPackagesObject.files;
     }
 
-    _visitCollection(project, collection, parentPath) {
+    _visitCollection(project, collection, parentPath, synonyms, projectName, workspaceName) {
         let resNames = collection.getResourcesNames();
+        const synonymsToGenerate = [];
         for (const resName of resNames) {
             var path = collection.getPath() + "/" + resName;
             let oldProjectRelativePath = parentPath + "/" + resName;
@@ -485,26 +545,53 @@ export class MigrationService {
                 visitor.removeSchemaRefs();
                 visitor.removeViewRefs();
 
+                const schemaNames = [];
+                for (const schemaRef of visitor.schemaRefs) {
+                    const schemaRefArray = schemaRef.split(`"."`).map(e => e.replace(/['"]+/g, ''));// i.e. [schemaName, objectName]
+                    const schemaName = schemaRefArray[0];
+                    schemaNames.push(schemaName);
+                }
+
+                if (schemaNames.length == 1) {
+                    const schemaName = schemaNames[0]
+                    for (const tableRef of visitor.tableRefs) {
+                        const objectName = tableRef.replace(/['"]+/g, '');
+                        if (synonyms.indexOf(`${schemaName}_${objectName}`) === -1) {
+                            console.log(`External schema found. Generating synonym for ${schemaName} -> ${objectName}`);
+                            const hdbSynonym = this._generateHdbSynonym(
+                                objectName,
+                                schemaName
+                            );
+                            synonymsToGenerate.push(hdbSynonym);
+                            synonyms.push(`${schemaName}_${objectName}`);
+                        }
+                    }
+                } else {
+                    console.warn("Multiple schema references found in hdbtablefuncton. Synonyms won't be generated.")
+                }
+
                 resource.setText(visitor.content);
                 project.getFile(oldProjectRelativePath).setText(visitor.content);
                 this.tableFunctionPaths.push(oldProjectRelativePath);
             }
         }
 
+        this._appendOrCreateSynonymsFile(this.synonymFileName, synonymsToGenerate, workspaceName, projectName);
+
         let collectionsNames = collection.getCollectionsNames();
         for (const name of collectionsNames) {
             let nestedCollection = collection.getCollection(name);
-            this._visitCollection(project, nestedCollection, parentPath + "/" + name);
+            this._visitCollection(project, nestedCollection, parentPath + "/" + name, synonyms, projectName, workspaceName);
         }
     }
 
-    handleHDBTableFunctions(workspaceName, projectName) {
+    handleHDBTableFunctions(workspaceName, projectName, synonyms) {
         const workspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName);
         const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
 
         const workspace = workspaceManager.getWorkspace(workspaceName);
         const project = workspace.getProject(projectName);
-        this._visitCollection(project, projectCollection, ".");
+        this._visitCollection(project, projectCollection, ".", synonyms, projectName, workspaceName);
 
         console.log("Adding tablefunctions to hdi file...");
         this._addTableFunctionsToHDI(project, projectName, projectCollection);
@@ -541,22 +628,6 @@ export class MigrationService {
     addFilesWithoutGenerated(userData, workspace, localFiles) {
         for (const localFile of localFiles) {
             this.addFileToWorkspace(workspace, localFile.repositoryPath, localFile.relativePath, localFile.projectName);
-        }
-    }
-
-    addGeneratedFiles(userData, deliveryUnit, workspace, localFiles) {
-        const projectNames = new Set()
-        for (const localFile of localFiles) {
-            const projectName = localFile.projectName;
-            const generatedFiles = deliveryUnit["deployableArtifactsResult"]["generated"].filter((x) => x.projectName === projectName);
-            for (const generatedFile of generatedFiles) {
-                this.addFileToWorkspace(workspace, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
-            }
-            projectNames.add(projectName);
-        }
-
-        for (const projectName of projectNames) {
-            this.handleHDBTableFunctions(workspace, projectName);
         }
     }
 

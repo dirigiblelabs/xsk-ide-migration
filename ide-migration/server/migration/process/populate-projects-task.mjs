@@ -49,7 +49,7 @@ export class PopulateProjectsTask extends MigrationTask {
                 for (const generatedFile of generatedFiles) {
                     migrationService.addFileToWorkspace(workspaceName, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
                 }
-                migrationService.handleHDBTableFunctions(workspaceName, projectName);
+                migrationService.handleHDBTableFunctions(workspaceName, projectName, deliveryUnit.synonyms);
 
                 //modify files
                 console.log("Modifying files...")
