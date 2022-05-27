@@ -197,7 +197,7 @@ export class MigrationService {
             if (calcViews.hasOwnProperty(key)) {
                 const resource = repositoryManager.getResource(key);
                 const fileProjectName = calcViews[key]
-                this._generateSynonymsForExternalResources(resource.getText(), synonyms, workspaceName, fileProjectName);
+                this._generateSynonymsForExternalResources(resource.getContent(), synonyms, workspaceName, fileProjectName);
                 const newContent = this._transformColumnObject(resource.getContent(), synonyms);
                 resource.setContent(newContent);
             }
@@ -205,16 +205,22 @@ export class MigrationService {
         }
     }
 
-    _generateSynonymsForExternalResources(calcViewText, localSynonyms, workspaceName, fileProjectName) {
-        var xml2json = require("utils/v4/xml");
-        var input = calcViewText;
-        var result = xml2json.toJson(input);
-        var json = JSON.parse(result);
+    _generateSynonymsForExternalResources(calcViewBytes, localSynonyms, workspaceName, fileProjectName) {
+
+        const inputStream = streams.createByteArrayInputStream(calcViewBytes);
+        const builderFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+        const builder = builderFactory.newDocumentBuilder();
+        const xmlDocument = builder.parse(inputStream);
+        const xPath = javax.xml.xpath.XPathFactory.newInstance().newXPath();
+        const expression = "//*[name()='Calculation:scenario']/dataSources/DataSource/columnObject";
+        const nodeList = xPath.compile(expression).evaluate(xmlDocument, javax.xml.xpath.XPathConstants.NODESET);
+
         const synonyms = [];
-        const dataSourceArray = json["Calculation:scenario"]["dataSources"]["DataSource"];
-        for (const dataSource of dataSourceArray) {
-            const objectName = dataSource["columnObject"]["-columnObjectName"];
-            const schema = dataSource["columnObject"]["-schemaName"];
+
+        for (let i = 0; i < nodeList.getLength(); i++) {
+            const dataSource = nodeList.item(i);
+            const objectName = dataSource.getAttribute('columnObjectName');
+            const schema = dataSource.getAttribute('schemaName');
             if (localSynonyms.indexOf(`${schema}_${objectName}`) === -1) {
                 //create synonym
                 console.log("Generating synonym for calculation view...")
