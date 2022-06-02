@@ -3,6 +3,7 @@ import { bytes } from "@dirigible/io";
 import { database } from "@dirigible/db";
 import { configurations as config } from "@dirigible/core";
 import { client as git } from "@dirigible/git";
+import { repository } from "@dirigible/platform";
 
 import { HanaRepository } from "../repository/hana-repository";
 import { HanaVisitor } from "./hana-visitor.mjs";
@@ -155,41 +156,81 @@ export class MigrationService {
                 calcViews[resource.getPath()] = fileProjectName; //TODO: optimize so getContentForObject is not called multiple times
             }
 
+            // Parse current artifacts and generate synonym files for it if necessary
             const fileName = this._getFileNameWithExtension(file);
             const filePath = this._getAbsoluteFilePath(file);
             const fileContent = bytes.byteArrayToText(content);
+            this._generateSynonymIfNeeded(fileName, filePath, fileContent, fileProjectName, workspaceName, duName, workspaceCollection, hdbFacade, synonyms);
 
-            // Parse current artifacts and generate synonym files for it if necessary
-            const parsedData = this._parseArtifact(
-                fileName,
-                filePath,
-                fileContent,
-                workspaceCollection.getPath() + "/",
-                hdbFacade
-            );
-
-            const hdiContainerName = this._buildHDIContainerName(duName, fileProjectName);
-            const synonymData = this._handleParsedData(parsedData, hdiContainerName);
-            if (synonymData.hdbSynonyms) {
-                const hdbSynonyms = synonymData.hdbSynonyms;
-                for (const synonym of hdbSynonyms) {
-                    const schemaName = synonym.value.target.schema;
-                    const schemaObject = synonym.value.target.object;
-                    synonyms.push(`${schemaName}_${schemaObject}`);
-                }
-
-            }
-
-            this._appendOrCreateSynonymsFile(this.synonymFileName, synonymData.hdbSynonyms, workspaceName, fileProjectName);
-            this._appendOrCreateSynonymsFile(
-                this.publicSynonymFileName,
-                synonymData.hdbPublicSynonyms,
-                workspaceName,
-                fileProjectName
-            );
         }
         this._handleCalculationViews(calcViews, synonyms, workspaceName);
         return { projectNames, synonyms };
+    }
+
+    generateSynonymsForProject(workspaceName, projectName) {
+
+        const workspacePath = `/${workspaceName}`
+        const repositoryPath = `${workspacePath}/${projectName}`;
+        const duRootCollection = repository.getCollection(repositoryPath);
+        const workspaceCollection = repository.getCollection(workspacePath);
+
+        const hdbFacade = new XSKHDBCoreFacade();
+
+        const synonyms = [];
+        const calcViews = [];
+
+        const that = this;
+
+        function localHandler(collection, localName) {
+
+            const local = collection.getResource(localName);
+            const repositoryPath = local.getPath();
+            const runLocation = repositoryPath.substring(`/${workspacePath}`.length);
+
+            if (that._isFileCalculationView(runLocation)) {
+                calcViews[local.getPath()] = projectName; //TODO: optimize so getContentForObject is not called multiple times
+            }
+
+            that._generateSynonymIfNeeded(localName, runLocation, local.getText(), projectName, workspaceName, projectName, workspaceCollection, hdbFacade, synonyms);
+
+        }
+
+        this.iterateCollection(duRootCollection, localHandler);
+        this._handleCalculationViews(calcViews, synonyms, workspaceName);
+
+        return { projectNames: [projectName], synonyms };
+
+    }
+
+    _generateSynonymIfNeeded(fileName, filePath, fileContent, fileProjectName, workspaceName, duName, workspaceCollection, hdbFacade, synonyms) {
+        const parsedData = this._parseArtifact(
+            fileName,
+            filePath,
+            fileContent,
+            workspaceCollection.getPath() + "/",
+            hdbFacade
+        );
+
+        const hdiContainerName = this._buildHDIContainerName(duName, fileProjectName);
+        const synonymData = this._handleParsedData(parsedData, hdiContainerName);
+        if (synonymData.hdbSynonyms) {
+            const hdbSynonyms = synonymData.hdbSynonyms;
+            for (const synonym of hdbSynonyms) {
+                const schemaName = synonym.value.target.schema;
+                const schemaObject = synonym.value.target.object;
+                synonyms.push(`${schemaName}_${schemaObject}`);
+            }
+
+        }
+
+        this._appendOrCreateSynonymsFile(this.synonymFileName, synonymData.hdbSynonyms, workspaceName, fileProjectName);
+
+        this._appendOrCreateSynonymsFile(
+            this.publicSynonymFileName,
+            synonymData.hdbPublicSynonyms,
+            workspaceName,
+            fileProjectName
+        );
     }
 
     _handleCalculationViews(calcViews, synonyms, workspaceName) {

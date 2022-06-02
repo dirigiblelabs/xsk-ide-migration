@@ -25,7 +25,7 @@ export class PopulateProjectsTask extends MigrationTask {
 
             for (const projectName of deliveryUnit.projectNames) {
 
-                const workspacePath = `${deliveryUnit.fromZip ? "temp/migrations/" : ""}${workspaceName}`
+                const workspacePath = workspaceName;
 
                 const repositoryPath = `${workspacePath}/${projectName}`;
                 const duRootCollection = repositoryManager.getCollection(repositoryPath);

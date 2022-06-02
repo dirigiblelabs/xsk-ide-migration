@@ -47,7 +47,7 @@ export class HandleDeployablesTask extends MigrationTask {
                 let synonymsPaths = [];
                 let projectsWithSynonyms = [];
 
-                const workspacePath = `${deliveryUnit.fromZip ? "temp/migrations/" : ""}${workspaceName}`
+                const workspacePath = workspaceName;
 
                 const repositoryPath = `${workspacePath}/${projectName}`;
                 const duRootCollection = repository.getCollection(repositoryPath);

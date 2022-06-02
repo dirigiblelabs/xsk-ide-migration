@@ -12,6 +12,7 @@
 import { process } from "@dirigible/bpm"
 import { repository as repositoryManager } from "@dirigible/platform"
 import { MigrationTask } from "./task.mjs";
+import { MigrationService } from "../api/migration-service.mjs";
 
 export class UnzipToTemporaryFolder extends MigrationTask {
 	execution = process.getExecutionContext();
@@ -32,7 +33,19 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 			let collection = repositoryManager.getCollection(path);
 
 			let zipProjectName = collection.getName();
-			userData.du.push(composeJson(zipProjectName))
+
+			const duObject = composeJson(zipProjectName);
+
+			const workspaceName = userData.workspace;
+
+			const migrationService = new MigrationService();
+			try {
+				migrationService.generateSynonymsForProject(workspaceName, zipProjectName);
+			} catch (err) {
+				console.log(`Error generating synonyms for zip: ${err.message}`);
+			}
+
+			userData.du.push(duObject);
 		}
 		process.setVariable(this.execution.getId(), 'userData', JSON.stringify(userData));
 
