@@ -20,6 +20,7 @@ const XSKProjectMigrationInterceptor = Java.type("com.sap.xsk.modificators.XSKPr
 const XSKHDBCoreFacade = Java.type("com.sap.xsk.hdb.ds.facade.XSKHDBCoreSynchronizationFacade");
 const hdbDDModel = "com.sap.xsk.hdb.ds.model.hdbdd.XSKDataStructureCdsModel";
 const xskModificator = new XSKProjectMigrationInterceptor();
+const streams = org.eclipse.dirigible.api.v3.io.StreamsFacade;
 
 export class MigrationService {
     repo = null;
@@ -124,7 +125,7 @@ export class MigrationService {
 
         const projectNames = [];
         const synonyms = [];
-        const calcViews = [];
+        const calcViews = {};
 
         for (const file of lists) {
             let fileRunLocation = file.RunLocation;
@@ -177,7 +178,7 @@ export class MigrationService {
         const hdbFacade = new XSKHDBCoreFacade();
 
         const synonyms = [];
-        const calcViews = [];
+        const calcViews = {};
 
         const that = this;
 
@@ -234,10 +235,11 @@ export class MigrationService {
     }
 
     _handleCalculationViews(calcViews, synonyms, workspaceName) {
-        for (const key of calcViews) {
+        for (const key in calcViews) {
             if (calcViews.hasOwnProperty(key)) {
                 const resource = repositoryManager.getResource(key);
                 const fileProjectName = calcViews[key]
+                console.log(`Checking calcview: ${key}`)
                 this._generateSynonymsForExternalResources(resource.getContent(), synonyms, workspaceName, fileProjectName);
                 const newContent = this._transformColumnObject(resource.getContent(), synonyms);
                 resource.setContent(newContent);
@@ -264,7 +266,7 @@ export class MigrationService {
             const schema = dataSource.getAttribute('schemaName');
             if (localSynonyms.indexOf(`${schema}_${objectName}`) === -1) {
                 //create synonym
-                console.log("Generating synonym for calculation view...")
+                console.log("Generating synonym for calculation view... ");
                 const hdbSynonym = this._generateHdbSynonym(
                     objectName,
                     schema

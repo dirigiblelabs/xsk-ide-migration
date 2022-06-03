@@ -43,6 +43,7 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 				migrationService.generateSynonymsForProject(workspaceName, zipProjectName);
 			} catch (err) {
 				console.log(`Error generating synonyms for zip: ${err.message}`);
+				console.log(err.stack)
 			}
 
 			userData.du.push(duObject);
