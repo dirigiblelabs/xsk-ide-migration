@@ -40,11 +40,14 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 
 			const migrationService = new MigrationService();
 			try {
-				migrationService.generateSynonymsForProject(workspaceName, zipProjectName);
+				const { projectNames, synonyms } = migrationService.generateSynonymsForProject(workspaceName, zipProjectName);
+				duObject.projectNames = projectNames;
+				duObject.synonyms = synonyms;
 			} catch (err) {
 				console.log(`Error generating synonyms for zip: ${err.message}`);
 				console.log(err.stack)
 			}
+
 
 			userData.du.push(duObject);
 		}
@@ -65,6 +68,7 @@ export class UnzipToTemporaryFolder extends MigrationTask {
 			duObject.name = projectName;
 			duObject.projectNames = [projectName];
 			duObject.fromZip = true;
+			duObject.synonyms = [];
 			return duObject;
 		}
 
