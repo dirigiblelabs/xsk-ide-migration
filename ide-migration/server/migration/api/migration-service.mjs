@@ -122,7 +122,36 @@ export class MigrationService {
         const hdbFacade = new XSKHDBCoreFacade();
 
         let projectNames = [];
-
+        let scopes = [{
+            "name": "$XSAPPNAME.Developer",
+            "description": "Developer scope",
+        },
+        {
+            "name": "$XSAPPNAME.Operator",
+            "description": "Operator scope"
+        }
+        ];
+        let roleTemplates = [{
+            "description": "Developer related roles",
+            "name": "Developer",
+            "scope-references": ["$XSAPPNAME.Developer"]
+        },
+        {
+            "description": "Operator related roles",
+            "name": "Operator",
+            "scope-references": ["$XSAPPNAME.Operator"]
+        }];
+        let roleCollections = [{
+            "description": " XSK Developer",
+            "name": "XSK Developer",
+            "role-template-references": ["$XSAPPNAME.Developer"]
+        },
+        {
+            "description": "XSK Operator",
+            "name": "XSK Operator",
+            "role-template-references": ["$XSAPPNAME.Operator"]
+        }];
+        let lastProjectName = "";
         for (const file of lists) {
             let fileRunLocation = file.RunLocation;
 
@@ -147,6 +176,18 @@ export class MigrationService {
 
             if (this._isFileCalculationView(fileRunLocation)) {
                 content = this._transformColumnObject(content);
+            }
+
+            if (fileRunLocation.endsWith(".xsprivileges")) {
+                // convert build xs privilege prefix
+                let filePath = fileRunLocation.substring(0, fileRunLocation.lastIndexOf("/"));
+                if (filePath[0] == "/") {
+                    filePath = filePath.substring(1, filePath.length);
+                }
+                const filePathWithDots = filePath.replace(/\//g, ".");
+                const privilegePrefix = fileProjectName + "." + filePathWithDots + "::";
+                const jsonContent = JSON.parse(bytes.byteArrayToText(content));
+                this._buildXSSecurityElementsFromXSPrivileges(jsonContent, privilegePrefix, scopes, roleTemplates, roleCollections);
             }
 
             const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, fileProjectName);
@@ -174,7 +215,9 @@ export class MigrationService {
                 workspaceName,
                 fileProjectName
             );
+            lastProjectName = fileProjectName;
         }
+        this._createXsSecurityJson(lastProjectName, scopes, roleTemplates, roleCollections);
         return projectNames;
     }
 
@@ -281,6 +324,50 @@ export class MigrationService {
                 },
             },
         };
+    }
+
+    _buildXSSecurityElementsFromXSPrivileges(content, privilegePrefix, scopes, roleTemplates, roleCollections) {
+        if (content["privileges"]) {
+            let privileges = content["privileges"];
+            for (let i = 0; i < privileges.length; i++) {
+                let privilege = privileges[i];
+                const privilegeName = privilege["name"];
+                const privilegeDesc = privilege["description"];
+                const fullPrivilegeName = privilegePrefix + privilegeName;
+                const scopeName = "$XSAPPNAME." + fullPrivilegeName;
+                scopes.push({
+                    "name": scopeName,
+                    "description": privilegeDesc
+                });
+                roleTemplates.push({
+                    "name": "RoleTemplate" + privilegeName,
+                    "description": "XSK role template for " + fullPrivilegeName,
+                    "scope-references": [scopeName]
+                })
+                roleCollections.push({
+                    "name": "Role" + privilegeName,
+                    "description": "XSK role for " + fullPrivilegeName,
+                    "role-template-references": "$XSAPPNAME.RoleTemplate" + privilegeName
+                })
+            }
+        }
+    }
+
+    _createXsSecurityJson(projectName, scopes, roleTemplates, roleCollections) {
+        let xsappid = config.get("DIRIGIBLE_OAUTH_APPLICATION_NAME", ""); //xsapp id
+        let xsappname = "";
+        const indexOfExclamation = xsappid.indexOf("!");
+        if (indexOfExclamation >= 0) {
+            xsappname = xsappid.substring(0, indexOfExclamation);
+        }
+        const xsSecurityJson = {
+            "xsappname": xsappname,
+            "scopes": scopes,
+            "role-templates": roleTemplates,
+            "role-collections": roleCollections
+        }
+        const projectCollection = workspaceCollection.getCollection(projectName);
+        projectCollection.createResource("xs-security.json", bytes.textToByteArray(JSON.stringify(xsSecurityJson)));
     }
 
     _appendOrCreateSynonymsFile(fileName, synonyms, workspaceName, projectName) {
