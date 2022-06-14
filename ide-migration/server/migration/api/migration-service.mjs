@@ -63,7 +63,7 @@ export class MigrationService {
         const hdiConfig = getHdiFilePlugins();
 
         const projectName = project.getName();
-        const hdiConfigPath = `${projectName}.hdiconfig`;
+        const hdiConfigPath = ".hdiconfig";
         const hdiConfigJson = JSON.stringify(hdiConfig, null, 4);
         const hdiConfigJsonBytes = bytes.textToByteArray(hdiConfigJson);
 
