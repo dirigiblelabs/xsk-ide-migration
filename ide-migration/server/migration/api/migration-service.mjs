@@ -158,7 +158,7 @@ export class MigrationService {
             "role-template-references": ["$XSAPPNAME.Operator"]
         }];
         let lastProjectName = "";
-      
+
         for (const file of lists) {
             let fileRunLocation = file.RunLocation;
 
@@ -203,9 +203,7 @@ export class MigrationService {
                 this._buildXSSecurityElementsFromXSPrivileges(jsonContent, privilegePrefix, scopes, roleTemplates, roleCollections);
             }
 
-            const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, fileProjectName);
-            projectCollection.createResource(fileRunLocation, content);
-
+            lastProjectName = fileProjectName;
             const fileName = this._getFileNameWithExtension(file);
             const filePath = this._getAbsoluteFilePath(file);
             const fileContent = bytes.byteArrayToText(content);
@@ -213,6 +211,7 @@ export class MigrationService {
 
         }
         this._handleCalculationViews(calcViews, synonyms, workspaceName);
+        this._createXsSecurityJson(lastProjectName, scopes, roleTemplates, roleCollections);
         return { projectNames, synonyms };
     }
 
@@ -323,8 +322,6 @@ export class MigrationService {
             }
         }
         this._appendOrCreateSynonymsFile(this.synonymFileName, synonyms, workspaceName, fileProjectName);
-        lastProjectName = fileProjectName;
-        this._createXsSecurityJson(lastProjectName, scopes, roleTemplates, roleCollections);
     }
 
     _parseArtifact(fileName, filePath, fileContent, workspacePath, hdbFacade) {
