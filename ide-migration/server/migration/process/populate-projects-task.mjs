@@ -25,7 +25,7 @@ export class PopulateProjectsTask extends MigrationTask {
 
             for (const projectName of deliveryUnit.projectNames) {
 
-                const workspacePath = `${deliveryUnit.fromZip ? "temp/migrations/" : ""}${workspaceName}`
+                const workspacePath = workspaceName;
 
                 const repositoryPath = `${workspacePath}/${projectName}`;
                 const duRootCollection = repositoryManager.getCollection(repositoryPath);
@@ -49,7 +49,7 @@ export class PopulateProjectsTask extends MigrationTask {
                 for (const generatedFile of generatedFiles) {
                     migrationService.addFileToWorkspace(workspaceName, generatedFile.repositoryPath, generatedFile.relativePath, generatedFile.projectName);
                 }
-                migrationService.handleHDBTableFunctions(workspaceName, projectName);
+                migrationService.handleHDBTableFunctions(workspaceName, projectName, deliveryUnit.synonyms);
 
                 //modify files
                 console.log("Modifying files...")

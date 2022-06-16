@@ -10,7 +10,6 @@ migrationLaunchView.controller("ImportZippedDU", [
     function ($scope, $http, FileUploader, $messageHub, migrationViewState, migrationFlow) {
         $scope.TRANSPORT_PROJECT_URL = "/services/v4/transport/project";
         $scope.WORKSPACES_URL = "/services/v4/ide/workspaces";
-        $scope.TEMP_MIGRATION_ROOT = "temp/migrations/";
         $scope.zipPaths = [];
         $scope.migrationFinished = false;
         $scope.stepIndex = 1;
@@ -31,8 +30,12 @@ migrationLaunchView.controller("ImportZippedDU", [
             }
         });
         $scope.projectFromZipPath = function (zipname = "") {
-            return $scope.TEMP_MIGRATION_ROOT + $scope.selectedWs + "/" + zipname.split(".").slice(0, -1).join(".");
+            return $scope.selectedWs + "/" + zipname.split(".").slice(0, -1).join(".");
         };
+
+        $scope.workspacePath = function (zipname = "") {
+            return $scope.selectedWs + "/";
+        }
 
         // FILE UPLOADER
 
@@ -61,7 +64,7 @@ migrationLaunchView.controller("ImportZippedDU", [
         };
         $scope.uploader.onBeforeUploadItem = function (item) {
             console.info("onBeforeUploadItem", item);
-            item.url = $scope.TRANSPORT_PROJECT_URL + "?path=" + encodeURI($scope.projectFromZipPath(item.file.name));
+            item.url = $scope.TRANSPORT_PROJECT_URL + "?path=" + encodeURI($scope.workspacePath(item.file.name));
         };
         $scope.uploader.onProgressItem = function (fileItem, progress) {
             //        console.info('onProgressItem', fileItem, progress);

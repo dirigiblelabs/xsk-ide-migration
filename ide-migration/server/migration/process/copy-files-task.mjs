@@ -27,8 +27,9 @@ export class CopyFilesTask extends MigrationTask {
             const files = migrationService.getAllFilesForDU(deliveryUnit);
             if (files) {
                 const duName = deliveryUnit.name;
-                const projectNames = migrationService.copyFilesLocally(userData.workspace, duName, files);
+                const { projectNames, synonyms } = migrationService.copyFilesLocally(userData.workspace, duName, files);
                 deliveryUnit.projectNames = projectNames;
+                deliveryUnit.synonyms = synonyms;
             }
         }
 
