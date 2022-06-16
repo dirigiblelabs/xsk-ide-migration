@@ -211,7 +211,7 @@ export class MigrationService {
 
         }
         this._handleCalculationViews(calcViews, synonyms, workspaceName);
-        this._createXsSecurityJson(lastProjectName, scopes, roleTemplates, roleCollections);
+        this._createXsSecurityJson(lastProjectName, scopes, roleTemplates, roleCollections,workspaceCollection);
         return { projectNames, synonyms };
     }
 
@@ -456,8 +456,8 @@ export class MigrationService {
         }
     }
 
-    _createXsSecurityJson(projectName, scopes, roleTemplates, roleCollections) {
-        let xsappid = config.get("DIRIGIBLE_OAUTH_APPLICATION_NAME", ""); //xsapp id
+    _createXsSecurityJson(projectName, scopes, roleTemplates, roleCollections,workspaceCollection) {
+        let xsappid = config.get("DIRIGIBLE_OAUTH_APPLICATION_NAME", "default-app-name"); //xsapp id
         let xsappname = "";
         const indexOfExclamation = xsappid.indexOf("!");
         if (indexOfExclamation >= 0) {
