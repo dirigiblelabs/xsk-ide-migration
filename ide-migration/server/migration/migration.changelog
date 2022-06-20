@@ -17,6 +17,8 @@
                     {
                         "createTable": {
                             "tableName": "XSK_MIGRATIONS",
+                            schemaName: "XSK",
+                            catalogName: "SystemDB",
                             "columns": [
                                 {
                                     "column": {

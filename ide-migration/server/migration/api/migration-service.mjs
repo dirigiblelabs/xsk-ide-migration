@@ -4,6 +4,7 @@ import { database } from "@dirigible/db";
 import { configurations as config } from "@dirigible/core";
 import { client as git } from "@dirigible/git";
 import { repository } from "@dirigible/platform";
+import { xml } from "@dirigible/utils";
 
 import { HanaRepository } from "../repository/hana-repository";
 import { HanaVisitor } from "./hana-visitor.mjs";
@@ -429,6 +430,19 @@ export class MigrationService {
         };
     }
 
+    _generateHdbRole(name, privileges) {
+        return {
+            role: {
+                name,
+                schema_analytic_privileges: [
+                    {
+                        privileges
+                    }
+                ]
+            }
+        };
+    }
+
     _buildXSSecurityElementsFromXSPrivileges(content, privilegePrefix, scopes, roleTemplates, roleCollections) {
         if (content["privileges"]) {
             let privileges = content["privileges"];
@@ -671,7 +685,7 @@ export class MigrationService {
         return filesAndPackagesObject.files;
     }
 
-    _visitCollection(project, collection, parentPath, synonyms, projectName, workspaceName) {
+    _visitCollection(project, collection, parentPath, synonyms, projectName, workspaceName, apIds) {
         let resNames = collection.getResourcesNames();
         const synonymsToGenerate = [];
         for (const resName of resNames) {
@@ -716,6 +730,20 @@ export class MigrationService {
                 project.getFile(oldProjectRelativePath).setText(visitor.content);
                 this.tableFunctionPaths.push(oldProjectRelativePath);
             }
+
+            if (path.endsWith(".hdbanalyticprivilege") || path.endsWith(".analyticprivilege")) {
+                const resource = collection.getResource(resName);
+                const content = resource.getText();
+                const json = JSON.parse(xml.toJson(content));
+                if (json["Privilege:analyticPrivilege"]) {
+                    const apId = json["Privilege:analyticPrivilege"]["-id"];
+                    if (apId) {
+                        apIds.push(apId);
+                    }
+                }
+
+
+            }
         }
 
         this._appendOrCreateSynonymsFile(this.synonymFileName, synonymsToGenerate, workspaceName, projectName);
@@ -723,20 +751,32 @@ export class MigrationService {
         let collectionsNames = collection.getCollectionsNames();
         for (const name of collectionsNames) {
             let nestedCollection = collection.getCollection(name);
-            this._visitCollection(project, nestedCollection, parentPath + "/" + name, synonyms, projectName, workspaceName);
+            this._visitCollection(project, nestedCollection, parentPath + "/" + name, synonyms, projectName, workspaceName, apIds);
         }
     }
 
-    handleHDBTableFunctions(workspaceName, projectName, synonyms) {
+    handleHDBTableFunctionsAndHDBRoles(workspaceName, projectName, synonyms) {
         const workspaceCollection = this._getOrCreateTemporaryWorkspaceCollection(workspaceName);
         const projectCollection = this._getOrCreateTemporaryProjectCollection(workspaceCollection, projectName);
 
         const workspace = workspaceManager.getWorkspace(workspaceName);
         const project = workspace.getProject(projectName);
-        this._visitCollection(project, projectCollection, ".", synonyms, projectName, workspaceName);
+        const apIds = [];
+        this._visitCollection(project, projectCollection, ".", synonyms, projectName, workspaceName, apIds);
+
+        const hdbRoleContent = JSON.stringify(this._generateHdbRole("xsk_technical_privileges", apIds));
+        console.log(">>>>>>>>")
+        console.log(apIds)
+        console.log(hdbRoleContent)
+
+        const hdbRoleName = "xsk_technical_privileges.hdbrole";
+        const hdbRoleFile = project.createFile(hdbRoleName);
+        hdbRoleFile.setText(hdbRoleContent);
+        console.log(hdbRoleFile.getPath());
 
         console.log("Adding tablefunctions to hdi file...");
         this._addTableFunctionsToHDI(project, projectName, projectCollection);
+        this._addHdbRolesToHDI(project, projectName, projectCollection, hdbRoleName);
         this._resetTableFunctionPaths();
     }
 
@@ -754,17 +794,34 @@ export class MigrationService {
         const hdiObject = JSON.parse(hdiFile.getText());
 
         for (const path of this.tableFunctionPaths) {
-            let trimmed = path;
-            if (path.startsWith("./")) {
-                trimmed = path.substring(2);
-            }
-            hdiObject["deploy"].push(`/${projectName}/${trimmed}`);
+            this._addPathToHDI(hdiObject, path, projectName);
         }
 
         const hdiJson = JSON.stringify(hdiObject, null, 4);
         let resource = projectCollection.getResource(hdiPath);
         resource.setText(hdiJson);
         hdiFile.setText(hdiJson);
+    }
+
+    _addHdbRolesToHDI(project, projectName, projectCollection, rolePath) {
+        const hdiPath = `${projectName}.hdi`;
+        const hdiFile = project.getFile(hdiPath);
+        const hdiObject = JSON.parse(hdiFile.getText());
+        this._addPathToHDI(hdiObject, rolePath, projectName)
+
+        //todo: refactor repeating code
+        const hdiJson = JSON.stringify(hdiObject, null, 4);
+        let resource = projectCollection.getResource(hdiPath);
+        resource.setText(hdiJson);
+        hdiFile.setText(hdiJson);
+    }
+
+    _addPathToHDI(hdiObject, path, projectName) {
+        let trimmed = path;
+        if (path.startsWith("./")) {
+            trimmed = path.substring(2);
+        }
+        hdiObject["deploy"].push(`/${projectName}/${trimmed}`);
     }
 
     _getPublicSynonymArtifactName(artifactName, filePath) {
