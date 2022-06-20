@@ -4,7 +4,7 @@
             "preConditions": [
                 {
                     "runningAs": {
-                        "username": "SA"
+                        "username": "XSK"
                     }
                 }
             ]
@@ -17,6 +17,8 @@
                     {
                         "createTable": {
                             "tableName": "XSK_MIGRATIONS",
+                            "schemaName": "XSK",
+                            "catalogName": "SystemDB",
                             "columns": [
                                 {
                                     "column": {
