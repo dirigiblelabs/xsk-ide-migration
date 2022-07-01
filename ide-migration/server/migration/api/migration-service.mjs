@@ -212,7 +212,7 @@ export class MigrationService {
 
         }
         this._handleCalculationViews(calcViews, synonyms, workspaceName);
-        this._createXsSecurityJson(lastProjectName, scopes, roleTemplates, roleCollections);
+        this._createXsSecurityJson(lastProjectName, scopes, roleTemplates, roleCollections, workspaceCollection);
         return { projectNames, synonyms };
     }
 
