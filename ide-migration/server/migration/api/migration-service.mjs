@@ -27,6 +27,7 @@ export class MigrationService {
     repo = null;
     tableFunctionPaths = [];
 
+    xskTechnicalPrivilegesFileName = "xsk_technical_privileges";
     synonymFileName = "hdi-synonyms.hdbsynonym";
     publicSynonymFileName = "hdi-public-synonyms.hdbpublicsynonym";
     modelsWithoutSynonym = ["com.sap.xsk.hdb.ds.model.hdbschema.XSKDataStructureHDBSchemaModel", "com.sap.xsk.hdb.ds.model.hdbsequence.XSKDataStructureHDBSequenceModel"];
@@ -772,12 +773,11 @@ export class MigrationService {
         const apIds = [];
         this._visitCollection(project, projectCollection, ".", synonyms, projectName, workspaceName, apIds);
 
-        const hdbRoleContent = JSON.stringify(this._generateHdbRole("xsk_technical_privileges", apIds));
+        const hdbRoleContent = JSON.stringify(this._generateHdbRole(this.xskTechnicalPrivilegesFileName, apIds));
 
-        const hdbRoleName = "xsk_technical_privileges.hdbrole";
+        const hdbRoleName = `${this.xskTechnicalPrivilegesFileName}.hdbrole`;
         const hdbRoleFile = project.createFile(hdbRoleName);
         hdbRoleFile.setText(hdbRoleContent);
-        console.log(hdbRoleFile.getPath());
 
         console.log("Adding tablefunctions to hdi file...");
         this._addTableFunctionsToHDI(project, projectName, projectCollection);
