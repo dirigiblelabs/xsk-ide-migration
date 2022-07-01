@@ -750,8 +750,6 @@ export class MigrationService {
                         apIds.push(apId);
                     }
                 }
-
-
             }
         }
 
@@ -802,10 +800,7 @@ export class MigrationService {
             this._addPathToHDI(hdiObject, path, projectName);
         }
 
-        const hdiJson = JSON.stringify(hdiObject, null, 4);
-        let resource = projectCollection.getResource(hdiPath);
-        resource.setText(hdiJson);
-        hdiFile.setText(hdiJson);
+        this._populateHdiFile(projectCollection, hdiFile, hdiObject, hdiPath);
     }
 
     _addHdbRolesToHDI(project, projectName, projectCollection, rolePath) {
@@ -814,7 +809,11 @@ export class MigrationService {
         const hdiObject = JSON.parse(hdiFile.getText());
         this._addPathToHDI(hdiObject, rolePath, projectName)
 
-        //todo: refactor repeating code
+        this._populateHdiFile(projectCollection, hdiFile, hdiObject, hdiPath);
+        
+    }
+
+    _populateHdiFile(projectCollection, hdiFile, hdiObject, hdiPath) {
         const hdiJson = JSON.stringify(hdiObject, null, 4);
         let resource = projectCollection.getResource(hdiPath);
         resource.setText(hdiJson);
