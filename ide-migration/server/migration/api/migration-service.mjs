@@ -450,7 +450,7 @@ export class MigrationService {
                 roleCollections.push({
                     "name": "Role" + privilegeName,
                     "description": "XSK role for " + fullPrivilegeName,
-                    "role-template-references": "$XSAPPNAME.RoleTemplate" + privilegeName
+                    "role-template-references": ["$XSAPPNAME.RoleTemplate" + privilegeName]
                 })
             }
         }
