@@ -4,6 +4,7 @@ import { database } from "@dirigible/db";
 import { url } from "@dirigible/utils";
 import { NeoDatabasesService } from "./neo-databases-service.mjs"
 import { TrackService } from "./track-service.mjs";
+import { repository } from "@dirigible/platform";
 
 
 rs.service()
@@ -106,6 +107,7 @@ function continueProcess(ctx, req, res) {
 }
 
 function getProcessState(ctx, req, res) {
+    console.log("!!! VM: getProcessState: ");
     const userDataJson = req.getJSON();
     const processInstanceIdString = userDataJson.processInstanceId.toString();
     const migrationState = processService.getVariable(processInstanceIdString, "migrationState");
@@ -130,8 +132,14 @@ function getProcessState(ctx, req, res) {
         response.deliveryUnits = JSON.parse(deliveryUnitsJson);
         response.connectionId = connectionId;
     } else if (migrationState === "POPULATING_PROJECTS_EXECUTED") {
-        const diffViewData = processService.getVariable(processInstanceIdString, "diffViewData");
-        response.diffViewData = JSON.parse(diffViewData);
+        const diffViewDataFileName = processService.getVariable(processInstanceIdString, "diffViewDataFileName");
+        const diffViewResource = repository.getResource(diffViewDataFileName);
+        if (diffViewResource.exists()) {
+          const diffViewDataJson = diffViewResource.getText();
+          response.diffViewData = JSON.parse(diffViewDataJson);
+        } else {
+          response.diffViewData = [];
+        }
     }
 
     res.print(JSON.stringify(response));
