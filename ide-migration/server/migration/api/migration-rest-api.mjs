@@ -107,7 +107,6 @@ function continueProcess(ctx, req, res) {
 }
 
 function getProcessState(ctx, req, res) {
-    console.log("!!! VM: getProcessState: ");
     const userDataJson = req.getJSON();
     const processInstanceIdString = userDataJson.processInstanceId.toString();
     const migrationState = processService.getVariable(processInstanceIdString, "migrationState");
