@@ -9,7 +9,7 @@
  * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and XSK contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-let migrationLaunchView = angular.module("migration-launch", ["angularFileUpload"]);
+let migrationLaunchView = angular.module("migration-launch", ["angularFileUpload", "ideWorkspace"]);
 
 migrationLaunchView.factory("$messageHub", [
     function () {
@@ -24,6 +24,12 @@ migrationLaunchView.factory("$messageHub", [
                 "ide.alert"
             );
         };
+        let openPerspective = function (link, params) {
+            messageHub.post({
+                link: link,
+                params: params,
+            }, 'ide-core.openPerspective');
+        };
         let announceAlertError = function (title, message) {
             announceAlert(title, message, "error");
         };
@@ -36,6 +42,7 @@ migrationLaunchView.factory("$messageHub", [
         return {
             announceAlert: announceAlert,
             announceAlertError: announceAlertError,
+            openPerspective: openPerspective,
             message: message,
             on: on,
         };
