@@ -14,7 +14,8 @@ migrationLaunchView.controller("StartMigrationViewController", [
     "$http",
     "$messageHub",
     "migrationDataState",
-    function ($scope, $http, $messageHub, migrationDataState) {
+    "workspaceApi",
+    function ($scope, $http, $messageHub, migrationDataState, workspaceApi) {
         $scope.migrationDataState = migrationDataState;
         $scope.migrationFinished = false;
         $scope.isZipMigrationVisible = false;
@@ -83,12 +84,8 @@ migrationLaunchView.controller("StartMigrationViewController", [
         }
 
         $scope.goToWorkspace = function () {
-            $messageHub.message("workspace.set", {
-                workspace: migrationDataState.selectedWorkspace,
-            });
-            $messageHub.message("ide-core.openPerspective", {
-                link: "../ide/index.html",
-            });
+            workspaceApi.setWorkspace(migrationDataState.selectedWorkspace);
+            $messageHub.openPerspective("../ide/index.html");
         };
 
         $messageHub.on(

@@ -11,8 +11,9 @@
  */
 migrationLaunchView.controller("MigrationStatisticsController", [
     "$scope",
+    "$messageHub",
     "$http",
-    function ($scope, $http) {
+    function ($scope, $messageHub, $http) {
         let body = { migrations: "empty" };
         let defaultErrorTitle = "Error loading migrations information.";
         $http
@@ -25,7 +26,11 @@ migrationLaunchView.controller("MigrationStatisticsController", [
                     $scope.hideTable = $scope.migrations === "empty";
                 },
                 function (response) {
-                    $messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
+                    if (response.data.error) {
+                        $messageHub.announceAlertError(defaultErrorTitle, response.data.error.message);
+                    } else {
+                        $messageHub.announceAlertError(defaultErrorTitle, "Unknown error. See console.");
+                    }
                     console.error(response);
                 }
             );
